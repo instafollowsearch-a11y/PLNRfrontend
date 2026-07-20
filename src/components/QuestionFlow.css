@@ -1,0 +1,58 @@
+.question-flow-card {
+  padding: var(--spacing-xl);
+}
+
+.question-flow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+.question-flow__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.question-flow__progress {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-accent-dark);
+}
+
+.question-flow__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.question-flow__label {
+  margin: 0;
+  font-size: clamp(1.35rem, 2.5vw, 1.65rem);
+  line-height: 1.25;
+  font-weight: 700;
+}
+
+.question-flow__hint {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.9375rem;
+}
+
+.question-flow__actions {
+  display: grid;
+  gap: var(--spacing-sm);
+}
+
+@media (min-width: 640px) {
+  .question-flow__actions {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .question-flow__actions > :only-child {
+    grid-column: 1 / -1;
+  }
+}

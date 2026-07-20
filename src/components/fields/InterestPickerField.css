@@ -1,0 +1,118 @@
+.interest-picker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.interest-picker__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.interest-picker__section-head {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+}
+
+.interest-picker__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.interest-picker__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.7rem 0.95rem;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    border-color 0.15s ease,
+    background 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.interest-picker__chip:hover {
+  border-color: var(--color-accent);
+  transform: translateY(-1px);
+}
+
+.interest-picker__chip--active {
+  border-color: var(--color-accent);
+  background: linear-gradient(180deg, #fff8f4, var(--color-accent-soft));
+  color: var(--color-accent-dark);
+  box-shadow: inset 0 0 0 1px rgba(212, 98, 42, 0.12);
+}
+
+.interest-picker__custom-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--spacing-sm);
+}
+
+.interest-picker__custom-input {
+  min-height: 48px;
+}
+
+.interest-picker__add-btn {
+  min-width: 72px;
+  padding: 0 1rem;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.interest-picker__add-btn:hover {
+  background: var(--color-accent-dark);
+}
+
+.interest-picker__custom-note {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.interest-picker__summary {
+  padding: var(--spacing-md);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.interest-picker__summary-label {
+  display: block;
+  margin-bottom: var(--spacing-xs);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-accent-dark);
+}
+
+.interest-picker__summary p {
+  margin: 0;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+@media (max-width: 640px) {
+  .interest-picker__custom-row {
+    grid-template-columns: 1fr;
+  }
+}

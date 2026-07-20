@@ -1,0 +1,31 @@
+.trust-strip {
+  padding: var(--spacing-xl) clamp(var(--spacing-lg), 4vw, var(--spacing-xxxl));
+  background: linear-gradient(90deg, rgba(251, 232, 222, 0.65), rgba(255, 245, 238, 0.9));
+  border-block: 1px solid var(--color-border-light);
+}
+
+.trust-strip__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--spacing-md);
+}
+
+.trust-strip__item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid var(--color-border-light);
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.trust-strip__item svg {
+  color: var(--color-accent);
+}

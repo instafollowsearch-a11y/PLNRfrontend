@@ -1,0 +1,15 @@
+.empty-state {
+  text-align: center;
+  padding: var(--spacing-xxl);
+  color: var(--color-text-secondary);
+}
+
+.empty-state h2 {
+  margin: 0 0 var(--spacing-sm);
+  color: var(--color-text);
+  font-size: 1.125rem;
+}
+
+.empty-state p {
+  margin: 0 0 var(--spacing-lg);
+}

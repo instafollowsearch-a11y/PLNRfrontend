@@ -1,0 +1,10 @@
+.page-intro-block h1 {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.page-intro-block p {
+  margin: var(--spacing-sm) 0 0;
+  color: var(--color-text-secondary);
+}

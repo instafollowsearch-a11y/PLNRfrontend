@@ -1,0 +1,65 @@
+.suggestion-card {
+  display: block;
+  width: 100%;
+  margin-bottom: var(--spacing-md);
+  padding: var(--spacing-lg);
+  border: 1px solid var(--color-border-light);
+  border-left-width: 4px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+  text-align: left;
+}
+
+.suggestion-card--clickable {
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.suggestion-card--clickable:hover {
+  opacity: 0.92;
+}
+
+.suggestion-card__title {
+  margin: 0 0 var(--spacing-sm);
+  font-size: 1.125rem;
+}
+
+.suggestion-card__description {
+  margin: 0 0 var(--spacing-sm);
+  color: var(--color-text-secondary);
+}
+
+.suggestion-card__meta {
+  margin: 0 0 var(--spacing-xs);
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.suggestion-card__road-trip {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-sm);
+}
+
+.suggestion-card__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.suggestion-card__chip {
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--radius-pill);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-dark);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.suggestion-card__cta {
+  margin: var(--spacing-xs) 0 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+}

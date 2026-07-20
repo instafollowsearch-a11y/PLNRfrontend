@@ -1,0 +1,95 @@
+import type { PlanTypeSlug } from '../constants/planFlowConfig';
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+
+import { ItineraryView } from '../components/ItineraryView';
+import { AppShell } from '../components/layout/AppShell';
+import { Button } from '../components/ui/Button';
+import { EmptyState } from '../components/ui/EmptyState';
+import { LoadingState } from '../components/ui/LoadingState';
+import { planSessionApi } from '../lib/api';
+import { resolveSessionUuid, withSession } from '../lib/session';
+import { getPlanFlowConfig, usePlanTypeParam } from './HomePage';
+
+export function ItineraryPage() {
+  const { planType: planTypeParam } = useParams();
+  const planType = usePlanTypeParam(planTypeParam);
+  const [searchParams] = useSearchParams();
+  const sessionUuid = resolveSessionUuid(searchParams);
+  const navigate = useNavigate();
+  const config = planType ? getPlanFlowConfig(planType) : null;
+
+  const [loading, setLoading] = useState(true);
+  const [session, setSession] = useState<Awaited<ReturnType<typeof planSessionApi.getPlanSession>>['data']['plan_session'] | null>(null);
+
+  useEffect(() => {
+    if (!sessionUuid) {
+      setLoading(false);
+
+      return;
+    }
+
+    void planSessionApi
+      .getPlanSession(sessionUuid)
+      .then((response) => setSession(response.data.plan_session))
+      .finally(() => setLoading(false));
+  }, [sessionUuid]);
+
+  const selectedSuggestion = useMemo(() => {
+    return session?.suggestions?.find((item) => item.selected_at) ?? session?.suggestions?.[0];
+  }, [session]);
+
+  const roadTripSummary = useMemo(() => {
+    if (planType !== 'road_trip' || !selectedSuggestion) {
+      return undefined;
+    }
+
+    return {
+      gas: selectedSuggestion.payload.estimated_gas_cost,
+      food: selectedSuggestion.payload.estimated_food_cost,
+      driveTime: selectedSuggestion.payload.total_drive_time,
+    };
+  }, [planType, selectedSuggestion]);
+
+  if (!planType || !config) {
+    return (
+      <AppShell showBack backTo="/">
+        <EmptyState title="Plan type not found" />
+      </AppShell>
+    );
+  }
+
+  if (!sessionUuid) {
+    return (
+      <AppShell title="Itinerary" showBack backTo={`/plan/${planType}`}>
+        <EmptyState title="Session expired" />
+      </AppShell>
+    );
+  }
+
+  const content = session?.itinerary?.content;
+
+  return (
+    <AppShell title="Itinerary" showBack backTo={withSession(`/plan/${planType}/confirm`, sessionUuid)}>
+      {loading ? <LoadingState message="Loading itinerary…" /> : null}
+
+      {!loading && content ? (
+        <>
+          <ItineraryView
+            content={content}
+            planType={planType as PlanTypeSlug}
+            roadTripSummary={roadTripSummary}
+          />
+          <Button
+            label="Send to my email"
+            onClick={() => navigate(withSession(`/plan/${planType}/send`, sessionUuid))}
+          />
+        </>
+      ) : null}
+
+      {!loading && !content ? (
+        <EmptyState title="No itinerary yet" description="Generate an itinerary to review it here." />
+      ) : null}
+    </AppShell>
+  );
+}

@@ -1,0 +1,23 @@
+.plan-type-grid {
+  padding: clamp(3rem, 6vw, 5rem) clamp(var(--spacing-lg), 4vw, var(--spacing-xxxl));
+}
+
+.plan-type-grid__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.plan-type-grid__intro {
+  margin-bottom: var(--spacing-xxl);
+}
+
+.plan-type-grid__cards {
+  display: grid;
+  gap: var(--spacing-lg);
+}
+
+@media (min-width: 768px) {
+  .plan-type-grid__cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

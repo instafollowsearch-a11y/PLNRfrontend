@@ -1,0 +1,43 @@
+.ui-input {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  width: 100%;
+}
+
+.ui-input__label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.ui-input__field {
+  width: 100%;
+  min-height: 52px;
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ui-input__field:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-accent-soft);
+}
+
+.ui-input__field--error {
+  border-color: var(--color-error);
+}
+
+.ui-input__error {
+  color: var(--color-error);
+  font-size: 0.8125rem;
+}
+
+textarea.ui-input__field {
+  min-height: 120px;
+  resize: vertical;
+}
