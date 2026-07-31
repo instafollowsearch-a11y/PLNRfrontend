@@ -1,0 +1,39 @@
+.ui-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.ui-badge--default {
+  background: var(--color-surface-muted);
+  color: var(--color-text-secondary);
+}
+
+.ui-badge--accent {
+  background: var(--color-accent-soft);
+  color: var(--color-accent-dark);
+}
+
+.ui-badge--success {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.ui-badge--muted {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+}
+
+.ui-badge--plan {
+  background: color-mix(in srgb, var(--badge-color, var(--color-accent)) 16%, white);
+  color: var(--badge-color, var(--color-accent-dark));
+}

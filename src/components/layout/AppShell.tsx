@@ -1,7 +1,8 @@
 import { ArrowLeft, Menu } from 'lucide-react';
-import { useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
+import { useAuth } from '../../contexts/AuthContext';
 import { PRIVACY_POLICY_URL, SUPPORT_EMAIL } from '../../lib/api';
 import './AppShell.css';
 
@@ -11,6 +12,8 @@ type AppShellProps = {
   showBack?: boolean;
   backTo?: string;
   variant?: 'app' | 'landing';
+  /** Wider main column for dense admin tables/search. */
+  contentWidth?: 'default' | 'wide';
 };
 
 function scrollToId(id: string) {
@@ -23,9 +26,12 @@ export function AppShell({
   showBack = false,
   backTo,
   variant = 'app',
+  contentWidth = 'default',
 }: AppShellProps) {
   const navigate = useNavigate();
+  const { isAuthenticated, isAdmin, user, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
   const isLanding = variant === 'landing';
 
   function handleBack() {
@@ -42,6 +48,58 @@ export function AppShell({
     setMenuOpen(false);
   }
 
+  function openMenu() {
+    setMenuOpen(true);
+  }
+
+  async function handleLogout() {
+    closeMenu();
+    await logout();
+    navigate('/');
+  }
+
+  useEffect(() => {
+    if (!menuOpen) {
+      return;
+    }
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setMenuOpen(false);
+        menuButtonRef.current?.focus();
+      }
+    }
+
+    window.addEventListener('keydown', onKeyDown);
+
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [menuOpen]);
+
+  const accountLinks = isAuthenticated ? (
+    <>
+      <Link to="/plans" className="app-shell__nav-link" onClick={closeMenu}>
+        My plans
+      </Link>
+      {isAdmin ? (
+        <Link to="/admin" className="app-shell__nav-link" onClick={closeMenu}>
+          Admin
+        </Link>
+      ) : null}
+      <button type="button" className="app-shell__nav-link" onClick={() => void handleLogout()}>
+        Log out
+      </button>
+    </>
+  ) : (
+    <>
+      <Link to="/login" className="app-shell__nav-link" onClick={closeMenu}>
+        Log in
+      </Link>
+      <Link to="/register" className="app-shell__nav-link app-shell__nav-link--emphasis" onClick={closeMenu}>
+        Create account
+      </Link>
+    </>
+  );
+
   return (
     <div className={`app-shell ${isLanding ? 'app-shell--landing' : ''}`}>
       <header className={`app-shell__header ${isLanding ? 'app-shell__header--landing' : ''}`}>
@@ -50,11 +108,10 @@ export function AppShell({
             <button type="button" className="app-shell__icon-btn" onClick={handleBack} aria-label="Go back">
               <ArrowLeft size={20} />
             </button>
-          ) : (
-            <Link to="/" className="app-shell__logo">
-              PLNR
-            </Link>
-          )}
+          ) : null}
+          <Link to="/" className="app-shell__logo" onClick={closeMenu}>
+            PLNR
+          </Link>
         </div>
 
         {isLanding ? (
@@ -73,20 +130,32 @@ export function AppShell({
         )}
 
         <div className="app-shell__header-right">
-          {isLanding ? (
-            <button
-              type="button"
-              className="app-shell__cta"
-              onClick={() => scrollToId('plans')}
-            >
-              Start planning
-            </button>
-          ) : null}
+          <nav className="app-shell__desktop-nav" aria-label="Account navigation">
+            {!isLanding ? (
+              <Link to="/" className="app-shell__nav-link">
+                Home
+              </Link>
+            ) : null}
+            {accountLinks}
+            {isLanding ? (
+              <button
+                type="button"
+                className="app-shell__cta"
+                onClick={() => scrollToId('plans')}
+              >
+                Start planning
+              </button>
+            ) : null}
+          </nav>
+
           <button
+            ref={menuButtonRef}
             type="button"
-            className="app-shell__icon-btn"
-            onClick={() => setMenuOpen((open) => !open)}
-            aria-label="Open menu"
+            className="app-shell__icon-btn app-shell__menu-btn"
+            onClick={() => (menuOpen ? closeMenu() : openMenu())}
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={menuOpen}
+            aria-controls="app-shell-drawer"
           >
             <Menu size={20} />
           </button>
@@ -101,7 +170,7 @@ export function AppShell({
             aria-label="Close menu"
             onClick={closeMenu}
           />
-          <aside className="app-shell__drawer">
+          <aside id="app-shell-drawer" className="app-shell__drawer" role="dialog" aria-label="Menu">
             <nav className="app-shell__drawer-nav">
               <Link to="/" onClick={closeMenu}>
                 Home
@@ -128,6 +197,31 @@ export function AppShell({
                   </button>
                 </>
               ) : null}
+              {isAuthenticated ? (
+                <>
+                  <Link to="/plans" onClick={closeMenu}>
+                    My plans
+                  </Link>
+                  {isAdmin ? (
+                    <Link to="/admin" onClick={closeMenu}>
+                      Admin
+                    </Link>
+                  ) : null}
+                  <p className="app-shell__drawer-user">{user?.email}</p>
+                  <button type="button" onClick={() => void handleLogout()}>
+                    Log out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link to="/login" onClick={closeMenu}>
+                    Log in
+                  </Link>
+                  <Link to="/register" onClick={closeMenu}>
+                    Create account
+                  </Link>
+                </>
+              )}
               <a href={PRIVACY_POLICY_URL} target="_blank" rel="noreferrer">
                 Privacy
               </a>
@@ -139,7 +233,13 @@ export function AppShell({
 
       <div className="ad-slot" aria-hidden />
 
-      <main className={`app-shell__main ${isLanding ? 'app-shell__main--landing' : ''}`}>{children}</main>
+      <main
+        className={`app-shell__main${isLanding ? ' app-shell__main--landing' : ''}${
+          !isLanding && contentWidth === 'wide' ? ' app-shell__main--wide' : ''
+        }`}
+      >
+        {children}
+      </main>
     </div>
   );
 }

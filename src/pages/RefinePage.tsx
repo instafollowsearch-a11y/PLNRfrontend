@@ -4,7 +4,9 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { RefinementChat } from '../components/RefinementChat';
 import { AppShell } from '../components/layout/AppShell';
 import { EmptyState } from '../components/ui/EmptyState';
+import { FunnelStepper } from '../components/ui/FunnelStepper';
 import { LoadingState } from '../components/ui/LoadingState';
+import { PageIntro } from '../components/ui/PageIntro';
 import { planSessionApi } from '../lib/api';
 import { resolveSessionUuid, withSession } from '../lib/session';
 import { getPlanFlowConfig, usePlanTypeParam } from './HomePage';
@@ -62,6 +64,8 @@ export function RefinePage() {
 
   return (
     <AppShell title="Refine" showBack backTo={withSession(`/plan/${planType}/suggestions`, sessionUuid)}>
+      <FunnelStepper current="suggestions" planType={planType} sessionUuid={sessionUuid} />
+      <PageIntro title="Tell us what to change" subtitle="We’ll refresh your ideas based on your note." />
       {loading ? <LoadingState /> : <RefinementChat messages={messages} onSubmit={handleSubmit} />}
     </AppShell>
   );

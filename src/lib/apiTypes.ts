@@ -30,6 +30,9 @@ export type ItineraryStop = {
   name: string;
   activity: string;
   notes: string;
+  venue_url?: string;
+  maps_url?: string;
+  external_url?: string;
 };
 
 export type ItineraryDay = {
@@ -58,7 +61,18 @@ export type PlanSession = {
     id: number;
     content: ItineraryContent;
     email_sent_at: string | null;
-  };
+  } | null;
+  created_at?: string;
+};
+
+export type UserRole = 'user' | 'admin';
+
+export type User = {
+  id: number;
+  name: string;
+  email: string;
+  city: string | null;
+  role: UserRole;
 };
 
 export type ApiError = {

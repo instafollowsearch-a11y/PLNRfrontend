@@ -54,7 +54,9 @@
 
 .how-it-works__step h3 {
   margin: 0 0 var(--spacing-sm);
+  font-family: var(--font-display);
   font-size: 1.0625rem;
+  letter-spacing: -0.02em;
 }
 
 .how-it-works__step p {

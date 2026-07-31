@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Sora:wght@500;600;700;800&display=swap');
 @import './theme.css';
 
 *,
@@ -17,12 +17,21 @@ body {
   margin: 0;
   font-family: var(--font-sans);
   background:
-    radial-gradient(circle at top right, rgba(244, 196, 168, 0.35), transparent 28%),
-    radial-gradient(circle at bottom left, rgba(251, 232, 222, 0.8), transparent 32%),
+    radial-gradient(circle at top right, rgba(212, 98, 42, 0.12), transparent 32%),
+    radial-gradient(circle at bottom left, rgba(44, 36, 30, 0.06), transparent 40%),
     var(--color-background);
   color: var(--color-text);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+.app-shell__logo,
+.app-shell__title {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
 }
 
 a {
@@ -55,9 +64,11 @@ img {
 
 .page-intro h1 {
   margin: 0;
+  font-family: var(--font-display);
   font-size: 1.75rem;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
 }
 
 .page-intro p {
@@ -72,4 +83,30 @@ img {
 
 .ad-slot {
   display: none;
+}
+
+.prose-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  max-width: 40rem;
+}
+
+.prose-page p,
+.prose-page li {
+  margin: 0;
+  color: var(--color-text-secondary);
+  line-height: 1.65;
+}
+
+.prose-page ul {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.prose-page a {
+  color: var(--color-accent);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }

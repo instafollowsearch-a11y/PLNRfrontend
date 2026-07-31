@@ -6,6 +6,7 @@ import { ItineraryView } from '../components/ItineraryView';
 import { AppShell } from '../components/layout/AppShell';
 import { Button } from '../components/ui/Button';
 import { EmptyState } from '../components/ui/EmptyState';
+import { FunnelStepper } from '../components/ui/FunnelStepper';
 import { LoadingState } from '../components/ui/LoadingState';
 import { planSessionApi } from '../lib/api';
 import { resolveSessionUuid, withSession } from '../lib/session';
@@ -71,6 +72,7 @@ export function ItineraryPage() {
 
   return (
     <AppShell title="Itinerary" showBack backTo={withSession(`/plan/${planType}/confirm`, sessionUuid)}>
+      <FunnelStepper current="itinerary" planType={planType} sessionUuid={sessionUuid} />
       {loading ? <LoadingState message="Loading itinerary…" /> : null}
 
       {!loading && content ? (

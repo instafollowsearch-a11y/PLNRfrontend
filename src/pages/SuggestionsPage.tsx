@@ -7,10 +7,13 @@ import { SuggestionCard } from '../components/SuggestionCard';
 import { AppShell } from '../components/layout/AppShell';
 import { Button } from '../components/ui/Button';
 import { EmptyState } from '../components/ui/EmptyState';
+import { FunnelStepper } from '../components/ui/FunnelStepper';
 import { LoadingState } from '../components/ui/LoadingState';
+import { PageIntro } from '../components/ui/PageIntro';
 import { planSessionApi } from '../lib/api';
 import { resolveSessionUuid, withSession } from '../lib/session';
 import { getPlanFlowConfig, usePlanTypeParam } from './HomePage';
+import './SuggestionsPage.css';
 
 export function SuggestionsPage() {
   const { planType: planTypeParam } = useParams();
@@ -87,6 +90,9 @@ export function SuggestionsPage() {
 
   return (
     <AppShell title="Suggestions" showBack backTo={`/plan/${planType}`}>
+      <FunnelStepper current="suggestions" planType={planType} sessionUuid={sessionUuid} />
+      <PageIntro title="Pick an idea" subtitle="Tap a suggestion that fits the vibe you want." />
+
       {loading ? <LoadingState message="Loading suggestions…" /> : null}
 
       {!loading && error ? (
@@ -105,16 +111,18 @@ export function SuggestionsPage() {
         />
       ) : null}
 
-      {!loading && !error
-        ? suggestions.map((suggestion) => (
+      {!loading && !error ? (
+        <div className="suggestions-list">
+          {suggestions.map((suggestion) => (
             <SuggestionCard
               key={suggestion.id}
               suggestion={suggestion}
               planType={planType as PlanTypeSlug}
               onSelect={handleSelect}
             />
-          ))
-        : null}
+          ))}
+        </div>
+      ) : null}
 
       {!loading && !error ? (
         <Button

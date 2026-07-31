@@ -25,6 +25,9 @@
 
 .app-shell__header-left {
   justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
 }
 
 .app-shell__header-right {
@@ -69,8 +72,34 @@
   color: var(--color-accent);
 }
 
-.app-shell__cta {
+.app-shell__desktop-nav {
   display: none;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.app-shell__nav-link {
+  border: none;
+  background: transparent;
+  padding: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.app-shell__nav-link:hover {
+  color: var(--color-accent);
+}
+
+.app-shell__nav-link--emphasis {
+  color: var(--color-text);
+}
+
+.app-shell__cta {
+  display: inline-flex;
   padding: 0.625rem 1rem;
   border: none;
   border-radius: var(--radius-pill);
@@ -99,12 +128,20 @@
   cursor: pointer;
 }
 
+.app-shell__menu-btn {
+  display: inline-flex;
+}
+
 .app-shell__main {
   width: 100%;
   max-width: 760px;
   margin: 0 auto;
   padding: var(--spacing-lg) var(--spacing-lg) var(--spacing-xxxl);
   flex: 1;
+}
+
+.app-shell__main--wide {
+  max-width: 1040px;
 }
 
 .app-shell__main--landing {
@@ -151,12 +188,23 @@
   color: inherit;
 }
 
+.app-shell__drawer-user {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+  word-break: break-word;
+}
+
 @media (min-width: 768px) {
   .app-shell__landing-nav {
     display: inline-flex;
   }
 
-  .app-shell__cta {
+  .app-shell__desktop-nav {
     display: inline-flex;
+  }
+
+  .app-shell__menu-btn {
+    display: none;
   }
 }

@@ -1,0 +1,71 @@
+.funnel-stepper {
+  --funnel-accent: var(--color-accent);
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-sm) 0;
+  overflow-x: auto;
+}
+
+.funnel-stepper__step {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.funnel-stepper__link {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 3rem;
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+
+.funnel-stepper__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-border);
+  transition: transform 0.25s ease, background 0.25s ease;
+}
+
+.funnel-stepper__label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.funnel-stepper__rail {
+  flex: 1;
+  height: 2px;
+  margin: 0 4px 1.1rem;
+  background: var(--color-border-light);
+}
+
+.funnel-stepper__step.is-done .funnel-stepper__dot,
+.funnel-stepper__step.is-active .funnel-stepper__dot {
+  background: var(--funnel-accent);
+}
+
+.funnel-stepper__step.is-active .funnel-stepper__dot {
+  transform: scale(1.35);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--funnel-accent) 22%, transparent);
+}
+
+.funnel-stepper__step.is-done .funnel-stepper__label,
+.funnel-stepper__step.is-active .funnel-stepper__label {
+  color: var(--color-text);
+}
+
+.funnel-stepper__step.is-done .funnel-stepper__rail {
+  background: color-mix(in srgb, var(--funnel-accent) 55%, var(--color-border-light));
+}
+
+.funnel-stepper__step.is-active .funnel-stepper__label {
+  font-family: var(--font-display);
+  font-weight: 700;
+}

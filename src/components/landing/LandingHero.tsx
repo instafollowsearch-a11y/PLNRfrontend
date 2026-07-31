@@ -21,6 +21,7 @@ export function LandingHero({ onStartPlanning, onHowItWorks }: LandingHeroProps)
 
       <div className="landing-hero__inner">
         <div className="landing-hero__copy">
+          <p className="landing-hero__brand">PLNR</p>
           <p className="landing-hero__eyebrow">
             <Sparkles size={16} />
             Free AI planning

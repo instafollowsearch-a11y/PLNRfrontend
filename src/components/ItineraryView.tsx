@@ -1,5 +1,5 @@
-import type { ItineraryContent } from '../lib/apiTypes';
-import { Clock } from 'lucide-react';
+import type { ItineraryContent, ItineraryStop } from '../lib/apiTypes';
+import { Clock, ExternalLink, MapPin } from 'lucide-react';
 
 import './ItineraryView.css';
 
@@ -13,11 +13,42 @@ type ItineraryViewProps = {
   };
 };
 
+function StopLinks({ stop }: { stop: ItineraryStop }) {
+  const links = [
+    stop.venue_url ? { href: stop.venue_url, label: 'Open venue' } : null,
+    stop.maps_url ? { href: stop.maps_url, label: 'Directions' } : null,
+    stop.external_url && stop.external_url !== stop.venue_url
+      ? { href: stop.external_url, label: 'More info' }
+      : null,
+  ].filter(Boolean) as Array<{ href: string; label: string }>;
+
+  if (links.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="itinerary-view__links">
+      {links.map((link) => (
+        <a
+          key={`${link.label}-${link.href}`}
+          href={link.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="itinerary-view__link"
+        >
+          {link.label === 'Directions' ? <MapPin size={14} /> : <ExternalLink size={14} />}
+          {link.label}
+        </a>
+      ))}
+    </div>
+  );
+}
+
 function StopRow({
   stop,
   isLast,
 }: {
-  stop: NonNullable<ItineraryContent['stops']>[number];
+  stop: ItineraryStop;
   isLast: boolean;
 }) {
   return (
@@ -34,6 +65,7 @@ function StopRow({
         <h3 className="itinerary-view__stop-name">{stop.name}</h3>
         <p className="itinerary-view__stop-activity">{stop.activity}</p>
         {stop.notes ? <p className="itinerary-view__stop-notes">{stop.notes}</p> : null}
+        <StopLinks stop={stop} />
       </article>
     </div>
   );

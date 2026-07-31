@@ -1,17 +1,21 @@
 import type { PlanTypeSlug } from '../constants/planFlowConfig';
 import type { Suggestion } from '../lib/apiTypes';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import { SuggestionCard } from '../components/SuggestionCard';
 import { AppShell } from '../components/layout/AppShell';
 import { Button } from '../components/ui/Button';
 import { EmptyState } from '../components/ui/EmptyState';
+import { FunnelStepper } from '../components/ui/FunnelStepper';
 import { LoadingState } from '../components/ui/LoadingState';
 import { PageIntro } from '../components/ui/PageIntro';
+import { getConfirmSubtitle } from '../constants/confirmCopy';
+import { planTypeAccents } from '../constants/theme';
 import { planSessionApi } from '../lib/api';
 import { resolveSessionUuid, withSession } from '../lib/session';
 import { getPlanFlowConfig, usePlanTypeParam } from './HomePage';
+import './ConfirmPage.css';
 
 type LocationState = {
   suggestionId?: number;
@@ -86,29 +90,37 @@ export function ConfirmPage() {
     );
   }
 
+  const accent = planTypeAccents[planType] ?? planTypeAccents.night_out;
+
   return (
     <AppShell title="Confirm itinerary" showBack backTo={withSession(`/plan/${planType}/suggestions`, sessionUuid)}>
-      <PageIntro
-        title="Ready to build your itinerary?"
-        subtitle="We will turn this suggestion into a detailed plan you can email."
-      />
-
-      {loading ? <LoadingState /> : null}
-
-      {!loading && suggestion ? (
-        <SuggestionCard
-          suggestion={suggestion}
-          planType={planType as PlanTypeSlug}
-          onSelect={() => undefined}
-          selectable={false}
+      <FunnelStepper current="confirm" planType={planType} sessionUuid={sessionUuid} />
+      <div
+        className="confirm-lock"
+        style={{ '--confirm-accent': accent } as CSSProperties}
+      >
+        <PageIntro
+          title="Ready to build your itinerary?"
+          subtitle={getConfirmSubtitle(planType)}
         />
-      ) : null}
 
-      {error ? <p className="error-text">{error}</p> : null}
+        {loading ? <LoadingState /> : null}
 
-      {!loading ? (
-        <Button label="Generate itinerary" onClick={() => void handleConfirm()} loading={submitting} />
-      ) : null}
+        {!loading && suggestion ? (
+          <SuggestionCard
+            suggestion={suggestion}
+            planType={planType as PlanTypeSlug}
+            onSelect={() => undefined}
+            selectable={false}
+          />
+        ) : null}
+
+        {error ? <p className="error-text">{error}</p> : null}
+
+        {!loading ? (
+          <Button label="Generate itinerary" onClick={() => void handleConfirm()} loading={submitting} />
+        ) : null}
+      </div>
     </AppShell>
   );
 }

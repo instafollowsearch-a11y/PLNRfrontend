@@ -2,13 +2,16 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
 
+import { AuthProvider } from '../contexts/AuthContext';
 import { HomePage } from './HomePage';
 
 describe('HomePage', () => {
   it('renders landing sections and plan links', () => {
     render(
       <MemoryRouter>
-        <HomePage />
+        <AuthProvider>
+          <HomePage />
+        </AuthProvider>
       </MemoryRouter>,
     );
 
