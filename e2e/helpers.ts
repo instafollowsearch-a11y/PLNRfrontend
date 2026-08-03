@@ -1,4 +1,4 @@
-import { expect, type Page } from '@playwright/test';
+import { expect, type APIResponse, type Page } from '@playwright/test';
 
 export const DEMO_USER = {
   email: 'user@plnr.test',
@@ -14,12 +14,27 @@ const API_URL = process.env.PLAYWRIGHT_API_URL ?? 'http://localhost:8088/api/v1'
 
 /** Prefer API login to avoid Laravel auth throttle during multi-spec runs. */
 export async function loginAs(page: Page, email: string, password: string) {
-  const response = await page.request.post(`${API_URL}/auth/login`, {
-    data: { email, password },
-  });
+  let response: APIResponse | null = null;
 
-  expect(response.ok(), `login API failed: ${response.status()}`).toBeTruthy();
-  const body = (await response.json()) as { data?: { token?: string } };
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    response = await page.request.post(`${API_URL}/auth/login`, {
+      data: { email, password },
+    });
+
+    if (response.ok()) {
+      break;
+    }
+
+    if (response.status() === 429) {
+      await page.waitForTimeout(2_000 * (attempt + 1));
+      continue;
+    }
+
+    break;
+  }
+
+  expect(response?.ok(), `login API failed: ${response?.status()}`).toBeTruthy();
+  const body = (await response!.json()) as { data?: { token?: string } };
   const token = body.data?.token;
   expect(token).toBeTruthy();
 

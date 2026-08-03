@@ -78,6 +78,10 @@ test.describe('FLOW-01 / MAIL-01 guest send', () => {
     await page.getByRole('button', { name: /send itinerary/i }).click();
 
     await expect(page.getByText(/we emailed your itinerary/i)).toBeVisible({ timeout: 45_000 });
+    await expect(page.getByRole('button', { name: /view itinerary with venue links/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /create a free account/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /plan another outing/i })).toBeVisible();
+    await expect(page.getByText(/book this|want us to book|payment/i)).toHaveCount(0);
     await expect.poll(async () => mailpitHasMessageTo(email), { timeout: 30_000 }).toBeTruthy();
   });
 });

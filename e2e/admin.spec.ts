@@ -10,7 +10,7 @@ test.describe('FLOW-04 admin access', () => {
   test('admin can open settings', async ({ page }) => {
     await loginAs(page, DEMO_ADMIN.email, DEMO_ADMIN.password);
     await page.goto('/admin/settings');
-    await expect(page.getByRole('heading', { name: /plan limits/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /app settings/i })).toBeVisible();
     await expect(page.getByLabel(/free plans per day/i)).toBeVisible();
   });
 
