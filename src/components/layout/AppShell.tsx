@@ -80,6 +80,9 @@ export function AppShell({
       <Link to="/plans" className="app-shell__nav-link" onClick={closeMenu}>
         My plans
       </Link>
+      <Link to="/weekend" className="app-shell__nav-link" onClick={closeMenu}>
+        Weekend picks
+      </Link>
       {isAdmin ? (
         <Link to="/admin" className="app-shell__nav-link" onClick={closeMenu}>
           Admin

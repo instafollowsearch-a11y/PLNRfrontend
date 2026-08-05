@@ -1,10 +1,7 @@
 .confirm-lock {
-  --confirm-accent: var(--color-accent);
   display: flex;
   flex-direction: column;
   gap: var(--spacing-lg);
-  padding-left: var(--spacing-md);
-  border-left: 4px solid var(--confirm-accent);
   animation: confirm-lock-in 0.45s ease both;
 }
 

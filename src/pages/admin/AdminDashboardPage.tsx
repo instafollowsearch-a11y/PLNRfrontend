@@ -35,6 +35,7 @@ export function AdminDashboardPage() {
     <AppShell title="Admin" showBack backTo="/" contentWidth="wide">
       <div className="page-stack admin-page">
         <PageIntro
+          eyebrow="Admin"
           title={firstName ? `${firstName}’s dashboard` : 'Admin dashboard'}
           subtitle="Overview of accounts, plan volume, and free daily limits."
         />

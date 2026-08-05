@@ -2,6 +2,79 @@
   max-width: 28rem;
 }
 
+.send-form__choices {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.send-form__choice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  cursor: pointer;
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    background var(--duration-fast) var(--ease-out);
+}
+
+.send-form__choice.is-selected {
+  border-color: color-mix(in srgb, var(--color-accent) 45%, var(--color-border));
+  background: color-mix(in srgb, var(--color-accent-soft) 55%, white);
+}
+
+.send-form__choice input {
+  margin-top: 4px;
+  accent-color: var(--color-accent);
+}
+
+.send-form__choice span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.send-form__choice strong {
+  font-size: 0.95rem;
+}
+
+.send-form__choice em {
+  font-style: normal;
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  word-break: break-word;
+}
+
+.send-form__account-prompt {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--radius-md);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-dark);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.send-form__account-prompt p {
+  margin: 0;
+}
+
+.send-form__login-hint {
+  margin: 0;
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+.send-form__login-hint a {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
 .send-form__legal {
   margin: 0;
   font-size: 0.8125rem;

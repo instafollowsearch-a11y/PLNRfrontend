@@ -1,25 +1,36 @@
 import { useState, type FormEvent } from 'react';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 
 import { AuthLayout } from '../components/auth/AuthLayout';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { useAuth } from '../contexts/AuthContext';
 import type { ApiError } from '../lib/apiTypes';
+import { isInvitePath, resolveRegisterPrefill } from '../lib/inviteHelpers';
+import { postAuthHome, resolvePostAuthPath } from '../lib/postAuthPath';
 
 export function RegisterPage() {
-  const { register, isAuthenticated, loading: authLoading } = useAuth();
+  const { register, isAuthenticated, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const prefill = resolveRegisterPrefill(location.state);
+  const isInviteSignup = Boolean(prefill.invite_token) || isInvitePath(prefill.from);
 
   const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(prefill.email ?? '');
   const [password, setPassword] = useState('');
   const [passwordConfirmation, setPasswordConfirmation] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   if (!authLoading && isAuthenticated) {
-    return <Navigate to="/plans" replace />;
+    // Invite signup already accepted the share server-side — never bounce back to the spent invite URL.
+    // `from` is often `/invite/:token`; resolvePostAuthPath would send users there after auth flips.
+    const dest = isInviteSignup
+      ? postAuthHome(user?.role)
+      : resolvePostAuthPath(user?.role, prefill.from ?? null);
+
+    return <Navigate to={dest} replace />;
   }
 
   async function handleSubmit(event: FormEvent) {
@@ -28,7 +39,14 @@ export function RegisterPage() {
     setError(null);
 
     try {
-      await register(name.trim(), email.trim(), password, passwordConfirmation);
+      await register(
+        name.trim(),
+        email.trim(),
+        password,
+        passwordConfirmation,
+        prefill.invite_token,
+      );
+
       navigate('/plans', { replace: true });
     } catch (err) {
       const apiError = err as ApiError;
@@ -38,13 +56,22 @@ export function RegisterPage() {
     }
   }
 
+  const loginState = prefill.from ? { from: prefill.from } : undefined;
+
   return (
     <AuthLayout
-      title="Create your account"
-      subtitle="Save itineraries and track your night outs in one place."
+      title={prefill.invite_token ? 'Accept your invite' : 'Create your account'}
+      subtitle={
+        prefill.invite_token
+          ? 'Create an account with the invited email to view the shared plan.'
+          : 'Save itineraries and track your night outs in one place.'
+      }
       footer={
         <>
-          Already have an account? <Link to="/login">Log in</Link>
+          Already have an account?{' '}
+          <Link to="/login" state={loginState}>
+            Log in
+          </Link>
         </>
       }
     >
@@ -62,6 +89,7 @@ export function RegisterPage() {
           autoComplete="email"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
+          readOnly={prefill.emailPrefillReadonly === true}
           required
         />
         <Input
@@ -81,7 +109,7 @@ export function RegisterPage() {
           required
         />
         {error ? <p className="error-text">{error}</p> : null}
-        <Button label="Create account" type="submit" loading={loading} />
+        <Button label={prefill.invite_token ? 'Create account & accept' : 'Create account'} type="submit" loading={loading} />
       </form>
     </AuthLayout>
   );

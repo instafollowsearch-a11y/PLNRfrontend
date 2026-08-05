@@ -5,8 +5,11 @@ import { AuthLayout } from '../components/auth/AuthLayout';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { useAuth } from '../contexts/AuthContext';
+import { planShareApi } from '../lib/api';
 import type { ApiError } from '../lib/apiTypes';
+import { extractInviteToken, isInvitePath } from '../lib/inviteHelpers';
 import { resolvePostAuthPath } from '../lib/postAuthPath';
+import { withSession } from '../lib/session';
 
 export function LoginPage() {
   const { login, isAuthenticated, isAdmin, user, loading: authLoading } = useAuth();
@@ -30,6 +33,31 @@ export function LoginPage() {
 
     try {
       const loggedIn = await login(email.trim(), password);
+
+      if (isInvitePath(from)) {
+        const token = extractInviteToken(from ?? '');
+
+        if (token) {
+          try {
+            const response = await planShareApi.acceptPlanShare(token);
+            const session = response.data.plan_session;
+            const slug = session?.plan_type?.slug ?? 'night_out';
+
+            if (session?.uuid) {
+              navigate(withSession(`/plan/${slug}/itinerary`, session.uuid), { replace: true });
+
+              return;
+            }
+          } catch (err) {
+            const apiError = err as ApiError;
+            setError(apiError.message || 'Logged in, but unable to accept invite.');
+            navigate(resolvePostAuthPath(loggedIn.role, from), { replace: true });
+
+            return;
+          }
+        }
+      }
+
       navigate(resolvePostAuthPath(loggedIn.role, from), { replace: true });
     } catch (err) {
       const apiError = err as ApiError;
@@ -39,13 +67,18 @@ export function LoginPage() {
     }
   }
 
+  const registerState = from ? { from } : undefined;
+
   return (
     <AuthLayout
       title="Welcome back"
       subtitle="Log in to track your night outs and itineraries."
       footer={
         <>
-          New here? <Link to="/register">Create an account</Link>
+          New here?{' '}
+          <Link to="/register" state={registerState}>
+            Create an account
+          </Link>
         </>
       }
     >

@@ -1,5 +1,5 @@
 export const colors = {
-  background: '#F7F4F0',
+  background: '#F7F4F0', // keep in sync with styles/theme.css --color-background
   surface: '#FFFFFF',
   surfaceMuted: '#F0EBE5',
   text: '#1A1A1A',

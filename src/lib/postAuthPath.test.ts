@@ -15,4 +15,8 @@ describe('postAuthPath', () => {
     expect(resolvePostAuthPath('user', '/plans')).toBe('/plans');
     expect(resolvePostAuthPath('admin', '/login')).toBe('/admin');
   });
+
+  it('still returns invite from paths (login accepts explicitly; register must not use this for invites)', () => {
+    expect(resolvePostAuthPath('user', '/invite/abc')).toBe('/invite/abc');
+  });
 });

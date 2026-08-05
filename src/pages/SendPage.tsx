@@ -1,7 +1,9 @@
-import { CheckCircle2 } from 'lucide-react';
-import { useState } from 'react';
+import { CheckCircle2, Share2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
+import { SendSignupModal } from '../components/plans/SendSignupModal';
+import { SharePlanModal } from '../components/plans/SharePlanModal';
 import { AppShell } from '../components/layout/AppShell';
 import { Button } from '../components/ui/Button';
 import { EmptyState } from '../components/ui/EmptyState';
@@ -9,10 +11,13 @@ import { FunnelStepper } from '../components/ui/FunnelStepper';
 import { Input } from '../components/ui/Input';
 import { PageIntro } from '../components/ui/PageIntro';
 import { useAuth } from '../contexts/AuthContext';
+import type { ApiError } from '../lib/apiTypes';
 import { planSessionApi } from '../lib/api';
-import { resolveSessionUuid, withSession } from '../lib/session';
+import { resolveSessionUuid, savePlanSessionUuid, withSession } from '../lib/session';
 import { getPlanFlowConfig, usePlanTypeParam } from './HomePage';
 import './SendPage.css';
+
+type EmailMode = 'account' | 'other';
 
 export function SendPage() {
   const { planType: planTypeParam } = useParams();
@@ -20,28 +25,44 @@ export function SendPage() {
   const [searchParams] = useSearchParams();
   const sessionUuid = resolveSessionUuid(searchParams);
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user, loading: authLoading } = useAuth();
   const config = planType ? getPlanFlowConfig(planType) : null;
 
+  const [emailMode, setEmailMode] = useState<EmailMode>('account');
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [signupOpen, setSignupOpen] = useState(false);
 
-  async function handleSend() {
+  useEffect(() => {
+    if (sessionUuid) {
+      savePlanSessionUuid(sessionUuid);
+    }
+  }, [sessionUuid]);
+
+  useEffect(() => {
+    if (isAuthenticated && user?.email && emailMode === 'account') {
+      setEmail(user.email);
+    }
+  }, [isAuthenticated, user?.email, emailMode]);
+
+  function resolveRecipientEmail(): string {
+    if (isAuthenticated && emailMode === 'account') {
+      return (user?.email ?? '').trim();
+    }
+
+    return email.trim();
+  }
+
+  async function sendToEmail(recipientEmail: string) {
     if (!sessionUuid) {
       return;
     }
 
-    if (!email.trim()) {
+    if (!recipientEmail) {
       setError('Email is required.');
-
-      return;
-    }
-
-    if (!phone.trim()) {
-      setError('Phone number is required.');
 
       return;
     }
@@ -50,13 +71,33 @@ export function SendPage() {
     setError(null);
 
     try {
-      await planSessionApi.sendItineraryEmail(sessionUuid, email.trim(), phone.trim());
+      await planSessionApi.sendItineraryEmail(sessionUuid, recipientEmail);
+      setEmail(recipientEmail);
       setSent(true);
-    } catch {
-      setError('Unable to send email. Please try again.');
+      setSignupOpen(false);
+    } catch (err) {
+      const apiError = err as ApiError;
+      setError(apiError.message || 'Unable to send email. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
+  }
+
+  async function handleSend() {
+    if (!isAuthenticated) {
+      if (!email.trim()) {
+        setError('Email is required.');
+
+        return;
+      }
+
+      setError(null);
+      setSignupOpen(true);
+
+      return;
+    }
+
+    await sendToEmail(resolveRecipientEmail());
   }
 
   if (!planType || !config) {
@@ -84,15 +125,12 @@ export function SendPage() {
           </div>
           <h1 className="send-success__title">We emailed your itinerary</h1>
           <p className="send-success__lead">
-            Check your inbox at <strong>{email}</strong>. Your phone ({phone}) is saved so we can follow
-            up if needed.
+            Check your inbox at <strong>{email}</strong>.
           </p>
           {isAuthenticated ? (
             <p className="send-success__note">This plan is saved to your account.</p>
           ) : (
-            <p className="send-success__note">
-              Create a free account to track your night outs.
-            </p>
+            <p className="send-success__note">Create a free account to track your night outs.</p>
           )}
           <div className="send-success__actions">
             <Button
@@ -100,6 +138,14 @@ export function SendPage() {
               variant="secondary"
               onClick={() => navigate(withSession(`/plan/${planType}/itinerary`, sessionUuid))}
             />
+            {isAuthenticated && sessionUuid ? (
+              <Button
+                label="Share plan"
+                variant="secondary"
+                icon={<Share2 size={16} />}
+                onClick={() => setShareOpen(true)}
+              />
+            ) : null}
             {!isAuthenticated ? (
               <>
                 <Button label="Create a free account" onClick={() => navigate('/register')} />
@@ -108,6 +154,13 @@ export function SendPage() {
             ) : null}
             <Button label="Plan another outing" variant="ghost" onClick={() => navigate('/')} />
           </div>
+          {shareOpen && sessionUuid ? (
+            <SharePlanModal
+              sessionUuid={sessionUuid}
+              returnPath={withSession(`/plan/${planType}/send`, sessionUuid)}
+              onClose={() => setShareOpen(false)}
+            />
+          ) : null}
         </div>
       </AppShell>
     );
@@ -119,36 +172,96 @@ export function SendPage() {
       <div className="page-stack send-form">
         <PageIntro
           title="Where should we send it?"
-          subtitle="Your itinerary is free. Enter your email and phone below."
+          subtitle={
+            isAuthenticated
+              ? 'Send to your account email, or use a different address.'
+              : 'Add your email — we will create your free account and send the itinerary.'
+          }
         />
 
-        <Input
-          label="Email"
-          type="email"
-          autoComplete="email"
-          placeholder="you@example.com"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-        />
+        {!authLoading && isAuthenticated ? (
+          <div className="send-form__choices" role="radiogroup" aria-label="Email destination">
+            <label className={`send-form__choice${emailMode === 'account' ? ' is-selected' : ''}`}>
+              <input
+                type="radio"
+                name="email-mode"
+                checked={emailMode === 'account'}
+                onChange={() => setEmailMode('account')}
+              />
+              <span>
+                <strong>My account email</strong>
+                <em>{user?.email}</em>
+              </span>
+            </label>
+            <label className={`send-form__choice${emailMode === 'other' ? ' is-selected' : ''}`}>
+              <input
+                type="radio"
+                name="email-mode"
+                checked={emailMode === 'other'}
+                onChange={() => {
+                  setEmailMode('other');
+                  setEmail('');
+                }}
+              />
+              <span>
+                <strong>A different email</strong>
+                <em>Send somewhere else</em>
+              </span>
+            </label>
+          </div>
+        ) : null}
 
-        <Input
-          label="Phone"
-          type="tel"
-          autoComplete="tel"
-          placeholder="+1 555 123 4567"
-          value={phone}
-          onChange={(event) => setPhone(event.target.value)}
-        />
+        {(!isAuthenticated || emailMode === 'other') && (
+          <Input
+            label="Email"
+            type="email"
+            autoComplete="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+          />
+        )}
+
+        {!authLoading && !isAuthenticated ? (
+          <div className="send-form__account-prompt">
+            <p>
+              Free account required to send. Your itinerary stays on this page — nothing is lost.
+            </p>
+          </div>
+        ) : null}
 
         {error ? <p className="error-text">{error}</p> : null}
 
-        <Button label="Send itinerary" onClick={() => void handleSend()} loading={isSubmitting} />
+        <Button
+          label={isAuthenticated ? 'Send itinerary' : 'Sign up & send'}
+          onClick={() => void handleSend()}
+          loading={isSubmitting}
+        />
+
+        {!isAuthenticated ? (
+          <p className="send-form__login-hint">
+            Already have an account?{' '}
+            <Link to="/login" state={{ from: withSession(`/plan/${planType}/send`, sessionUuid) }}>
+              Log in
+            </Link>
+          </p>
+        ) : null}
 
         <p className="send-form__legal">
-          By sending, you agree to our{' '}
-          <Link to="/privacy">privacy policy</Link>.
+          By sending, you agree to our <Link to="/privacy">privacy policy</Link>.
         </p>
       </div>
+
+      {signupOpen ? (
+        <SendSignupModal
+          initialEmail={email}
+          onClose={() => setSignupOpen(false)}
+          onSignedUp={async (signedUpEmail) => {
+            setSignupOpen(false);
+            await sendToEmail(signedUpEmail);
+          }}
+        />
+      ) : null}
     </AppShell>
   );
 }

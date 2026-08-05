@@ -14,9 +14,9 @@ export function PrivacyPage() {
           subtitle="How PLNR handles your information when you plan and send itineraries."
         />
         <p>
-          PLNR collects the details you provide to build a plan—city, preferences, email, and phone when
-          you send an itinerary. We use that information to generate suggestions, email your plan, and
-          (if you create an account) show your saved sessions.
+          PLNR collects the details you provide to build a plan—city, preferences, and email when you
+          send an itinerary. We use that information to generate suggestions, email your plan, and (if
+          you create an account) show your saved sessions.
         </p>
         <ul>
           <li>Guest plans may be limited by IP to keep free usage fair.</li>

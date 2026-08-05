@@ -86,7 +86,7 @@ export function AdminUsersPage() {
   return (
     <AppShell title="Users" showBack backTo="/admin" contentWidth="wide">
       <div className="page-stack admin-page">
-        <PageIntro title="Users" subtitle="Search accounts and manage admin access." />
+        <PageIntro eyebrow="Admin" title="Users" subtitle="Search accounts and manage admin access." />
         <AdminNav />
 
         <form className="admin-search" onSubmit={(event) => void handleSearch(event)}>

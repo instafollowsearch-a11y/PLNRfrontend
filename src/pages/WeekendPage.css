@@ -1,0 +1,103 @@
+.weekend-page__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.weekend-page__field-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.weekend-page__notice {
+  margin: 0;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--radius-md);
+  border: 1px solid color-mix(in srgb, var(--color-success) 25%, transparent);
+  background: var(--color-success-soft);
+  color: var(--color-success);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.weekend-page__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.weekend-page__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.weekend-page__event {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xl);
+  transition:
+    transform var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.weekend-page__event:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-elevated);
+}
+
+.weekend-page__event-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
+
+.weekend-page__event-head h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  letter-spacing: -0.02em;
+}
+
+.weekend-page__event-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-dark);
+  transition: background var(--duration-fast) var(--ease-out);
+}
+
+.weekend-page__event-link:hover {
+  background: color-mix(in srgb, var(--color-accent-soft) 70%, var(--color-accent-glow));
+}
+
+.weekend-page__event-venue,
+.weekend-page__event-time {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+}
+
+.weekend-page__event-reason {
+  margin: var(--spacing-xs) 0 0;
+  padding-top: var(--spacing-sm);
+  border-top: 1px solid var(--color-border-light);
+  color: var(--color-text);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.weekend-page__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  width: 100%;
+  padding-top: var(--spacing-sm);
+}

@@ -19,7 +19,13 @@ type AuthContextValue = {
   isAuthenticated: boolean;
   isAdmin: boolean;
   login: (email: string, password: string) => Promise<User>;
-  register: (name: string, email: string, password: string, passwordConfirmation: string) => Promise<User>;
+  register: (
+    name: string,
+    email: string,
+    password: string,
+    passwordConfirmation: string,
+    inviteToken?: string,
+  ) => Promise<User>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 };
@@ -79,8 +85,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const register = useCallback(
-    async (name: string, email: string, password: string, passwordConfirmation: string) => {
-      const response = await authApi.register(name, email, password, passwordConfirmation);
+    async (
+      name: string,
+      email: string,
+      password: string,
+      passwordConfirmation: string,
+      inviteToken?: string,
+    ) => {
+      const response = await authApi.register(
+        name,
+        email,
+        password,
+        passwordConfirmation,
+        inviteToken,
+      );
       setAuthToken(response.data.token);
       setUser(response.data.user);
       await claimGuestSessionIfPresent();

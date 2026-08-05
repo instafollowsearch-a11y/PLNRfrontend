@@ -1,8 +1,10 @@
-import { ArrowRight, CalendarDays, MapPin } from 'lucide-react';
+import { ArrowRight, CalendarDays, MapPin, Share2 } from 'lucide-react';
 import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { SharePlanModal } from '../components/plans/SharePlanModal';
 import { AppShell } from '../components/layout/AppShell';
+import { ProActions } from '../components/pro/ProActions';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { EmptyState } from '../components/ui/EmptyState';
@@ -15,8 +17,22 @@ import type { PlanSession } from '../lib/apiTypes';
 import { withSession } from '../lib/session';
 import './MyPlansPage.css';
 
+function canShareSession(session: PlanSession): boolean {
+  if (session.access_role === 'viewer') {
+    return false;
+  }
+
+  return Boolean(
+    session.itinerary || session.status === 'itinerary' || session.status === 'completed',
+  );
+}
+
 function planPath(session: PlanSession): string {
   const slug = session.plan_type?.slug ?? 'night_out';
+
+  if (session.access_role === 'viewer') {
+    return withSession(`/plan/${slug}/itinerary`, session.uuid);
+  }
 
   if (session.itinerary || session.status === 'itinerary' || session.status === 'completed') {
     return withSession(`/plan/${slug}/itinerary`, session.uuid);
@@ -109,6 +125,7 @@ export function MyPlansPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState('all');
+  const [shareUuid, setShareUuid] = useState<string | null>(null);
 
   useEffect(() => {
     void accountApi
@@ -127,6 +144,10 @@ export function MyPlansPage() {
 
   const filtered = useMemo(() => {
     return sessions.filter((session) => {
+      if (filter === 'shared') {
+        return session.access_role === 'viewer';
+      }
+
       if (filter === 'all') {
         return true;
       }
@@ -150,6 +171,7 @@ export function MyPlansPage() {
 
     return [
       { id: 'all', label: 'All' },
+      { id: 'shared', label: 'Shared with you' },
       { id: 'active', label: 'In progress' },
       { id: 'sent', label: 'Sent' },
       ...typeSlugs.map((slug) => ({
@@ -165,27 +187,44 @@ export function MyPlansPage() {
     <AppShell title="My plans" showBack backTo="/">
       <div className="page-stack my-plans">
         <PageIntro
+          eyebrow="Dashboard"
           title={firstName ? `${firstName}’s plans` : 'My plans'}
           subtitle="Track your night outs, date nights, and trips—pick up where you left off."
         />
+
+        {!loading && !error ? (
+          <ProActions isPro={Boolean(user?.is_pro)} returnPath="/plans" />
+        ) : null}
 
         {loading ? <LoadingState message="Loading your plans…" /> : null}
         {error ? <p className="error-text">{error}</p> : null}
 
         {!loading && !error && sessions.length > 0 ? (
-          <div className="my-plans__summary" role="list">
-            <div className="my-plans__summary-item" role="listitem">
+          <div className="my-plans__summary" role="group" aria-label="Plan summary">
+            <button
+              type="button"
+              className={`my-plans__summary-item${filter === 'all' ? ' is-active' : ''}`}
+              onClick={() => setFilter('all')}
+            >
               <span className="my-plans__summary-value">{stats.total}</span>
               <span className="my-plans__summary-label">Total</span>
-            </div>
-            <div className="my-plans__summary-item" role="listitem">
+            </button>
+            <button
+              type="button"
+              className={`my-plans__summary-item${filter === 'active' ? ' is-active' : ''}`}
+              onClick={() => setFilter('active')}
+            >
               <span className="my-plans__summary-value">{stats.active}</span>
               <span className="my-plans__summary-label">In progress</span>
-            </div>
-            <div className="my-plans__summary-item" role="listitem">
+            </button>
+            <button
+              type="button"
+              className={`my-plans__summary-item${filter === 'sent' ? ' is-active' : ''}`}
+              onClick={() => setFilter('sent')}
+            >
               <span className="my-plans__summary-value">{stats.sent}</span>
               <span className="my-plans__summary-label">Sent</span>
-            </div>
+            </button>
           </div>
         ) : null}
 
@@ -230,48 +269,82 @@ export function MyPlansPage() {
               const slug = session.plan_type?.slug ?? 'night_out';
               const accent = planTypeAccents[slug] ?? planTypeAccents.night_out;
               const href = planPath(session);
+              const showShare = canShareSession(session);
 
               return (
-                <button
+                <div
                   key={session.uuid}
-                  type="button"
                   className="my-plans__card"
                   style={{ '--plan-accent': accent } as CSSProperties}
-                  onClick={() => navigate(href)}
                 >
-                  <div className="my-plans__card-body">
-                    <div className="my-plans__chips">
-                      <Badge variant="plan" color={accent}>
-                        {session.plan_type?.label ?? 'Plan'}
-                      </Badge>
-                      <Badge variant={statusVariant(session.status)}>{statusLabel(session.status)}</Badge>
+                  <button
+                    type="button"
+                    className="my-plans__card-main"
+                    onClick={() => navigate(href)}
+                  >
+                    <div className="my-plans__card-body">
+                      <div className="my-plans__chips">
+                        <Badge variant="plan" color={accent}>
+                          {session.plan_type?.label ?? 'Plan'}
+                        </Badge>
+                        <Badge variant={statusVariant(session.status)}>
+                          {statusLabel(session.status)}
+                        </Badge>
+                        {session.access_role === 'viewer' ? (
+                          <Badge variant="muted">Shared with you</Badge>
+                        ) : null}
+                      </div>
+                      <h2>{session.city || 'Untitled plan'}</h2>
+                      {session.shared_by ? (
+                        <p className="my-plans__shared-by">Shared by {session.shared_by.name}</p>
+                      ) : null}
+                      <p className="my-plans__meta">
+                        <span>
+                          <MapPin size={13} aria-hidden />
+                          {session.city || 'No city'}
+                        </span>
+                        <span>
+                          <CalendarDays size={13} aria-hidden />
+                          {formatPlanDate(session.created_at)}
+                        </span>
+                      </p>
                     </div>
-                    <h2>{session.city || 'Untitled plan'}</h2>
-                    <p className="my-plans__meta">
-                      <span>
-                        <MapPin size={13} aria-hidden />
-                        {session.city || 'No city'}
-                      </span>
-                      <span>
-                        <CalendarDays size={13} aria-hidden />
-                        {formatPlanDate(session.created_at)}
-                      </span>
-                    </p>
-                  </div>
-                  <span className="my-plans__cta">
-                    {openLabel(session.status)}
-                    <ArrowRight size={16} aria-hidden />
-                  </span>
-                </button>
+                    <span className="my-plans__cta">
+                      {openLabel(session.status)}
+                      <ArrowRight size={16} aria-hidden />
+                    </span>
+                  </button>
+                  {showShare ? (
+                    <button
+                      type="button"
+                      className="my-plans__share"
+                      aria-label={`Share ${session.city || 'plan'}`}
+                      onClick={() => setShareUuid(session.uuid)}
+                    >
+                      <Share2 size={16} aria-hidden />
+                      Share
+                    </button>
+                  ) : null}
+                </div>
               );
             })}
           </div>
         ) : null}
 
         {!loading && sessions.length > 0 ? (
-          <Button label="Start a new plan" onClick={() => navigate('/')} />
+          <div className="my-plans__footer">
+            <Button label="Start a new plan" onClick={() => navigate('/')} />
+          </div>
         ) : null}
       </div>
+
+      {shareUuid ? (
+        <SharePlanModal
+          sessionUuid={shareUuid}
+          returnPath="/plans"
+          onClose={() => setShareUuid(null)}
+        />
+      ) : null}
     </AppShell>
   );
 }

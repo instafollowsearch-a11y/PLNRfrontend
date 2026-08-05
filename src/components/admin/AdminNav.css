@@ -1,32 +1,40 @@
 .admin-nav {
   position: sticky;
-  top: 0;
+  top: 3.6rem;
   z-index: 5;
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-xs);
+  gap: 0.35rem;
   margin: calc(var(--spacing-sm) * -1) 0 var(--spacing-sm);
-  padding: var(--spacing-sm) 0;
-  background: color-mix(in srgb, var(--color-background) 92%, transparent);
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--color-border-light);
+  padding: var(--spacing-sm);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--color-surface) 86%, transparent);
+  backdrop-filter: blur(12px) saturate(1.1);
+  box-shadow: var(--shadow-card);
+  width: fit-content;
+  max-width: 100%;
 }
 
 .admin-nav__link {
-  padding: 6px 12px;
+  padding: 0.45rem 0.95rem;
   border-radius: var(--radius-pill);
   color: var(--color-text-secondary);
   font-size: 0.875rem;
   font-weight: 600;
   text-decoration: none;
+  transition:
+    color var(--duration-fast) var(--ease-out),
+    background var(--duration-fast) var(--ease-out);
 }
 
 .admin-nav__link:hover {
-  color: var(--color-accent);
+  color: var(--color-accent-dark);
   background: var(--color-accent-soft);
 }
 
 .admin-nav__link.is-active {
   color: #fff;
   background: var(--color-accent);
+  box-shadow: 0 6px 14px rgba(212, 98, 42, 0.25);
 }

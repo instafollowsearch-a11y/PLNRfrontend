@@ -1,22 +1,51 @@
+.my-plans {
+  gap: var(--spacing-xl);
+}
+
 .my-plans__summary {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--spacing-sm);
-  padding: var(--spacing-md) 0;
-  border-top: 1px solid var(--color-border-light);
-  border-bottom: 1px solid var(--color-border-light);
 }
 
 .my-plans__summary-item {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  align-items: flex-start;
+  gap: 4px;
   min-width: 0;
+  padding: var(--spacing-lg) var(--spacing-md);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(165deg, var(--color-hero-from), var(--color-surface) 60%),
+    var(--color-surface);
+  box-shadow: var(--shadow-card);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.my-plans__summary-item:hover {
+  transform: translateY(-1px);
+  border-color: var(--color-accent-glow);
+}
+
+.my-plans__summary-item.is-active {
+  border-color: color-mix(in srgb, var(--color-accent) 45%, var(--color-border));
+  box-shadow: var(--shadow-card), inset 0 0 0 1px color-mix(in srgb, var(--color-accent) 20%, transparent);
+}
+
+.my-plans__summary-item.is-active .my-plans__summary-value {
+  color: var(--color-accent-dark);
 }
 
 .my-plans__summary-value {
   font-family: var(--font-display);
-  font-size: 1.5rem;
+  font-size: clamp(1.4rem, 3vw, 1.7rem);
   font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1;
@@ -34,22 +63,26 @@
   display: flex;
   gap: var(--spacing-xs);
   overflow-x: auto;
-  padding-bottom: 2px;
+  padding: 2px 0 4px;
+  scrollbar-width: thin;
 }
 
 .my-plans__filter {
   flex-shrink: 0;
-  padding: 6px 12px;
+  padding: 0.45rem 0.9rem;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-pill);
-  background: transparent;
+  background: color-mix(in srgb, var(--color-surface) 80%, transparent);
   color: var(--color-text-secondary);
   font-size: 0.8125rem;
   font-weight: 600;
   cursor: pointer;
+  transition:
+    background var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out);
 }
 
-.my-plans__filter.is-active,
 .my-plans__filter:hover {
   border-color: transparent;
   background: var(--color-accent-soft);
@@ -57,8 +90,10 @@
 }
 
 .my-plans__filter.is-active {
+  border-color: transparent;
   background: var(--color-accent);
   color: #fff;
+  box-shadow: 0 6px 14px rgba(212, 98, 42, 0.25);
 }
 
 .my-plans__list {
@@ -69,27 +104,80 @@
 
 .my-plans__card {
   display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  width: 100%;
+  padding: var(--spacing-lg) var(--spacing-xl);
+  border: 1px solid var(--color-border-light);
+  border-left: 4px solid var(--plan-accent, var(--color-accent));
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(
+      105deg,
+      color-mix(in srgb, var(--plan-accent, var(--color-accent)) 10%, white) 0%,
+      var(--color-surface) 42%
+    ),
+    var(--color-surface);
+  box-shadow: var(--shadow-card);
+  transition:
+    transform var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out);
+}
+
+.my-plans__card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-elevated);
+  border-color: color-mix(in srgb, var(--plan-accent, var(--color-accent)) 35%, var(--color-border-light));
+}
+
+.my-plans__card-main {
+  display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-md);
   width: 100%;
-  padding: var(--spacing-lg);
-  border: 1px solid var(--color-border-light);
-  border-left: 4px solid var(--plan-accent, var(--color-accent));
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
-  box-shadow: var(--shadow-card);
+  padding: 0;
+  border: none;
+  background: transparent;
   text-align: left;
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  color: inherit;
 }
 
-.my-plans__card:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-elevated);
+.my-plans__card-main:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
 }
 
-.my-plans__card:focus-visible {
+.my-plans__share {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  align-self: flex-start;
+  padding: 0.45rem 0.85rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+
+.my-plans__share:hover {
+  border-color: color-mix(in srgb, var(--color-accent) 40%, var(--color-border));
+  background: var(--color-accent-soft);
+  color: var(--color-accent-dark);
+}
+
+.my-plans__share:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
@@ -101,8 +189,8 @@
 .my-plans__card-body h2 {
   margin: var(--spacing-sm) 0 0;
   font-family: var(--font-display);
-  font-size: 1.15rem;
-  letter-spacing: -0.02em;
+  font-size: 1.2rem;
+  letter-spacing: -0.025em;
 }
 
 .my-plans__chips {
@@ -126,12 +214,38 @@
   gap: 4px;
 }
 
+.my-plans__shared-by {
+  margin: var(--spacing-xs) 0 0;
+  color: var(--color-text-secondary);
+  font-size: 0.8125rem;
+}
+
 .my-plans__cta {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   flex-shrink: 0;
-  color: var(--color-accent);
-  font-size: 0.875rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-dark);
+  font-size: 0.8125rem;
   font-weight: 700;
+  transition: background var(--duration-fast) var(--ease-out);
+}
+
+.my-plans__card:hover .my-plans__cta {
+  background: color-mix(in srgb, var(--color-accent-soft) 70%, var(--color-accent-glow));
+}
+
+.my-plans__footer {
+  margin-top: var(--spacing-sm);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--color-border-light);
+}
+
+@media (max-width: 480px) {
+  .my-plans__cta {
+    display: none;
+  }
 }

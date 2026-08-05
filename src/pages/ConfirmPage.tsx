@@ -1,6 +1,6 @@
 import type { PlanTypeSlug } from '../constants/planFlowConfig';
 import type { Suggestion } from '../lib/apiTypes';
-import { useEffect, useState, type CSSProperties } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import { SuggestionCard } from '../components/SuggestionCard';
@@ -11,7 +11,6 @@ import { FunnelStepper } from '../components/ui/FunnelStepper';
 import { LoadingState } from '../components/ui/LoadingState';
 import { PageIntro } from '../components/ui/PageIntro';
 import { getConfirmSubtitle } from '../constants/confirmCopy';
-import { planTypeAccents } from '../constants/theme';
 import { planSessionApi } from '../lib/api';
 import { resolveSessionUuid, withSession } from '../lib/session';
 import { getPlanFlowConfig, usePlanTypeParam } from './HomePage';
@@ -67,8 +66,12 @@ export function ConfirmPage() {
       await planSessionApi.selectSuggestion(sessionUuid, suggestion.id);
       await planSessionApi.generateItinerary(sessionUuid);
       navigate(withSession(`/plan/${planType}/itinerary`, sessionUuid));
-    } catch {
-      setError('Unable to generate itinerary. Please try again.');
+    } catch (err) {
+      const message =
+        err && typeof err === 'object' && 'message' in err && typeof err.message === 'string'
+          ? err.message
+          : 'Unable to generate itinerary. Please try again.';
+      setError(message);
     } finally {
       setSubmitting(false);
     }
@@ -90,15 +93,10 @@ export function ConfirmPage() {
     );
   }
 
-  const accent = planTypeAccents[planType] ?? planTypeAccents.night_out;
-
   return (
     <AppShell title="Confirm itinerary" showBack backTo={withSession(`/plan/${planType}/suggestions`, sessionUuid)}>
       <FunnelStepper current="confirm" planType={planType} sessionUuid={sessionUuid} />
-      <div
-        className="confirm-lock"
-        style={{ '--confirm-accent': accent } as CSSProperties}
-      >
+      <div className="confirm-lock">
         <PageIntro
           title="Ready to build your itinerary?"
           subtitle={getConfirmSubtitle(planType)}

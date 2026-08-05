@@ -149,6 +149,7 @@ export function LocationField({ value, placeholder, onChange }: LocationFieldPro
           className="field-control location-field__input"
           placeholder={placeholder ?? 'Search for a place…'}
           value={query}
+          aria-label="City search"
           onChange={(event) => setQuery(event.target.value)}
           onBlur={() => window.setTimeout(() => setResults([]), 150)}
         />

@@ -7,6 +7,7 @@ import { AdminUsersPage } from './pages/admin/AdminUsersPage';
 import { ConfirmPage } from './pages/ConfirmPage';
 import { GatheringPage } from './pages/GatheringPage';
 import { HomePage } from './pages/HomePage';
+import { InvitePage } from './pages/InvitePage';
 import { ItineraryPage } from './pages/ItineraryPage';
 import { LoginPage } from './pages/LoginPage';
 import { MyPlansPage } from './pages/MyPlansPage';
@@ -16,6 +17,7 @@ import { RegisterPage } from './pages/RegisterPage';
 import { SendPage } from './pages/SendPage';
 import { NotFoundPage, PrivacyPage, TermsPage } from './pages/StaticPages';
 import { SuggestionsPage } from './pages/SuggestionsPage';
+import { WeekendPage } from './pages/WeekendPage';
 
 export function AppRoutes() {
   return (
@@ -31,12 +33,14 @@ export function AppRoutes() {
         <Route path="/plan/:planType/confirm" element={<ConfirmPage />} />
         <Route path="/plan/:planType/itinerary" element={<ItineraryPage />} />
         <Route path="/plan/:planType/send" element={<SendPage />} />
+        <Route path="/invite/:token" element={<InvitePage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/terms" element={<TermsPage />} />
         <Route path="/home" element={<Navigate to="/" replace />} />
 
         <Route element={<ProtectedRoute />}>
           <Route path="/plans" element={<MyPlansPage />} />
+          <Route path="/weekend" element={<WeekendPage />} />
         </Route>
 
         <Route element={<ProtectedRoute requireAdmin />}>

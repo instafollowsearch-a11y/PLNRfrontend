@@ -1,0 +1,80 @@
+.send-signup-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 220;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-lg);
+}
+
+.send-signup-modal__scrim {
+  position: absolute;
+  inset: 0;
+  border: none;
+  background: rgba(28, 24, 20, 0.48);
+  cursor: pointer;
+  backdrop-filter: blur(3px);
+}
+
+.send-signup-modal__panel-wrap {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 440px);
+  max-height: min(92vh, 720px);
+  overflow: auto;
+  animation: send-signup-in var(--duration-med) var(--ease-out);
+}
+
+.send-signup-modal__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: calc(var(--spacing-xxl) + 2px);
+  background:
+    radial-gradient(circle at top right, rgba(212, 98, 42, 0.1), transparent 50%),
+    var(--color-surface);
+}
+
+.send-signup-modal__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  letter-spacing: -0.02em;
+}
+
+.send-signup-modal__lead {
+  margin: 0;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+.send-signup-modal__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.send-signup-modal__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+@keyframes send-signup-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .send-signup-modal__panel-wrap {
+    animation: none;
+  }
+}

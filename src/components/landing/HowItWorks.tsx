@@ -20,8 +20,8 @@ const STEPS = [
   },
   {
     icon: Mail,
-    title: 'Email + phone delivery',
-    description: 'Receive your itinerary in your inbox—free, no account needed.',
+    title: 'Email your itinerary',
+    description: 'Receive your finished plan in your inbox.',
   },
 ];
 

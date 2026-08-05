@@ -51,12 +51,12 @@ export function createPlanSessionApi(config: ApiClientConfig) {
       );
     },
 
-    sendItineraryEmail(sessionUuid: string, email: string, phone: string) {
-      return apiRequest<{ email: string; phone: string; sent_at: string }>(
+    sendItineraryEmail(sessionUuid: string, email: string) {
+      return apiRequest<{ email: string; sent_at: string }>(
         `/plan-sessions/${sessionUuid}/send-email`,
         {
           method: 'POST',
-          body: JSON.stringify({ email, phone }),
+          body: JSON.stringify({ email }),
         },
       );
     },

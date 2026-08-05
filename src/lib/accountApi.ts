@@ -38,6 +38,33 @@ export type AdminSettings = {
   rate_limit_ai_per_hour?: number;
   rate_limit_ai_per_hour_source?: string;
   rate_limit_ai_per_hour_env?: number;
+  pro_monthly_price_cents?: number;
+  pro_monthly_price_cents_source?: string;
+  pro_monthly_price_cents_env?: number;
+  pro_currency?: string;
+  pro_currency_source?: string;
+  pro_currency_env?: string;
+  app_store_url?: string | null;
+  app_store_url_source?: string;
+  app_store_url_env?: string | null;
+  play_store_url?: string | null;
+  play_store_url_source?: string;
+  play_store_url_env?: string | null;
+  web_app_url?: string | null;
+  web_app_url_source?: string;
+  web_app_url_env?: string | null;
+  stripe_secret_set?: boolean;
+  stripe_secret_source?: string;
+  stripe_secret_hint?: string | null;
+  stripe_publishable_key?: string | null;
+  stripe_publishable_key_source?: string;
+  stripe_publishable_key_env?: string | null;
+  stripe_webhook_secret_set?: boolean;
+  stripe_webhook_secret_source?: string;
+  stripe_webhook_secret_hint?: string | null;
+  stripe_fake?: boolean;
+  stripe_fake_source?: string;
+  stripe_fake_env?: boolean;
 };
 
 export type AdminSettingsUpdate = {
@@ -49,6 +76,15 @@ export type AdminSettingsUpdate = {
   mail_from_name?: string;
   booking_ops_email?: string;
   rate_limit_ai_per_hour?: number;
+  pro_monthly_price_cents?: number;
+  pro_currency?: string;
+  app_store_url?: string;
+  play_store_url?: string;
+  web_app_url?: string;
+  stripe_secret?: string;
+  stripe_publishable_key?: string;
+  stripe_webhook_secret?: string;
+  stripe_fake?: boolean;
   clear_anthropic_api_key?: boolean;
   clear_anthropic_model?: boolean;
   clear_anthropic_url?: boolean;
@@ -56,6 +92,14 @@ export type AdminSettingsUpdate = {
   clear_mail_from_name?: boolean;
   clear_booking_ops_email?: boolean;
   clear_rate_limit_ai_per_hour?: boolean;
+  clear_pro_currency?: boolean;
+  clear_app_store_url?: boolean;
+  clear_play_store_url?: boolean;
+  clear_web_app_url?: boolean;
+  clear_stripe_secret?: boolean;
+  clear_stripe_publishable_key?: boolean;
+  clear_stripe_webhook_secret?: boolean;
+  clear_stripe_fake?: boolean;
 };
 
 export type PaginatedMeta = {

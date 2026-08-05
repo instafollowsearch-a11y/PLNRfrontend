@@ -74,12 +74,18 @@ test.describe('FLOW-01 / MAIL-01 guest send', () => {
 
     await page.getByRole('button', { name: /send to my email/i }).click();
     await page.getByLabel('Email').fill(email);
-    await page.getByLabel('Phone').fill('+15551234567');
-    await page.getByRole('button', { name: /send itinerary/i }).click();
+    await page.getByRole('button', { name: /^sign up & send$/i }).click();
+
+    const signupDialog = page.getByRole('dialog');
+    await expect(signupDialog.getByText(/create your free account/i)).toBeVisible();
+    await signupDialog.getByLabel('Name').fill('QA Guest');
+    await signupDialog.getByLabel('Password', { exact: true }).fill('password');
+    await signupDialog.getByLabel('Confirm password').fill('password');
+    await signupDialog.getByRole('button', { name: /^sign up & send$/i }).click();
 
     await expect(page.getByText(/we emailed your itinerary/i)).toBeVisible({ timeout: 45_000 });
     await expect(page.getByRole('button', { name: /view itinerary with venue links/i })).toBeVisible();
-    await expect(page.getByRole('button', { name: /create a free account/i })).toBeVisible();
+    await expect(page.getByText(/saved to your account/i)).toBeVisible();
     await expect(page.getByRole('button', { name: /plan another outing/i })).toBeVisible();
     await expect(page.getByText(/book this|want us to book|payment/i)).toHaveCount(0);
     await expect.poll(async () => mailpitHasMessageTo(email), { timeout: 30_000 }).toBeTruthy();

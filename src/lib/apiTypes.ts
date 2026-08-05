@@ -48,6 +48,13 @@ export type ItineraryContent = {
   days?: ItineraryDay[];
 };
 
+export type PlanAccessRole = 'owner' | 'viewer' | 'guest';
+
+export type PlanSharedBy = {
+  name: string;
+  email: string;
+};
+
 export type PlanSession = {
   uuid: string;
   status: string;
@@ -62,17 +69,82 @@ export type PlanSession = {
     content: ItineraryContent;
     email_sent_at: string | null;
   } | null;
+  access_role?: PlanAccessRole | null;
+  shared_by?: PlanSharedBy | null;
   created_at?: string;
 };
 
 export type UserRole = 'user' | 'admin';
+
+export type ProStatus = 'inactive' | 'active' | 'past_due' | 'canceled';
 
 export type User = {
   id: number;
   name: string;
   email: string;
   city: string | null;
+  interests?: string[];
   role: UserRole;
+  is_pro?: boolean;
+  pro_status?: ProStatus;
+  pro_current_period_end?: string | null;
+};
+
+export type BillingConfig = {
+  pro_monthly_price_cents: number;
+  pro_currency: string;
+  app_store_url: string | null;
+  play_store_url: string | null;
+  web_app_url: string | null;
+  stripe_fake?: boolean;
+  stripe_configured?: boolean;
+};
+
+export type WeekendRecommendationItem = {
+  event_id: number;
+  title: string;
+  venue: string | null;
+  starts_at: string | null;
+  url: string | null;
+  image_url?: string | null;
+  source?: string | null;
+  reason: string;
+};
+
+export type WeekendRecommendation = {
+  uuid: string;
+  city: string;
+  interests: string[];
+  window_start: string | null;
+  window_end: string | null;
+  items: WeekendRecommendationItem[];
+  email_sent_at: string | null;
+  created_at?: string;
+};
+
+export type PlanSharePreview = {
+  token: string;
+  status: string;
+  invitee_email: string;
+  account_exists: boolean;
+  inviter_name: string | null;
+  plan: {
+    uuid: string;
+    city: string | null;
+    status: string;
+    plan_type: { slug: string; label: string };
+  };
+  urls: { web: string | null; app: string };
+  app_store_url: string | null;
+  play_store_url: string | null;
+  expires_at: string | null;
+};
+
+export type PlanShareRecord = {
+  token: string;
+  invitee_email: string;
+  status: string;
+  expires_at: string | null;
 };
 
 export type ApiError = {

@@ -1,0 +1,67 @@
+.invite-page__preview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: calc(var(--spacing-xl) + 2px);
+  background:
+    radial-gradient(circle at top right, rgba(212, 98, 42, 0.1), transparent 50%),
+    var(--color-surface);
+}
+
+.invite-page__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.invite-page__city {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  letter-spacing: -0.03em;
+}
+
+.invite-page__email {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin: 0;
+  padding: 0.55rem 0.75rem;
+  width: fit-content;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-muted);
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+}
+
+.invite-page__auth {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border-light);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.invite-page__auth-lead {
+  margin: 0;
+  color: var(--color-text-secondary);
+  line-height: 1.55;
+}
+
+.invite-page__alt-link {
+  color: var(--color-accent-dark);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.invite-page__alt-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}

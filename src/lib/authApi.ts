@@ -14,15 +14,27 @@ export function createAuthApi(baseUrl: string) {
   });
 
   return {
-    register(name: string, email: string, password: string, passwordConfirmation: string) {
+    register(
+      name: string,
+      email: string,
+      password: string,
+      passwordConfirmation: string,
+      inviteToken?: string,
+    ) {
+      const body: Record<string, string> = {
+        name,
+        email,
+        password,
+        password_confirmation: passwordConfirmation,
+      };
+
+      if (inviteToken?.trim()) {
+        body.invite_token = inviteToken.trim();
+      }
+
       return apiRequest<AuthPayload>('/auth/register', {
         method: 'POST',
-        body: JSON.stringify({
-          name,
-          email,
-          password,
-          password_confirmation: passwordConfirmation,
-        }),
+        body: JSON.stringify(body),
       });
     },
 

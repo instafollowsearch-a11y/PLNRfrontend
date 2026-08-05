@@ -1,4 +1,4 @@
-import { Gauge, Info, KeyRound, Mail, Sparkles } from 'lucide-react';
+import { CreditCard, Crown, Gauge, Info, KeyRound, Mail, Sparkles } from 'lucide-react';
 import { useEffect, useState, type FormEvent } from 'react';
 
 import { AdminNav } from '../../components/admin/AdminNav';
@@ -43,7 +43,15 @@ type DirtyKey =
   | 'mail_from_address'
   | 'mail_from_name'
   | 'booking_ops_email'
-  | 'rate_limit_ai_per_hour';
+  | 'rate_limit_ai_per_hour'
+  | 'pro_monthly_price_cents'
+  | 'pro_currency'
+  | 'app_store_url'
+  | 'play_store_url'
+  | 'web_app_url'
+  | 'stripe_secret'
+  | 'stripe_publishable_key'
+  | 'stripe_webhook_secret';
 
 export function AdminSettingsPage() {
   const [settings, setSettings] = useState<AdminSettings | null>(null);
@@ -55,6 +63,14 @@ export function AdminSettingsPage() {
   const [mailFromName, setMailFromName] = useState('');
   const [bookingOpsEmail, setBookingOpsEmail] = useState('');
   const [rateLimitAi, setRateLimitAi] = useState('');
+  const [proMonthlyPriceCents, setProMonthlyPriceCents] = useState('');
+  const [proCurrency, setProCurrency] = useState('');
+  const [appStoreUrl, setAppStoreUrl] = useState('');
+  const [playStoreUrl, setPlayStoreUrl] = useState('');
+  const [webAppUrl, setWebAppUrl] = useState('');
+  const [stripeSecret, setStripeSecret] = useState('');
+  const [stripePublishableKey, setStripePublishableKey] = useState('');
+  const [stripeWebhookSecret, setStripeWebhookSecret] = useState('');
   const [dirty, setDirty] = useState<Partial<Record<DirtyKey, boolean>>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -78,6 +94,18 @@ export function AdminSettingsPage() {
     setRateLimitAi(
       String(typeof next.rate_limit_ai_per_hour === 'number' ? next.rate_limit_ai_per_hour : ''),
     );
+    setProMonthlyPriceCents(
+      String(typeof next.pro_monthly_price_cents === 'number' ? next.pro_monthly_price_cents : ''),
+    );
+    setProCurrency(typeof next.pro_currency === 'string' ? next.pro_currency : '');
+    setAppStoreUrl(typeof next.app_store_url === 'string' ? next.app_store_url : '');
+    setPlayStoreUrl(typeof next.play_store_url === 'string' ? next.play_store_url : '');
+    setWebAppUrl(typeof next.web_app_url === 'string' ? next.web_app_url : '');
+    setStripeSecret('');
+    setStripePublishableKey(
+      typeof next.stripe_publishable_key === 'string' ? next.stripe_publishable_key : '',
+    );
+    setStripeWebhookSecret('');
     setDirty({});
   }
 
@@ -128,6 +156,38 @@ export function AdminSettingsPage() {
         payload.rate_limit_ai_per_hour = Number(rateLimitAi);
       }
 
+      if (dirty.pro_monthly_price_cents && proMonthlyPriceCents.trim()) {
+        payload.pro_monthly_price_cents = Number(proMonthlyPriceCents);
+      }
+
+      if (dirty.pro_currency && proCurrency.trim()) {
+        payload.pro_currency = proCurrency.trim();
+      }
+
+      if (dirty.app_store_url && appStoreUrl.trim()) {
+        payload.app_store_url = appStoreUrl.trim();
+      }
+
+      if (dirty.play_store_url && playStoreUrl.trim()) {
+        payload.play_store_url = playStoreUrl.trim();
+      }
+
+      if (dirty.web_app_url && webAppUrl.trim()) {
+        payload.web_app_url = webAppUrl.trim();
+      }
+
+      if (dirty.stripe_secret && stripeSecret.trim()) {
+        payload.stripe_secret = stripeSecret.trim();
+      }
+
+      if (dirty.stripe_publishable_key && stripePublishableKey.trim()) {
+        payload.stripe_publishable_key = stripePublishableKey.trim();
+      }
+
+      if (dirty.stripe_webhook_secret && stripeWebhookSecret.trim()) {
+        payload.stripe_webhook_secret = stripeWebhookSecret.trim();
+      }
+
       const response = await accountApi.updateAdminSettings(payload);
       applySettings(response.data.settings);
       setSaved(true);
@@ -158,6 +218,7 @@ export function AdminSettingsPage() {
     <AppShell title="Settings" showBack backTo="/admin" contentWidth="wide">
       <div className="page-stack admin-page">
         <PageIntro
+          eyebrow="Admin"
           title="App settings"
           subtitle="Admin overrides win when set. Clear an override to fall back to .env."
         />
@@ -377,6 +438,217 @@ export function AdminSettingsPage() {
                   type="button"
                   variant="ghost"
                   onClick={() => void clearOverride({ clear_booking_ops_email: true })}
+                />
+              ) : null}
+            </section>
+
+            <section className="admin-settings__section">
+              <header className="admin-settings__header">
+                <h2>
+                  <CreditCard size={16} aria-hidden /> Stripe billing
+                </h2>
+              </header>
+              <p className="admin-settings__hint">
+                Set your Stripe keys for Checkout and the customer portal. Leave blank to keep the
+                current value or fall back to .env.
+              </p>
+
+              <div className="admin-settings__row-meta">
+                <Badge variant={sourceBadge(settings.stripe_secret_source)}>
+                  Secret key: {sourceLabel(settings.stripe_secret_source)}
+                </Badge>
+                {settings.stripe_secret_hint ? (
+                  <Badge variant="muted">{settings.stripe_secret_hint}</Badge>
+                ) : null}
+              </div>
+              <Input
+                label="Stripe secret key"
+                type="password"
+                autoComplete="off"
+                placeholder={settings.stripe_secret_set ? '•••• leave blank to keep' : 'sk_live_… or sk_test_…'}
+                value={stripeSecret}
+                onChange={(event) => {
+                  setStripeSecret(event.target.value);
+                  markDirty('stripe_secret');
+                }}
+              />
+              {settings.stripe_secret_source === 'admin' ? (
+                <Button
+                  label="Reset secret to .env"
+                  type="button"
+                  variant="ghost"
+                  onClick={() => void clearOverride({ clear_stripe_secret: true })}
+                />
+              ) : null}
+
+              <div className="admin-settings__row-meta">
+                <Badge variant={sourceBadge(settings.stripe_publishable_key_source)}>
+                  Publishable: {sourceLabel(settings.stripe_publishable_key_source)}
+                </Badge>
+              </div>
+              <Input
+                label="Stripe publishable key"
+                placeholder={String(settings.stripe_publishable_key_env ?? 'pk_live_… or pk_test_…')}
+                value={stripePublishableKey}
+                onChange={(event) => {
+                  setStripePublishableKey(event.target.value);
+                  markDirty('stripe_publishable_key');
+                }}
+              />
+              {settings.stripe_publishable_key_source === 'admin' ? (
+                <Button
+                  label="Reset publishable key to .env"
+                  type="button"
+                  variant="ghost"
+                  onClick={() => void clearOverride({ clear_stripe_publishable_key: true })}
+                />
+              ) : null}
+
+              <div className="admin-settings__row-meta">
+                <Badge variant={sourceBadge(settings.stripe_webhook_secret_source)}>
+                  Webhook secret: {sourceLabel(settings.stripe_webhook_secret_source)}
+                </Badge>
+                {settings.stripe_webhook_secret_hint ? (
+                  <Badge variant="muted">{settings.stripe_webhook_secret_hint}</Badge>
+                ) : null}
+              </div>
+              <Input
+                label="Stripe webhook secret"
+                type="password"
+                autoComplete="off"
+                placeholder={
+                  settings.stripe_webhook_secret_set ? '•••• leave blank to keep' : 'whsec_…'
+                }
+                value={stripeWebhookSecret}
+                onChange={(event) => {
+                  setStripeWebhookSecret(event.target.value);
+                  markDirty('stripe_webhook_secret');
+                }}
+              />
+              {settings.stripe_webhook_secret_source === 'admin' ? (
+                <Button
+                  label="Reset webhook secret to .env"
+                  type="button"
+                  variant="ghost"
+                  onClick={() => void clearOverride({ clear_stripe_webhook_secret: true })}
+                />
+              ) : null}
+            </section>
+
+            <section className="admin-settings__section">
+              <header className="admin-settings__header">
+                <h2>
+                  <Crown size={16} aria-hidden /> Pro &amp; apps
+                </h2>
+              </header>
+
+              <div className="admin-settings__row-meta">
+                <Badge variant={sourceBadge(settings.pro_monthly_price_cents_source)}>
+                  Pro price: {sourceLabel(settings.pro_monthly_price_cents_source)}
+                </Badge>
+              </div>
+              <Input
+                label="Pro monthly price (cents)"
+                type="number"
+                min={100}
+                max={100000}
+                placeholder={String(settings.pro_monthly_price_cents_env ?? 999)}
+                value={proMonthlyPriceCents}
+                onChange={(event) => {
+                  setProMonthlyPriceCents(event.target.value);
+                  markDirty('pro_monthly_price_cents');
+                }}
+              />
+
+              <div className="admin-settings__row-meta">
+                <Badge variant={sourceBadge(settings.pro_currency_source)}>
+                  Currency: {sourceLabel(settings.pro_currency_source)}
+                </Badge>
+              </div>
+              <Input
+                label="Pro currency"
+                placeholder={String(settings.pro_currency_env ?? 'usd')}
+                value={proCurrency}
+                onChange={(event) => {
+                  setProCurrency(event.target.value);
+                  markDirty('pro_currency');
+                }}
+              />
+              {settings.pro_currency_source === 'admin' ? (
+                <Button
+                  label="Reset currency to .env"
+                  type="button"
+                  variant="ghost"
+                  onClick={() => void clearOverride({ clear_pro_currency: true })}
+                />
+              ) : null}
+
+              <div className="admin-settings__row-meta">
+                <Badge variant={sourceBadge(settings.app_store_url_source)}>
+                  App Store URL: {sourceLabel(settings.app_store_url_source)}
+                </Badge>
+              </div>
+              <Input
+                label="App Store URL"
+                placeholder={String(settings.app_store_url_env ?? 'https://apps.apple.com/…')}
+                value={appStoreUrl}
+                onChange={(event) => {
+                  setAppStoreUrl(event.target.value);
+                  markDirty('app_store_url');
+                }}
+              />
+              {settings.app_store_url_source === 'admin' ? (
+                <Button
+                  label="Reset App Store URL to .env"
+                  type="button"
+                  variant="ghost"
+                  onClick={() => void clearOverride({ clear_app_store_url: true })}
+                />
+              ) : null}
+
+              <div className="admin-settings__row-meta">
+                <Badge variant={sourceBadge(settings.play_store_url_source)}>
+                  Play Store URL: {sourceLabel(settings.play_store_url_source)}
+                </Badge>
+              </div>
+              <Input
+                label="Play Store URL"
+                placeholder={String(settings.play_store_url_env ?? 'https://play.google.com/…')}
+                value={playStoreUrl}
+                onChange={(event) => {
+                  setPlayStoreUrl(event.target.value);
+                  markDirty('play_store_url');
+                }}
+              />
+              {settings.play_store_url_source === 'admin' ? (
+                <Button
+                  label="Reset Play Store URL to .env"
+                  type="button"
+                  variant="ghost"
+                  onClick={() => void clearOverride({ clear_play_store_url: true })}
+                />
+              ) : null}
+
+              <div className="admin-settings__row-meta">
+                <Badge variant={sourceBadge(settings.web_app_url_source)}>
+                  Web app URL: {sourceLabel(settings.web_app_url_source)}
+                </Badge>
+              </div>
+              <Input
+                label="Web app URL"
+                placeholder={String(settings.web_app_url_env ?? 'https://plnr.app')}
+                value={webAppUrl}
+                onChange={(event) => {
+                  setWebAppUrl(event.target.value);
+                  markDirty('web_app_url');
+                }}
+              />
+              {settings.web_app_url_source === 'admin' ? (
+                <Button
+                  label="Reset web app URL to .env"
+                  type="button"
+                  variant="ghost"
+                  onClick={() => void clearOverride({ clear_web_app_url: true })}
                 />
               ) : null}
             </section>
