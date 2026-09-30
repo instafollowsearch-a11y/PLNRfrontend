@@ -20,6 +20,9 @@ export type AdminSettings = {
   anthropic_api_key_set?: boolean;
   anthropic_api_key_source?: string;
   anthropic_api_key_hint?: string | null;
+  google_places_api_key_set?: boolean;
+  google_places_api_key_source?: string;
+  google_places_api_key_hint?: string | null;
   anthropic_model?: string;
   anthropic_model_source?: string;
   anthropic_model_env?: string;
@@ -70,6 +73,7 @@ export type AdminSettings = {
 export type AdminSettingsUpdate = {
   free_plans_per_month?: number;
   anthropic_api_key?: string;
+  google_places_api_key?: string;
   anthropic_model?: string;
   anthropic_url?: string;
   mail_from_address?: string;
@@ -86,6 +90,7 @@ export type AdminSettingsUpdate = {
   stripe_webhook_secret?: string;
   stripe_fake?: boolean;
   clear_anthropic_api_key?: boolean;
+  clear_google_places_api_key?: boolean;
   clear_anthropic_model?: boolean;
   clear_anthropic_url?: boolean;
   clear_mail_from_address?: boolean;

@@ -1,9 +1,13 @@
-import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { cleanup, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it } from 'vitest';
 
 import { ItineraryView } from './ItineraryView';
 
 describe('ItineraryView', () => {
+  afterEach(() => {
+    cleanup();
+  });
+
   it('renders venue and maps links when present', () => {
     render(
       <ItineraryView
@@ -37,5 +41,53 @@ describe('ItineraryView', () => {
         'Times are ranges, not exact times. Places and plans can be off. Double-check before you go.',
       ),
     ).toBeInTheDocument();
+  });
+
+  it('shows a listing photo and the hours line when the stop has them', () => {
+    render(
+      <ItineraryView
+        content={{
+          title: 'Night Out',
+          stops: [
+            {
+              time: '8:00 PM',
+              name: 'Jazz Club',
+              activity: 'Live music',
+              notes: '',
+              photo_url: 'https://example.com/api/v1/place-photos/abc',
+              hours: 'Friday: 5 PM–12 AM',
+            },
+          ],
+        }}
+      />,
+    );
+
+    expect(screen.getByRole('img', { name: 'Jazz Club' })).toHaveAttribute(
+      'src',
+      'https://example.com/api/v1/place-photos/abc',
+    );
+    expect(screen.getByText('Friday: 5 PM–12 AM')).toBeInTheDocument();
+  });
+
+  it('keeps a text row when the stop has no photo', () => {
+    render(
+      <ItineraryView
+        content={{
+          title: 'Night Out',
+          stops: [
+            {
+              time: '9:00 PM',
+              name: 'Quiet Bar',
+              activity: 'A drink',
+              notes: '',
+            },
+          ],
+        }}
+      />,
+    );
+
+    expect(screen.queryByRole('img')).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Quiet Bar' })).toBeInTheDocument();
+    expect(screen.queryByText(/friday:/i)).not.toBeInTheDocument();
   });
 });

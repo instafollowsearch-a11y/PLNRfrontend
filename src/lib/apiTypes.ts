@@ -34,6 +34,8 @@ export type ItineraryStop = {
   venue_url?: string;
   maps_url?: string;
   external_url?: string;
+  photo_url?: string;
+  hours?: string;
 };
 
 export type ItineraryDay = {

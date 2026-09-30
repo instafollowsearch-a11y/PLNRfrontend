@@ -137,6 +137,13 @@ export function ItineraryPage() {
               onClose={() => setShareOpen(false)}
             />
           ) : null}
+          {!isViewer && sessionUuid ? (
+            <Button
+              label="Something else instead"
+              variant="secondary"
+              onClick={() => navigate(withSession(`/plan/${planType}/refine`, sessionUuid))}
+            />
+          ) : null}
         </>
       ) : null}
 

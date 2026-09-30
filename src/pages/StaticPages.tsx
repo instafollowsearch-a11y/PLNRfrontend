@@ -1,7 +1,7 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
+import { AuthLayout } from '../components/auth/AuthLayout';
 import { AppShell } from '../components/layout/AppShell';
-import { Button } from '../components/ui/Button';
 import { PageIntro } from '../components/ui/PageIntro';
 import { PRIVACY_POLICY_URL } from '../lib/api';
 
@@ -71,25 +71,15 @@ export function TermsPage() {
 }
 
 export function NotFoundPage() {
-  const navigate = useNavigate();
-
   return (
-    <AppShell showBack backTo="/">
-      <article className="prose-page">
-        <PageIntro title="Page not found" subtitle="That link does not match a page on PLNR." />
-        <p>
-          The page may have moved, or the URL might be mistyped. You can start a new plan from the home
-          page, or log in to open plans you already saved.
-        </p>
-        <Button label="Back to home" onClick={() => navigate('/')} />
-        <p>
-          <Link to="/login">Log in</Link>
-          {' · '}
-          <Link to="/privacy">Privacy</Link>
-          {' · '}
-          <Link to="/terms">Terms</Link>
-        </p>
-      </article>
-    </AppShell>
+    <AuthLayout
+      title="Page not found"
+      subtitle="This address is not a PLNR page. The link may be mistyped, or the page may have moved."
+      footer={<Link to="/login">Log in</Link>}
+    >
+      <Link className="ui-button ui-button--primary" to="/">
+        Back to home
+      </Link>
+    </AuthLayout>
   );
 }

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { ItineraryContent, ItineraryStop } from '../lib/apiTypes';
 import { Clock, ExternalLink, MapPin } from 'lucide-react';
 
@@ -44,6 +45,23 @@ function StopLinks({ stop }: { stop: ItineraryStop }) {
   );
 }
 
+function StopPhoto({ stop }: { stop: ItineraryStop }) {
+  const [hasFailed, setHasFailed] = useState(false);
+
+  if (!stop.photo_url || hasFailed) {
+    return null;
+  }
+
+  return (
+    <img
+      className="itinerary-view__photo"
+      src={stop.photo_url}
+      alt={stop.name}
+      onError={() => setHasFailed(true)}
+    />
+  );
+}
+
 function StopRow({
   stop,
   isLast,
@@ -58,11 +76,13 @@ function StopRow({
         {!isLast ? <span className="itinerary-view__line" /> : null}
       </div>
       <article className="itinerary-view__stop">
+        <StopPhoto stop={stop} />
         <p className="itinerary-view__stop-time">
           <Clock size={14} />
           {stop.time}
         </p>
         <h3 className="itinerary-view__stop-name">{stop.name}</h3>
+        {stop.hours ? <p className="itinerary-view__stop-hours">{stop.hours}</p> : null}
         <p className="itinerary-view__stop-activity">{stop.activity}</p>
         {stop.notes ? <p className="itinerary-view__stop-notes">{stop.notes}</p> : null}
         <StopLinks stop={stop} />

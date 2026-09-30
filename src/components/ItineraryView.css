@@ -105,6 +105,7 @@
   flex: 1;
   margin-bottom: var(--spacing-md);
   padding: var(--spacing-md);
+  overflow: hidden;
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-md);
   background: var(--color-surface);
@@ -120,11 +121,26 @@
   font-weight: 600;
 }
 
+.itinerary-view__photo {
+  display: block;
+  width: calc(100% + (var(--spacing-md) * 2));
+  height: 148px;
+  margin: calc(var(--spacing-md) * -1) calc(var(--spacing-md) * -1) var(--spacing-md);
+  object-fit: cover;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
 .itinerary-view__stop-name {
   margin: 0 0 var(--spacing-xs);
   font-family: var(--font-display);
   font-size: 1.05rem;
   letter-spacing: -0.02em;
+}
+
+.itinerary-view__stop-hours {
+  margin: 0 0 var(--spacing-xs);
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
 }
 
 .itinerary-view__stop-activity,

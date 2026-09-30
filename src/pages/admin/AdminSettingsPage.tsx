@@ -1,4 +1,4 @@
-import { CreditCard, Crown, Gauge, Info, KeyRound, Mail, Sparkles } from 'lucide-react';
+import { CreditCard, Crown, Gauge, Info, KeyRound, Mail, MapPin, Sparkles } from 'lucide-react';
 import { useEffect, useState, type FormEvent } from 'react';
 
 import { AdminNav } from '../../components/admin/AdminNav';
@@ -38,6 +38,7 @@ function sourceLabel(source: unknown): string {
 type DirtyKey =
   | 'free_plans_per_month'
   | 'anthropic_api_key'
+  | 'google_places_api_key'
   | 'anthropic_model'
   | 'anthropic_url'
   | 'mail_from_address'
@@ -57,6 +58,7 @@ export function AdminSettingsPage() {
   const [settings, setSettings] = useState<AdminSettings | null>(null);
   const [freePlansPerDay, setFreePlansPerDay] = useState('5');
   const [anthropicApiKey, setAnthropicApiKey] = useState('');
+  const [googlePlacesApiKey, setGooglePlacesApiKey] = useState('');
   const [anthropicModel, setAnthropicModel] = useState('');
   const [anthropicUrl, setAnthropicUrl] = useState('');
   const [mailFromAddress, setMailFromAddress] = useState('');
@@ -86,6 +88,7 @@ export function AdminSettingsPage() {
     setSettings(next);
     setFreePlansPerDay(String(typeof next.free_plans_per_month === 'number' ? next.free_plans_per_month : 5));
     setAnthropicApiKey('');
+    setGooglePlacesApiKey('');
     setAnthropicModel(typeof next.anthropic_model === 'string' ? next.anthropic_model : '');
     setAnthropicUrl(typeof next.anthropic_url === 'string' ? next.anthropic_url : '');
     setMailFromAddress(typeof next.mail_from_address === 'string' ? next.mail_from_address : '');
@@ -130,6 +133,10 @@ export function AdminSettingsPage() {
 
       if (dirty.anthropic_api_key && anthropicApiKey.trim()) {
         payload.anthropic_api_key = anthropicApiKey.trim();
+      }
+
+      if (dirty.google_places_api_key && googlePlacesApiKey.trim()) {
+        payload.google_places_api_key = googlePlacesApiKey.trim();
       }
 
       if (dirty.anthropic_model && anthropicModel.trim()) {
@@ -359,6 +366,46 @@ export function AdminSettingsPage() {
                   type="button"
                   variant="ghost"
                   onClick={() => void clearOverride({ clear_rate_limit_ai_per_hour: true })}
+                />
+              ) : null}
+            </section>
+
+            <section className="admin-settings__section">
+              <header className="admin-settings__header">
+                <h2>
+                  <MapPin size={16} aria-hidden /> Listing photos
+                </h2>
+                <Badge variant={sourceBadge(settings.google_places_api_key_source)}>
+                  Key: {sourceLabel(settings.google_places_api_key_source)}
+                </Badge>
+              </header>
+
+              <p className="admin-settings__hint">
+                {settings.google_places_api_key_set
+                  ? `Key in use${settings.google_places_api_key_hint ? ` (${settings.google_places_api_key_hint})` : ''}.`
+                  : 'No Google Places key configured in admin or .env. Stops stay as text until one is saved.'}{' '}
+                Enter a new key only when you want to override. Leave blank to keep the current key.
+              </p>
+
+              <Input
+                label="Google Places API key"
+                type="password"
+                autoComplete="off"
+                placeholder={
+                  settings.google_places_api_key_set ? '•••••••• (leave blank to keep)' : 'AIza…'
+                }
+                value={googlePlacesApiKey}
+                onChange={(event) => {
+                  setGooglePlacesApiKey(event.target.value);
+                  markDirty('google_places_api_key');
+                }}
+              />
+              {settings.google_places_api_key_source === 'admin' ? (
+                <Button
+                  label="Use .env key instead"
+                  type="button"
+                  variant="ghost"
+                  onClick={() => void clearOverride({ clear_google_places_api_key: true })}
                 />
               ) : null}
             </section>
