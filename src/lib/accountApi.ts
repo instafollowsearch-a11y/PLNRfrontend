@@ -16,7 +16,7 @@ export type AdminStats = {
 };
 
 export type AdminSettings = {
-  free_plans_per_day?: number;
+  free_plans_per_month?: number;
   anthropic_api_key_set?: boolean;
   anthropic_api_key_source?: string;
   anthropic_api_key_hint?: string | null;
@@ -68,7 +68,7 @@ export type AdminSettings = {
 };
 
 export type AdminSettingsUpdate = {
-  free_plans_per_day?: number;
+  free_plans_per_month?: number;
   anthropic_api_key?: string;
   anthropic_model?: string;
   anthropic_url?: string;

@@ -1,4 +1,6 @@
 export const DATE_NIGHT_INTEREST_PRESETS = [
+  'Open to suggestions',
+  'Club / nightlife',
   'Art museums',
   'Wine bars',
   'Live music',
@@ -14,6 +16,8 @@ export const DATE_NIGHT_INTEREST_PRESETS = [
 ] as const;
 
 export const NIGHT_OUT_INTEREST_PRESETS = [
+  'Open to suggestions',
+  'Club / nightlife',
   'Live jazz',
   'Rooftop bars',
   'Tacos & street food',
@@ -29,6 +33,7 @@ export const NIGHT_OUT_INTEREST_PRESETS = [
 ] as const;
 
 export const VACATION_INTEREST_PRESETS = [
+  'Open to suggestions',
   'Beaches',
   'Food tours',
   'Architecture',
@@ -57,6 +62,8 @@ export const ROAD_TRIP_STOP_PRESETS = [
 ] as const;
 
 export const ROAD_TRIP_INTEREST_PRESETS = [
+  'Open to suggestions',
+  'Club / nightlife',
   'Nature',
   'Photography',
   'Local food',

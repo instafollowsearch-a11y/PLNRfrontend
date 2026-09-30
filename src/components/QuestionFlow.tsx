@@ -10,6 +10,7 @@ import './QuestionFlow.css';
 
 type QuestionFlowProps = {
   questions: QuestionConfig[];
+  submitLabel: string;
   onComplete: (answers: Record<string, string>) => Promise<void>;
 };
 
@@ -20,7 +21,7 @@ function getVisibleQuestions(
   return questions.filter((question) => !question.showIf || question.showIf(answers));
 }
 
-export function QuestionFlow({ questions, onComplete }: QuestionFlowProps) {
+export function QuestionFlow({ questions, submitLabel, onComplete }: QuestionFlowProps) {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [step, setStep] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -140,7 +141,7 @@ export function QuestionFlow({ questions, onComplete }: QuestionFlowProps) {
         <div className="question-flow__actions">
           {step > 0 ? <Button label="Back" variant="secondary" onClick={handleBack} /> : null}
           <Button
-            label={isLastStep ? 'Get suggestions' : 'Continue'}
+            label={isLastStep ? submitLabel : 'Continue'}
             onClick={() => void handleNext()}
             loading={isSubmitting}
           />

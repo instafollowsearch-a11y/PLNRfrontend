@@ -99,6 +99,11 @@ export function LoginPage() {
           onChange={(event) => setPassword(event.target.value)}
           required
         />
+        <p className="auth-forgot">
+          <Link to={{ pathname: '/forgot-password', search: email.trim() ? `?email=${encodeURIComponent(email.trim())}` : '' }}>
+            Forgot password?
+          </Link>
+        </p>
         {error ? <p className="error-text">{error}</p> : null}
         <Button label="Log in" type="submit" loading={loading} />
       </form>

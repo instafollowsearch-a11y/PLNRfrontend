@@ -58,7 +58,7 @@ test.describe('FLOW-01 / MAIL-01 guest send', () => {
 
     // Time
     await page.locator('input[type="time"]').fill('20:00');
-    await page.getByRole('button', { name: /get suggestions/i }).click();
+    await page.getByRole('button', { name: /plan my night out/i }).click();
 
     await expect(page.getByRole('status').getByText(/gathering results/i)).toBeVisible({
       timeout: 15_000,

@@ -13,6 +13,7 @@ describe('postAuthPath', () => {
   it('prefers a deep-link from path when present', () => {
     expect(resolvePostAuthPath('admin', '/admin/settings')).toBe('/admin/settings');
     expect(resolvePostAuthPath('user', '/plans')).toBe('/plans');
+    expect(resolvePostAuthPath('user', '/weekend')).toBe('/weekend');
     expect(resolvePostAuthPath('admin', '/login')).toBe('/admin');
   });
 

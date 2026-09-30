@@ -161,6 +161,51 @@ export const DATE_NIGHT_QUESTIONS: QuestionConfig[] = [
   },
 ];
 
+function needsHotelStay(answers: Record<string, string>): boolean {
+  return answers.needs_hotel === 'Yes' || answers.needs_hotel === 'Already booked';
+}
+
+const HOTEL_STAY_QUESTIONS: QuestionConfig[] = [
+  {
+    key: 'needs_hotel',
+    label: 'Do you need a hotel?',
+    type: 'select',
+    options: [
+      { value: 'Yes', label: 'Yes' },
+      { value: 'No', label: 'No' },
+      { value: 'Already booked', label: 'Already booked' },
+    ],
+  },
+  {
+    key: 'hotel_location',
+    label: 'Where is your hotel?',
+    type: 'text',
+    placeholder: 'Hotel name or address',
+    showIf: needsHotelStay,
+  },
+  {
+    key: 'hotel_shuttle',
+    label: 'Does the hotel have a shuttle?',
+    type: 'select',
+    options: [
+      { value: 'Yes', label: 'Yes' },
+      { value: 'No', label: 'No' },
+      { value: 'Not sure', label: 'Not sure' },
+    ],
+    showIf: needsHotelStay,
+  },
+];
+
+const FLYING_QUESTION: QuestionConfig = {
+  key: 'flying',
+  label: 'Are you flying?',
+  type: 'select',
+  options: [
+    { value: 'Yes', label: 'Yes' },
+    { value: 'No', label: 'No' },
+  ],
+};
+
 export const VACATION_QUESTIONS: QuestionConfig[] = [
   {
     key: 'destination',
@@ -216,6 +261,8 @@ export const VACATION_QUESTIONS: QuestionConfig[] = [
     options: [...ACTIVITY_MIX_OPTIONS],
     hint: 'Choose how you want to balance the trip.',
   },
+  ...HOTEL_STAY_QUESTIONS,
+  FLYING_QUESTION,
 ];
 
 export const ROAD_TRIP_QUESTIONS: QuestionConfig[] = [
@@ -301,4 +348,5 @@ export const ROAD_TRIP_QUESTIONS: QuestionConfig[] = [
     max: 8,
     step: 1,
   },
+  ...HOTEL_STAY_QUESTIONS,
 ];

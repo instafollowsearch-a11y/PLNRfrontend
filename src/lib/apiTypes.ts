@@ -22,6 +22,7 @@ export type SuggestionPayload = {
 export type Suggestion = {
   id: number;
   payload: SuggestionPayload;
+  itinerary_content?: ItineraryContent | null;
   selected_at: string | null;
 };
 
@@ -105,10 +106,23 @@ export type WeekendRecommendationItem = {
   title: string;
   venue: string | null;
   starts_at: string | null;
+  day?: string | null;
   url: string | null;
   image_url?: string | null;
   source?: string | null;
   reason: string;
+};
+
+export type SaturdayPlanStop = {
+  time: string;
+  name: string;
+  detail: string;
+};
+
+export type SaturdayPlan = {
+  title: string;
+  summary: string;
+  stops: SaturdayPlanStop[];
 };
 
 export type WeekendRecommendation = {
@@ -118,6 +132,7 @@ export type WeekendRecommendation = {
   window_start: string | null;
   window_end: string | null;
   items: WeekendRecommendationItem[];
+  saturday_plan?: SaturdayPlan | null;
   email_sent_at: string | null;
   created_at?: string;
 };

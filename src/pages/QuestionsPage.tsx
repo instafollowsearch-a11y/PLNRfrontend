@@ -45,7 +45,7 @@ export function QuestionsPage() {
       const apiError = err as ApiError;
       const message = apiError.message || 'Unable to start this plan. Please try again.';
       const isQuota =
-        message.toLowerCase().includes('daily free plan limit') ||
+        message.toLowerCase().includes('monthly free plan limit') ||
         message.toLowerCase().includes('limit reached');
 
       setQuotaReached(isQuota);
@@ -65,12 +65,16 @@ export function QuestionsPage() {
               <Link to="/register" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
                 Create an account
               </Link>{' '}
-              for a separate daily limit, or try again tomorrow.
+              for a separate monthly limit, or try again next month.
             </p>
           ) : null}
         </div>
       ) : null}
-      <QuestionFlow questions={config.questions} onComplete={handleComplete} />
+      <QuestionFlow
+        questions={config.questions}
+        submitLabel={config.submitLabel}
+        onComplete={handleComplete}
+      />
     </AppShell>
   );
 }

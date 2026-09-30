@@ -36,7 +36,7 @@ function sourceLabel(source: unknown): string {
 }
 
 type DirtyKey =
-  | 'free_plans_per_day'
+  | 'free_plans_per_month'
   | 'anthropic_api_key'
   | 'anthropic_model'
   | 'anthropic_url'
@@ -84,7 +84,7 @@ export function AdminSettingsPage() {
 
   function applySettings(next: AdminSettings) {
     setSettings(next);
-    setFreePlansPerDay(String(typeof next.free_plans_per_day === 'number' ? next.free_plans_per_day : 5));
+    setFreePlansPerDay(String(typeof next.free_plans_per_month === 'number' ? next.free_plans_per_month : 5));
     setAnthropicApiKey('');
     setAnthropicModel(typeof next.anthropic_model === 'string' ? next.anthropic_model : '');
     setAnthropicUrl(typeof next.anthropic_url === 'string' ? next.anthropic_url : '');
@@ -125,7 +125,7 @@ export function AdminSettingsPage() {
 
     try {
       const payload: AdminSettingsUpdate = {
-        free_plans_per_day: Number(freePlansPerDay),
+        free_plans_per_month: Number(freePlansPerDay),
       };
 
       if (dirty.anthropic_api_key && anthropicApiKey.trim()) {
@@ -234,20 +234,20 @@ export function AdminSettingsPage() {
                   <Gauge size={22} />
                 </div>
                 <div>
-                  <p className="admin-limit-hero__label">Current free plans per day</p>
+                  <p className="admin-limit-hero__label">Current free plans per month</p>
                   <p className="admin-limit-hero__value">{freePlansPerDay}</p>
                 </div>
               </div>
 
               <Input
-                label="Free plans per day"
+                label="Free plans per month"
                 type="number"
                 min={0}
                 max={1000}
                 value={freePlansPerDay}
                 onChange={(event) => {
                   setFreePlansPerDay(event.target.value);
-                  markDirty('free_plans_per_day');
+                  markDirty('free_plans_per_month');
                 }}
                 required
               />

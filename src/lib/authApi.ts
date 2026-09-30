@@ -45,6 +45,30 @@ export function createAuthApi(baseUrl: string) {
       });
     },
 
+    forgotPassword(email: string) {
+      return apiRequest<null>('/auth/forgot-password', {
+        method: 'POST',
+        body: JSON.stringify({ email }),
+      });
+    },
+
+    resetPassword(
+      email: string,
+      token: string,
+      password: string,
+      passwordConfirmation: string,
+    ) {
+      return apiRequest<null>('/auth/reset-password', {
+        method: 'POST',
+        body: JSON.stringify({
+          email,
+          token,
+          password,
+          password_confirmation: passwordConfirmation,
+        }),
+      });
+    },
+
     logout() {
       return apiRequest<null>('/auth/logout', { method: 'POST' });
     },

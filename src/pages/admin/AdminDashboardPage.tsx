@@ -22,7 +22,7 @@ export function AdminDashboardPage() {
     void Promise.all([accountApi.getAdminStats(), accountApi.getAdminSettings()])
       .then(([statsResponse, settingsResponse]) => {
         setStats(statsResponse.data);
-        const value = settingsResponse.data.settings.free_plans_per_day;
+        const value = settingsResponse.data.settings.free_plans_per_month;
         setFreePlansPerDay(typeof value === 'number' ? value : 5);
       })
       .catch(() => setError('Unable to load admin stats.'))
@@ -37,7 +37,7 @@ export function AdminDashboardPage() {
         <PageIntro
           eyebrow="Admin"
           title={firstName ? `${firstName}’s dashboard` : 'Admin dashboard'}
-          subtitle="Overview of accounts, plan volume, and free daily limits."
+          subtitle="Overview of accounts, plan volume, and free monthly limits."
         />
         <AdminNav />
 
@@ -99,8 +99,8 @@ export function AdminDashboardPage() {
                   </p>
                   <p className="admin-quick__copy">
                     {freePlansPerDay == null
-                      ? 'Adjust free plans per day.'
-                      : `Currently ${freePlansPerDay} free plan${freePlansPerDay === 1 ? '' : 's'} per day.`}
+                      ? 'Adjust free plans per month.'
+                      : `Currently ${freePlansPerDay} free plan${freePlansPerDay === 1 ? '' : 's'} per month.`}
                   </p>
                 </div>
                 <ArrowRight size={18} aria-hidden />

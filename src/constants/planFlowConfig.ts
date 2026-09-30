@@ -11,6 +11,7 @@ export type PlanTypeSlug = 'night_out' | 'date_night' | 'vacation' | 'road_trip'
 export type PlanFlowConfig = {
   slug: PlanTypeSlug;
   title: string;
+  submitLabel: string;
   questions: QuestionConfig[];
 };
 
@@ -18,21 +19,25 @@ export const PLAN_FLOW_CONFIG: Record<PlanTypeSlug, PlanFlowConfig> = {
   night_out: {
     slug: 'night_out',
     title: 'Plan My Night Out',
+    submitLabel: 'Plan my night out',
     questions: NIGHT_OUT_QUESTIONS,
   },
   date_night: {
     slug: 'date_night',
     title: 'Plan My Date Night',
+    submitLabel: 'Plan my date',
     questions: DATE_NIGHT_QUESTIONS,
   },
   vacation: {
     slug: 'vacation',
     title: 'Plan My Vacation',
+    submitLabel: 'Plan my vacation',
     questions: VACATION_QUESTIONS,
   },
   road_trip: {
     slug: 'road_trip',
     title: 'Plan My Road Trip',
+    submitLabel: 'Plan my road trip',
     questions: ROAD_TRIP_QUESTIONS,
   },
 };

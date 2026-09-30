@@ -1,9 +1,9 @@
 import type { PlanTypeSlug } from '../constants/planFlowConfig';
 import type { Suggestion } from '../lib/apiTypes';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
-import { SuggestionCard } from '../components/SuggestionCard';
+import { SuggestionCard, type PlanDraftStatus } from '../components/SuggestionCard';
 import { AppShell } from '../components/layout/AppShell';
 import { Button } from '../components/ui/Button';
 import { EmptyState } from '../components/ui/EmptyState';
@@ -27,6 +27,10 @@ export function SuggestionsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [retrying, setRetrying] = useState(false);
+  const [failedIds, setFailedIds] = useState<number[]>([]);
+  const [choosingId, setChoosingId] = useState<number | null>(null);
+  const [chooseError, setChooseError] = useState<string | null>(null);
+  const startedIds = useRef<Set<number>>(new Set());
 
   useEffect(() => {
     if (!sessionUuid) {
@@ -44,6 +48,37 @@ export function SuggestionsPage() {
       .finally(() => setLoading(false));
   }, [sessionUuid]);
 
+  useEffect(() => {
+    if (!sessionUuid) {
+      return;
+    }
+
+    for (const suggestion of suggestions) {
+      if (suggestion.itinerary_content || startedIds.current.has(suggestion.id)) {
+        continue;
+      }
+
+      startedIds.current.add(suggestion.id);
+      const suggestionId = suggestion.id;
+
+      void planSessionApi
+        .draftSuggestionPlan(sessionUuid, suggestionId)
+        .then((response) => {
+          const content = response.data.suggestion.itinerary_content;
+
+          setSuggestions((current) =>
+            current.map((item) =>
+              item.id === suggestionId ? { ...item, itinerary_content: content } : item,
+            ),
+          );
+          setFailedIds((current) => current.filter((id) => id !== suggestionId));
+        })
+        .catch(() => {
+          setFailedIds((current) => (current.includes(suggestionId) ? current : [...current, suggestionId]));
+        });
+    }
+  }, [sessionUuid, suggestions]);
+
   async function handleRetry() {
     if (!sessionUuid) {
       return;
@@ -54,6 +89,8 @@ export function SuggestionsPage() {
 
     try {
       const response = await planSessionApi.generateSuggestions(sessionUuid);
+      startedIds.current.clear();
+      setFailedIds([]);
       setSuggestions(response.data.suggestions);
     } catch {
       setError('Unable to generate suggestions. Please try again.');
@@ -62,14 +99,40 @@ export function SuggestionsPage() {
     }
   }
 
-  function handleSelect(suggestion: Suggestion) {
-    if (!planType || !sessionUuid) {
+  function handleRetryPlan(suggestionId: number) {
+    startedIds.current.delete(suggestionId);
+    setFailedIds((current) => current.filter((id) => id !== suggestionId));
+    setSuggestions((current) => current.map((item) => ({ ...item })));
+  }
+
+  async function handleSelect(suggestion: Suggestion) {
+    if (!planType || !sessionUuid || choosingId !== null) {
       return;
     }
 
-    navigate(withSession(`/plan/${planType}/confirm`, sessionUuid), {
-      state: { suggestionId: suggestion.id },
-    });
+    setChoosingId(suggestion.id);
+    setChooseError(null);
+
+    try {
+      await planSessionApi.selectSuggestion(sessionUuid, suggestion.id);
+      await planSessionApi.generateItinerary(sessionUuid);
+      navigate(withSession(`/plan/${planType}/itinerary`, sessionUuid));
+    } catch {
+      setChooseError('Unable to open this plan. Please try again.');
+      setChoosingId(null);
+    }
+  }
+
+  function planStatus(suggestion: Suggestion): PlanDraftStatus {
+    if (suggestion.itinerary_content) {
+      return 'ready';
+    }
+
+    if (failedIds.includes(suggestion.id)) {
+      return 'failed';
+    }
+
+    return 'writing';
   }
 
   if (!planType || !config) {
@@ -87,6 +150,8 @@ export function SuggestionsPage() {
       </AppShell>
     );
   }
+
+  const readyCount = suggestions.filter((suggestion) => suggestion.itinerary_content).length;
 
   return (
     <AppShell title="Suggestions" showBack backTo={`/plan/${planType}`}>
@@ -111,6 +176,12 @@ export function SuggestionsPage() {
         />
       ) : null}
 
+      {!loading && !error && suggestions.length > 0 ? (
+        <p className="suggestions-progress">
+          {readyCount} of {suggestions.length} plans ready.
+        </p>
+      ) : null}
+
       {!loading && !error ? (
         <div className="suggestions-list">
           {suggestions.map((suggestion) => (
@@ -118,11 +189,17 @@ export function SuggestionsPage() {
               key={suggestion.id}
               suggestion={suggestion}
               planType={planType as PlanTypeSlug}
-              onSelect={handleSelect}
+              planStatus={planStatus(suggestion)}
+              itinerary={suggestion.itinerary_content}
+              onSelect={(item) => void handleSelect(item)}
+              onRetry={() => handleRetryPlan(suggestion.id)}
+              choosing={choosingId === suggestion.id}
             />
           ))}
         </div>
       ) : null}
+
+      {chooseError ? <p className="error-text">{chooseError}</p> : null}
 
       {!loading && !error ? (
         <Button

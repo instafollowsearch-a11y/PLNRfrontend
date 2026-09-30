@@ -1,12 +1,13 @@
 import { CheckCircle2, Share2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { Link, Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import { SendSignupModal } from '../components/plans/SendSignupModal';
 import { SharePlanModal } from '../components/plans/SharePlanModal';
 import { AppShell } from '../components/layout/AppShell';
 import { Button } from '../components/ui/Button';
 import { EmptyState } from '../components/ui/EmptyState';
+import { LoadingState } from '../components/ui/LoadingState';
 import { FunnelStepper } from '../components/ui/FunnelStepper';
 import { Input } from '../components/ui/Input';
 import { PageIntro } from '../components/ui/PageIntro';
@@ -114,6 +115,18 @@ export function SendPage() {
         <EmptyState title="Session expired" />
       </AppShell>
     );
+  }
+
+  if (authLoading) {
+    return (
+      <AppShell title="Send" showBack backTo={withSession(`/plan/${planType}/itinerary`, sessionUuid)}>
+        <LoadingState message="Loading…" />
+      </AppShell>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to={withSession(`/plan/${planType}/itinerary`, sessionUuid)} replace />;
   }
 
   if (sent) {

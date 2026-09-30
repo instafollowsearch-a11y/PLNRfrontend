@@ -1,4 +1,4 @@
-import { CalendarDays, ExternalLink, Mail, MapPin } from 'lucide-react';
+import { CalendarDays, Mail, MapPin } from 'lucide-react';
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
@@ -8,7 +8,7 @@ import { AppShell } from '../components/layout/AppShell';
 import { ProPaywall } from '../components/pro/ProPaywall';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
-import { Card } from '../components/ui/Card';
+import { WeekendPicksResults } from '../components/weekend/WeekendPicksResults';
 import { EmptyState } from '../components/ui/EmptyState';
 import { LoadingState } from '../components/ui/LoadingState';
 import { PageIntro } from '../components/ui/PageIntro';
@@ -24,20 +24,6 @@ import {
 import './WeekendPage.css';
 
 type WeekendStep = 'form' | 'generating' | 'results' | 'emailed';
-
-function formatEventDate(value: string | null): string {
-  if (!value) {
-    return 'Date TBA';
-  }
-
-  return new Date(value).toLocaleString(undefined, {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  });
-}
 
 function locationFromCityLabel(city: string | null | undefined): LocationValue | null {
   const label = city?.trim();
@@ -90,6 +76,34 @@ export function WeekendPage() {
       setInterestsRaw(JSON.stringify({ selected: user.interests, custom: '' }));
     }
   }, [user?.interests, interestsRaw]);
+
+  useEffect(() => {
+    if (!user?.is_pro) {
+      return;
+    }
+
+    let isCurrent = true;
+
+    weekendApi
+      .listWeekendRecommendations()
+      .then((response) => {
+        const latest = response.data.recommendations[0];
+
+        if (!isCurrent || !latest) {
+          return;
+        }
+
+        setRecommendation((current) => current ?? latest);
+        setStep((current) => (current === 'form' ? 'results' : current));
+      })
+      .catch(() => {
+        // The form stays available when past picks cannot be loaded.
+      });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [user?.is_pro]);
 
   const parsedInterests = useMemo(
     () => parseInterestValue(interestsRaw, NIGHT_OUT_INTEREST_PRESETS),
@@ -182,6 +196,7 @@ export function WeekendPage() {
             subtitle="Get AI-curated local events for the week ahead, tailored to your interests."
             returnPath="/weekend"
             isAuthenticated={false}
+            onCreateAccount={() => navigate('/register', { state: { from: '/weekend' } })}
             onRequireLogin={() => navigate('/login', { state: { from: '/weekend' } })}
           />
         </div>
@@ -210,7 +225,7 @@ export function WeekendPage() {
         <PageIntro
           eyebrow="Pro"
           title="Your weekend picks"
-          subtitle="Tell us your city and interests—we will match upcoming local events for the next seven days."
+          subtitle="Tell us your city and interests—we will match local events for the coming weekend."
         />
 
         {step === 'form' || step === 'generating' ? (
@@ -250,33 +265,14 @@ export function WeekendPage() {
               </Badge>
               <Badge variant="muted">
                 <CalendarDays size={12} aria-hidden />
-                Next 7 days
+                Coming weekend
               </Badge>
             </div>
 
-            <div className="weekend-page__list">
-              {recommendation.items.map((item) => (
-                <Card key={item.event_id} className="weekend-page__event">
-                  <div className="weekend-page__event-head">
-                    <h3>{item.title}</h3>
-                    {item.url ? (
-                      <a
-                        href={item.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="weekend-page__event-link"
-                        aria-label={`Open ${item.title}`}
-                      >
-                        <ExternalLink size={16} />
-                      </a>
-                    ) : null}
-                  </div>
-                  <p className="weekend-page__event-venue">{item.venue || 'Venue TBA'}</p>
-                  <p className="weekend-page__event-time">{formatEventDate(item.starts_at)}</p>
-                  <p className="weekend-page__event-reason">{item.reason}</p>
-                </Card>
-              ))}
-            </div>
+            <WeekendPicksResults
+              items={recommendation.items}
+              saturdayPlan={recommendation.saturday_plan}
+            />
 
             {error ? <p className="error-text">{error}</p> : null}
             <Button

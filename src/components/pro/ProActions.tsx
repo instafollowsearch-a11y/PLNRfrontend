@@ -1,6 +1,7 @@
 import { Crown, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
+import { PRO_UPGRADE_SUMMARY } from '../../constants/proBenefits';
 import { useAuth } from '../../contexts/AuthContext';
 import { billingApi } from '../../lib/api';
 import type { ApiError, BillingConfig } from '../../lib/apiTypes';
@@ -149,10 +150,10 @@ export function ProActions({ isPro, returnPath = '/plans' }: ProActionsProps) {
             {isPro
               ? periodEnd
                 ? `Active through ${periodEnd}`
-                : 'Weekend picks and plan sharing unlocked.'
+                : PRO_UPGRADE_SUMMARY
               : priceLabel
-                ? `Weekend picks + sharing — ${priceLabel}`
-                : 'Weekend picks and plan sharing.'}
+                ? `${PRO_UPGRADE_SUMMARY} ${priceLabel}.`
+                : PRO_UPGRADE_SUMMARY}
           </p>
         </div>
         {isPro ? (

@@ -63,7 +63,7 @@ test.describe('Batch 12 modern UI smoke', () => {
 
     await page.getByRole('navigation', { name: /^admin$/i }).getByRole('link', { name: /^settings$/i }).click();
     await expect(page).toHaveURL(/\/admin\/settings/);
-    await expect(page.getByLabel(/free plans per day/i)).toBeVisible();
+    await expect(page.getByLabel(/free plans per month/i)).toBeVisible();
   });
 
   test('landing keeps PLNR as hero-level brand', async ({ page }) => {

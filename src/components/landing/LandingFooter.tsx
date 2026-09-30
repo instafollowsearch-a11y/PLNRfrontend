@@ -1,7 +1,8 @@
 import { Heart, Mail } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { SUPPORT_EMAIL } from '../../lib/api';
+import { billingApi, SUPPORT_EMAIL } from '../../lib/api';
 import './LandingFooter.css';
 
 const FOOTER_LINKS = {
@@ -15,8 +16,48 @@ const FOOTER_LINKS = {
   ],
 } as const;
 
+function StoreButton({ label, url }: { label: string; url: string | null }) {
+  if (!url) {
+    return (
+      <button type="button" className="landing-footer__store" disabled aria-disabled="true">
+        {label}
+      </button>
+    );
+  }
+
+  return (
+    <a className="landing-footer__store" href={url} target="_blank" rel="noopener noreferrer">
+      {label}
+    </a>
+  );
+}
+
 export function LandingFooter() {
   const year = new Date().getFullYear();
+  const [appStoreUrl, setAppStoreUrl] = useState<string | null>(null);
+  const [playStoreUrl, setPlayStoreUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isCurrent = true;
+
+    billingApi
+      .getBillingConfig()
+      .then((response) => {
+        if (!isCurrent) {
+          return;
+        }
+
+        setAppStoreUrl(response.data.app_store_url);
+        setPlayStoreUrl(response.data.play_store_url);
+      })
+      .catch(() => {
+        // A missing config leaves both buttons disabled.
+      });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, []);
 
   return (
     <footer className="landing-footer">
@@ -53,6 +94,14 @@ export function LandingFooter() {
                 </Link>
               ))}
             </nav>
+          </div>
+
+          <div className="landing-footer__column">
+            <h3>Get the app</h3>
+            <div className="landing-footer__stores" aria-label="Download the app">
+              <StoreButton label="App Store" url={appStoreUrl} />
+              <StoreButton label="Google Play" url={playStoreUrl} />
+            </div>
           </div>
 
           <div className="landing-footer__column">

@@ -110,13 +110,19 @@ export function ConfirmPage() {
             planType={planType as PlanTypeSlug}
             onSelect={() => undefined}
             selectable={false}
+            planStatus={suggestion.itinerary_content ? 'ready' : undefined}
+            itinerary={suggestion.itinerary_content}
           />
         ) : null}
 
         {error ? <p className="error-text">{error}</p> : null}
 
         {!loading ? (
-          <Button label="Generate itinerary" onClick={() => void handleConfirm()} loading={submitting} />
+          <Button
+            label={suggestion?.itinerary_content ? 'Open this plan' : 'Generate itinerary'}
+            onClick={() => void handleConfirm()}
+            loading={submitting}
+          />
         ) : null}
       </div>
     </AppShell>

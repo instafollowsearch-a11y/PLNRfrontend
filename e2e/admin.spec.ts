@@ -11,7 +11,7 @@ test.describe('FLOW-04 admin access', () => {
     await loginAs(page, DEMO_ADMIN.email, DEMO_ADMIN.password);
     await page.goto('/admin/settings');
     await expect(page.getByRole('heading', { name: /app settings/i })).toBeVisible();
-    await expect(page.getByLabel(/free plans per day/i)).toBeVisible();
+    await expect(page.getByLabel(/free plans per month/i)).toBeVisible();
   });
 
   test('non-admin is redirected from admin', async ({ page }) => {

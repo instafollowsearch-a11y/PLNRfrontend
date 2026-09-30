@@ -9,10 +9,14 @@ export type RoadTripAnswers = {
   interests: string;
   food_preferences: string;
   group_size: number;
+  needs_hotel: string;
+  hotel_location?: string;
+  hotel_shuttle?: string;
 };
 
 export function parseRoadTripAnswers(raw: Record<string, string>): RoadTripAnswers {
   const stopPreference = raw.stop_preference === 'with_stops' ? 'with_stops' : 'straight';
+  const needsHotel = raw.needs_hotel === 'Yes' || raw.needs_hotel === 'Already booked';
 
   return {
     start_location: raw.start_location?.trim() ?? '',
@@ -26,6 +30,9 @@ export function parseRoadTripAnswers(raw: Record<string, string>): RoadTripAnswe
     interests: raw.interests?.trim() ?? '',
     food_preferences: raw.food_preferences?.trim() ?? '',
     group_size: Number(raw.group_size),
+    needs_hotel: raw.needs_hotel?.trim() ?? '',
+    hotel_location: needsHotel ? raw.hotel_location?.trim() ?? '' : undefined,
+    hotel_shuttle: needsHotel ? raw.hotel_shuttle?.trim() ?? '' : undefined,
   };
 }
 
@@ -47,6 +54,10 @@ export function validateRoadTripAnswers(answers: Record<string, unknown>): boole
     typed.interests.length >= 3 &&
     typed.food_preferences.length >= 3 &&
     Number.isFinite(typed.group_size) &&
-    typed.group_size >= 1
+    typed.group_size >= 1 &&
+    (typed.needs_hotel === 'Yes' || typed.needs_hotel === 'No' || typed.needs_hotel === 'Already booked') &&
+    (typed.needs_hotel === 'No' ||
+      ((typed.hotel_location?.length ?? 0) > 0 &&
+        (typed.hotel_shuttle === 'Yes' || typed.hotel_shuttle === 'No' || typed.hotel_shuttle === 'Not sure')))
   );
 }

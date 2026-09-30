@@ -33,6 +33,25 @@
   gap: var(--spacing-md);
 }
 
+.weekend-page__day {
+  margin: 0;
+  font-size: 1.125rem;
+}
+
+.weekend-page__empty {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.weekend-page__stops {
+  margin: 0;
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
 .weekend-page__event {
   display: flex;
   flex-direction: column;

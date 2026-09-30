@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { PRO_UPGRADE_SUMMARY } from '../../constants/proBenefits';
 import { billingApi, planShareApi } from '../../lib/api';
 import type { ApiError } from '../../lib/apiTypes';
 import { billingReturnUrls } from '../../lib/billingHelpers';
@@ -82,8 +83,7 @@ export function SharePlanModal({
           {!isPro ? (
             <>
               <p className="share-plan-modal__lead">
-                Invite friends to view your itinerary with Pro. They get a view-only link and stop
-                reminders.
+                {PRO_UPGRADE_SUMMARY} Upgrade to invite someone to this plan.
               </p>
               {error ? <p className="error-text">{error}</p> : null}
               <div className="share-plan-modal__actions">

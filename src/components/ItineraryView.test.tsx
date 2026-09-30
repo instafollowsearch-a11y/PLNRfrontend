@@ -32,5 +32,10 @@ describe('ItineraryView', () => {
       'href',
       'https://maps.example.com/jazz',
     );
+    expect(
+      screen.getByText(
+        'Times are ranges, not exact times. Places and plans can be off. Double-check before you go.',
+      ),
+    ).toBeInTheDocument();
   });
 });

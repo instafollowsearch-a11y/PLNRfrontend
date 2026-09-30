@@ -86,6 +86,9 @@ export function ItineraryView({ content, planType, roadTripSummary }: ItineraryV
     <section className="itinerary-view">
       <h2 className="itinerary-view__title">{content.title}</h2>
       {content.summary ? <p className="itinerary-view__summary">{content.summary}</p> : null}
+      <p className="itinerary-view__disclaimer">
+        Times are ranges, not exact times. Places and plans can be off. Double-check before you go.
+      </p>
 
       {showRoadTripStrip ? (
         <div className="itinerary-view__strip">

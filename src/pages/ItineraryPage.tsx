@@ -7,11 +7,13 @@ import { ItineraryView } from '../components/ItineraryView';
 import { SharePlanModal } from '../components/plans/SharePlanModal';
 import { AppShell } from '../components/layout/AppShell';
 import { Button } from '../components/ui/Button';
+import { Card } from '../components/ui/Card';
 import { EmptyState } from '../components/ui/EmptyState';
 import { FunnelStepper } from '../components/ui/FunnelStepper';
 import { LoadingState } from '../components/ui/LoadingState';
 import { useAuth } from '../contexts/AuthContext';
 import { planSessionApi } from '../lib/api';
+import { previewItinerary } from '../lib/itineraryPreview';
 import { resolveSessionUuid, withSession } from '../lib/session';
 import { getPlanFlowConfig, usePlanTypeParam } from './HomePage';
 
@@ -22,7 +24,7 @@ export function ItineraryPage() {
   const sessionUuid = resolveSessionUuid(searchParams);
   const navigate = useNavigate();
   const config = planType ? getPlanFlowConfig(planType) : null;
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
 
   const [loading, setLoading] = useState(true);
   const [shareOpen, setShareOpen] = useState(false);
@@ -74,37 +76,60 @@ export function ItineraryPage() {
   }
 
   const content = session?.itinerary?.content;
+  const isViewer = session?.access_role === 'viewer';
+  const showPreview = !authLoading && !user && !isViewer;
+  const visibleContent = content && showPreview ? previewItinerary(content) : content;
+  const returnPath = withSession(`/plan/${planType}/itinerary`, sessionUuid);
   const canShare =
     Boolean(user) &&
-    session?.access_role !== 'viewer' &&
+    !isViewer &&
     (session?.access_role === 'owner' || session?.access_role == null);
 
   return (
     <AppShell title="Itinerary" showBack backTo={withSession(`/plan/${planType}/confirm`, sessionUuid)}>
       <FunnelStepper current="itinerary" planType={planType} sessionUuid={sessionUuid} />
-      {loading ? <LoadingState message="Loading itinerary…" /> : null}
+      {loading || authLoading ? <LoadingState message="Loading itinerary…" /> : null}
 
-      {!loading && content ? (
+      {!loading && !authLoading && visibleContent ? (
         <>
           <ItineraryView
-            content={content}
+            content={visibleContent}
             planType={planType as PlanTypeSlug}
             roadTripSummary={roadTripSummary}
           />
-          <div className="page-stack">
-            <Button
-              label="Send to my email"
-              onClick={() => navigate(withSession(`/plan/${planType}/send`, sessionUuid))}
-            />
-            {canShare ? (
-              <Button
-                label="Share plan"
-                variant="secondary"
-                icon={<Share2 size={16} />}
-                onClick={() => setShareOpen(true)}
-              />
-            ) : null}
-          </div>
+          {showPreview ? (
+            <Card className="page-stack">
+              <h2 className="itinerary-view__title">Create a free account to see the full plan.</h2>
+              <div className="page-stack">
+                <Button
+                  label="Create an account"
+                  onClick={() => navigate('/register', { state: { from: returnPath } })}
+                />
+                <Button
+                  label="Log in"
+                  variant="secondary"
+                  onClick={() => navigate('/login', { state: { from: returnPath } })}
+                />
+              </div>
+            </Card>
+          ) : (
+            <div className="page-stack">
+              {!isViewer ? (
+                <Button
+                  label="Send to my email"
+                  onClick={() => navigate(withSession(`/plan/${planType}/send`, sessionUuid))}
+                />
+              ) : null}
+              {canShare ? (
+                <Button
+                  label="Share plan"
+                  variant="secondary"
+                  icon={<Share2 size={16} />}
+                  onClick={() => setShareOpen(true)}
+                />
+              ) : null}
+            </div>
+          )}
           {shareOpen && sessionUuid ? (
             <SharePlanModal
               sessionUuid={sessionUuid}

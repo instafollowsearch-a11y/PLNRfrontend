@@ -170,3 +170,9 @@
     padding: var(--spacing-xxxl);
   }
 }
+
+.auth-forgot {
+  margin: 0;
+  text-align: right;
+  font-size: 0.875rem;
+}

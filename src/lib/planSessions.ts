@@ -34,6 +34,13 @@ export function createPlanSessionApi(config: ApiClientConfig) {
       );
     },
 
+    draftSuggestionPlan(sessionUuid: string, suggestionId: number) {
+      return apiRequest<{ suggestion: Suggestion }>(
+        `/plan-sessions/${sessionUuid}/suggestions/${suggestionId}/plan`,
+        { method: 'POST' },
+      );
+    },
+
     selectSuggestion(sessionUuid: string, suggestionId: number) {
       return apiRequest<{ plan_session: PlanSession; selected_suggestion: Suggestion }>(
         `/plan-sessions/${sessionUuid}/select`,

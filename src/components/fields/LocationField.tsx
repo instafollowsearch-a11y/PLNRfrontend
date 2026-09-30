@@ -45,16 +45,19 @@ export function LocationField({ value, placeholder, onChange }: LocationFieldPro
       setMapError(null);
 
       const result = await reverseGeocode(lat, lon);
+      const selected = result ?? {
+        label: `${lat.toFixed(4)}, ${lon.toFixed(4)}`,
+        lat,
+        lon,
+      };
+
+      setQuery(selected.label);
+      onChange(selected);
+      setResults([]);
 
       if (!result) {
-        setMapError('Could not resolve that location. Try another spot.');
-
-        return;
+        setMapError('Place name could not be looked up. The pin is still selected.');
       }
-
-      setQuery(result.label);
-      onChange(result);
-      setResults([]);
     },
     [onChange],
   );

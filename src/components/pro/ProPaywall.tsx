@@ -1,6 +1,7 @@
 import { Crown, Sparkles } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
+import { PRO_UPGRADE_BENEFITS, PRO_UPGRADE_SUMMARY } from '../../constants/proBenefits';
 import { billingApi } from '../../lib/api';
 import type { BillingConfig } from '../../lib/apiTypes';
 import { billingReturnUrls, formatProPrice, parseBillingConfig } from '../../lib/billingHelpers';
@@ -9,19 +10,23 @@ import { Card } from '../ui/Card';
 import { LoadingState } from '../ui/LoadingState';
 import './ProPaywall.css';
 
+const FALLBACK_PRICE_LABEL = `${formatProPrice(999, 'usd')}/mo`;
+
 type ProPaywallProps = {
   title?: string;
   subtitle?: string;
   returnPath?: string;
   onRequireLogin?: () => void;
+  onCreateAccount?: () => void;
   isAuthenticated?: boolean;
 };
 
 export function ProPaywall({
   title = 'Upgrade to Pro',
-  subtitle = 'Unlock weekend event picks, plan sharing, and more.',
+  subtitle = PRO_UPGRADE_SUMMARY,
   returnPath = '/weekend',
   onRequireLogin,
+  onCreateAccount,
   isAuthenticated = true,
 }: ProPaywallProps) {
   const [config, setConfig] = useState<BillingConfig | null>(null);
@@ -33,7 +38,7 @@ export function ProPaywall({
     void billingApi
       .getBillingConfig()
       .then((response) => setConfig(parseBillingConfig(response.data)))
-      .catch(() => setError('Unable to load Pro pricing.'))
+      .catch(() => setConfig(null))
       .finally(() => setLoading(false));
   }, []);
 
@@ -57,10 +62,11 @@ export function ProPaywall({
     }
   }
 
-  const priceLabel =
-    config !== null
+  const priceLabel = loading
+    ? null
+    : config !== null
       ? `${formatProPrice(config.pro_monthly_price_cents, config.pro_currency)}/mo`
-      : null;
+      : FALLBACK_PRICE_LABEL;
 
   return (
     <Card className="pro-paywall">
@@ -75,20 +81,24 @@ export function ProPaywall({
       <p className="pro-paywall__subtitle">{subtitle}</p>
 
       <ul className="pro-paywall__features">
-        <li>Curated weekend event picks for your city</li>
-        <li>Share itineraries with friends and family</li>
-        <li>Email your picks anytime</li>
+        {PRO_UPGRADE_BENEFITS.map((benefit) => (
+          <li key={benefit}>{benefit}</li>
+        ))}
+        <li>Weekend event picks for your city</li>
       </ul>
 
       {loading ? <LoadingState message="Loading pricing…" /> : null}
       {priceLabel ? <p className="pro-paywall__price">{priceLabel}</p> : null}
       {error ? <p className="error-text">{error}</p> : null}
 
-      <Button
-        label={isAuthenticated ? 'Upgrade to Pro' : 'Log in to upgrade'}
-        onClick={() => void handleUpgrade()}
-        loading={checkoutLoading}
-      />
+      {isAuthenticated ? (
+        <Button label="Upgrade to Pro" onClick={() => void handleUpgrade()} loading={checkoutLoading} />
+      ) : (
+        <>
+          <Button label="Create an account" onClick={() => onCreateAccount?.()} />
+          <Button label="Log in" variant="secondary" onClick={() => onRequireLogin?.()} />
+        </>
+      )}
     </Card>
   );
 }

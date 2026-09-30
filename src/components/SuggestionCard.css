@@ -73,3 +73,44 @@
   font-weight: 700;
   color: var(--color-accent);
 }
+
+.suggestion-card__plan {
+  margin-top: var(--spacing-md);
+}
+
+.suggestion-card__writing {
+  margin-top: var(--spacing-md);
+}
+
+.suggestion-card__writing-label,
+.suggestion-card__failed {
+  margin: 0 0 var(--spacing-sm);
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.suggestion-card__writing .progress-bar__fill {
+  width: 40%;
+  animation: suggestion-plan-write 1.2s ease-in-out infinite;
+}
+
+.suggestion-card__choose {
+  margin-top: var(--spacing-md);
+}
+
+@keyframes suggestion-plan-write {
+  0% {
+    transform: translateX(-120%);
+  }
+
+  100% {
+    transform: translateX(280%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .suggestion-card__writing .progress-bar__fill {
+    animation: none;
+    width: 100%;
+  }
+}
