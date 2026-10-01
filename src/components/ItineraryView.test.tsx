@@ -48,6 +48,7 @@ describe('ItineraryView', () => {
       <ItineraryView
         content={{
           title: 'Night Out',
+          summary: 'A fun evening',
           stops: [
             {
               time: '8:00 PM',
@@ -74,6 +75,7 @@ describe('ItineraryView', () => {
       <ItineraryView
         content={{
           title: 'Night Out',
+          summary: 'A fun evening',
           stops: [
             {
               time: '9:00 PM',
