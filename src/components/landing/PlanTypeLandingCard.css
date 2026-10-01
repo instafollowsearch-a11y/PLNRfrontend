@@ -1,59 +1,116 @@
 .plan-landing-card {
   --plan-accent: var(--color-accent);
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
+  gap: 1.15rem;
   min-height: 100%;
-  padding: var(--spacing-xl);
-  border: 1px solid var(--color-border-light);
-  border-top: 4px solid var(--plan-accent);
-  border-radius: calc(var(--radius-lg) + 2px);
-  background: var(--color-surface);
+  padding: 1.35rem 1.35rem 1.2rem;
+  border-style: solid;
+  border-width: 3px 1px 1px;
+  border-color: var(--plan-accent)
+    color-mix(in srgb, var(--plan-accent) 22%, var(--color-border-light))
+    color-mix(in srgb, var(--plan-accent) 22%, var(--color-border-light))
+    color-mix(in srgb, var(--plan-accent) 22%, var(--color-border-light));
+  border-radius: 22px;
+  background:
+    radial-gradient(120% 80% at 100% 0%, color-mix(in srgb, var(--plan-accent) 18%, white), transparent 55%),
+    linear-gradient(180deg, color-mix(in srgb, var(--plan-accent) 10%, white) 0%, #fff 46%);
   box-shadow: var(--shadow-card);
   text-decoration: none;
   color: inherit;
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease;
 }
 
 .plan-landing-card:hover {
   transform: translateY(-4px);
-  box-shadow: var(--shadow-elevated);
+  border-color: color-mix(in srgb, var(--plan-accent) 55%, white);
+  box-shadow:
+    0 16px 36px color-mix(in srgb, var(--plan-accent) 16%, transparent),
+    var(--shadow-elevated);
+}
+
+.plan-landing-card:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--plan-accent) 45%, white);
+  outline-offset: 3px;
 }
 
 .plan-landing-card__icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 56px;
-  height: 56px;
-  border-radius: var(--radius-md);
-  background: color-mix(in srgb, var(--plan-accent) 12%, white);
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+  background: #fff;
   color: var(--plan-accent);
+  box-shadow: 0 10px 22px color-mix(in srgb, var(--plan-accent) 20%, transparent);
 }
 
 .plan-landing-card__copy {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: 0.45rem;
   flex: 1;
 }
 
 .plan-landing-card__title {
-  font-size: 1.25rem;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
   font-weight: 700;
-  line-height: 1.25;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
 }
 
 .plan-landing-card__description {
   color: var(--color-text-secondary);
+  font-size: 0.975rem;
   line-height: 1.55;
 }
 
 .plan-landing-card__action {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  font-size: 0.9375rem;
-  font-weight: 700;
+  align-self: flex-start;
+  gap: 0.35rem;
+  margin-top: 0.35rem;
+  padding: 0.55rem 0.95rem;
+  border: 1px solid color-mix(in srgb, var(--plan-accent) 28%, white);
+  border-radius: var(--radius-pill);
+  background: #fff;
   color: var(--plan-accent);
+  font-size: 0.875rem;
+  font-weight: 700;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.plan-landing-card__action svg {
+  transition: transform 0.18s ease;
+}
+
+.plan-landing-card:hover .plan-landing-card__action {
+  border-color: transparent;
+  background: var(--plan-accent);
+  color: #fff;
+}
+
+.plan-landing-card:hover .plan-landing-card__action svg {
+  transform: translateX(3px);
+}
+
+@media (max-width: 767px) {
+  .plan-landing-card {
+    padding: 1.15rem 1.15rem 1.05rem;
+    border-radius: 18px;
+  }
+
+  .plan-landing-card__title {
+    font-size: 1.2rem;
+  }
 }

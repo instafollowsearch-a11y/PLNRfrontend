@@ -1,6 +1,13 @@
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight, Car, Heart, Moon, Plane, Sparkles } from 'lucide-react';
 
 import './LandingHero.css';
+
+const HERO_TYPES = [
+  { label: 'Date night', icon: Heart },
+  { label: 'Night out', icon: Moon },
+  { label: 'Vacation', icon: Plane },
+  { label: 'Road trip', icon: Car },
+] as const;
 
 const MOCK_STOPS = [
   { time: '7:00 PM', venue: 'Rooftop cocktails', activity: 'Sunset drinks' },
@@ -21,7 +28,14 @@ export function LandingHero({ onStartPlanning, onHowItWorks }: LandingHeroProps)
 
       <div className="landing-hero__inner">
         <div className="landing-hero__copy">
-          <p className="landing-hero__brand">PLNR</p>
+          <ul className="landing-hero__types">
+            {HERO_TYPES.map(({ label, icon: Icon }) => (
+              <li key={label}>
+                <Icon size={14} aria-hidden />
+                {label}
+              </li>
+            ))}
+          </ul>
           <p className="landing-hero__eyebrow">
             <Sparkles size={16} />
             Free AI planning

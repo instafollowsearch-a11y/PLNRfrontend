@@ -3,6 +3,7 @@ import type { Suggestion } from '../lib/apiTypes';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
+import { RefinementChat } from '../components/RefinementChat';
 import { SuggestionCard, type PlanDraftStatus } from '../components/SuggestionCard';
 import { AppShell } from '../components/layout/AppShell';
 import { Button } from '../components/ui/Button';
@@ -24,6 +25,10 @@ export function SuggestionsPage() {
   const config = planType ? getPlanFlowConfig(planType) : null;
 
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [accessRole, setAccessRole] = useState<string | null>(null);
+  const [refinementMessages, setRefinementMessages] = useState<
+    Array<{ role: string; content: string; created_at: string }>
+  >([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [retrying, setRetrying] = useState(false);
@@ -42,7 +47,10 @@ export function SuggestionsPage() {
     void planSessionApi
       .getPlanSession(sessionUuid)
       .then((response) => {
-        setSuggestions(response.data.plan_session.suggestions ?? []);
+        const planSession = response.data.plan_session;
+        setSuggestions(planSession.suggestions ?? []);
+        setAccessRole(planSession.access_role ?? null);
+        setRefinementMessages(planSession.refinement_messages ?? []);
       })
       .catch(() => setError('Unable to load suggestions.'))
       .finally(() => setLoading(false));
@@ -105,6 +113,18 @@ export function SuggestionsPage() {
     setSuggestions((current) => current.map((item) => ({ ...item })));
   }
 
+  async function handleRefine(message: string) {
+    if (!sessionUuid) {
+      return;
+    }
+
+    const response = await planSessionApi.refinePlanSession(sessionUuid, message);
+    startedIds.current.clear();
+    setFailedIds([]);
+    setSuggestions(response.data.suggestions);
+    setRefinementMessages(response.data.plan_session.refinement_messages ?? []);
+  }
+
   async function handleSelect(suggestion: Suggestion) {
     if (!planType || !sessionUuid || choosingId !== null) {
       return;
@@ -152,6 +172,29 @@ export function SuggestionsPage() {
   }
 
   const readyCount = suggestions.filter((suggestion) => suggestion.itinerary_content).length;
+  const canRefine = accessRole !== 'viewer';
+  const suggestionList = (
+    <>
+      <p className="suggestions-progress">
+        {readyCount} of {suggestions.length} plans ready.
+      </p>
+      <div className="suggestions-list">
+        {suggestions.map((suggestion) => (
+          <SuggestionCard
+            key={suggestion.id}
+            suggestion={suggestion}
+            planType={planType as PlanTypeSlug}
+            planStatus={planStatus(suggestion)}
+            itinerary={suggestion.itinerary_content}
+            onSelect={(item) => void handleSelect(item)}
+            onRetry={() => handleRetryPlan(suggestion.id)}
+            choosing={choosingId === suggestion.id}
+          />
+        ))}
+      </div>
+      {chooseError ? <p className="error-text">{chooseError}</p> : null}
+    </>
+  );
 
   return (
     <AppShell title="Suggestions" showBack backTo={`/plan/${planType}`}>
@@ -176,38 +219,13 @@ export function SuggestionsPage() {
         />
       ) : null}
 
-      {!loading && !error && suggestions.length > 0 ? (
-        <p className="suggestions-progress">
-          {readyCount} of {suggestions.length} plans ready.
-        </p>
+      {!loading && !error && suggestions.length > 0 && canRefine ? (
+        <RefinementChat messages={refinementMessages} onSubmit={handleRefine}>
+          {suggestionList}
+        </RefinementChat>
       ) : null}
 
-      {!loading && !error ? (
-        <div className="suggestions-list">
-          {suggestions.map((suggestion) => (
-            <SuggestionCard
-              key={suggestion.id}
-              suggestion={suggestion}
-              planType={planType as PlanTypeSlug}
-              planStatus={planStatus(suggestion)}
-              itinerary={suggestion.itinerary_content}
-              onSelect={(item) => void handleSelect(item)}
-              onRetry={() => handleRetryPlan(suggestion.id)}
-              choosing={choosingId === suggestion.id}
-            />
-          ))}
-        </div>
-      ) : null}
-
-      {chooseError ? <p className="error-text">{chooseError}</p> : null}
-
-      {!loading && !error ? (
-        <Button
-          label="Something else instead"
-          variant="secondary"
-          onClick={() => navigate(withSession(`/plan/${planType}/refine`, sessionUuid))}
-        />
-      ) : null}
+      {!loading && !error && suggestions.length > 0 && !canRefine ? suggestionList : null}
     </AppShell>
   );
 }

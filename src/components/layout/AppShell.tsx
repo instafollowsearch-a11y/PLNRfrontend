@@ -2,6 +2,7 @@ import { ArrowLeft, Menu } from 'lucide-react';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
+import plnrLogo from '../../assets/plnr-logo-black-lettering.png';
 import { useAuth } from '../../contexts/AuthContext';
 import { PRIVACY_POLICY_URL, SUPPORT_EMAIL } from '../../lib/api';
 import './AppShell.css';
@@ -112,8 +113,8 @@ export function AppShell({
               <ArrowLeft size={20} />
             </button>
           ) : null}
-          <Link to="/" className="app-shell__logo" onClick={closeMenu}>
-            PLNR
+          <Link to="/" className="app-shell__logo" onClick={closeMenu} aria-label="PLNR">
+            <img src={plnrLogo} alt="" />
           </Link>
         </div>
 

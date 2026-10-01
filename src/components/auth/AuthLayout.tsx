@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 
+import plnrLogo from '../../assets/plnr-logo-white-lettering.png';
 import './AuthLayout.css';
 
 type AuthLayoutProps = {
@@ -15,8 +16,8 @@ export function AuthLayout({ title, subtitle, children, footer }: AuthLayoutProp
     <div className="auth-layout">
       <aside className="auth-layout__brand" aria-label="PLNR">
         <div className="auth-layout__brand-inner">
-          <Link to="/" className="auth-layout__logo">
-            PLNR
+          <Link to="/" className="auth-layout__logo" aria-label="PLNR">
+            <img src={plnrLogo} alt="" />
           </Link>
           <p className="auth-layout__tagline">Plan nights worth remembering.</p>
           <p className="auth-layout__blurb">

@@ -16,9 +16,25 @@
   gap: var(--spacing-lg);
 }
 
+@media (max-width: 767px) {
+  .plan-type-grid {
+    padding: 2.25rem 1.25rem;
+  }
+
+  .plan-type-grid__intro {
+    margin-bottom: 1.25rem;
+  }
+}
+
 @media (min-width: 768px) {
   .plan-type-grid__cards {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .plan-type-grid__cards {
+    gap: 1.25rem;
   }
 }
 

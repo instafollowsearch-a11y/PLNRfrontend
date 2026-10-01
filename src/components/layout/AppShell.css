@@ -38,15 +38,14 @@
 }
 
 .app-shell__logo {
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  color: var(--color-accent);
-  font-size: 1.15rem;
-  transition: color var(--duration-fast) var(--ease-out);
+  display: inline-flex;
+  align-items: center;
 }
 
-.app-shell__logo:hover {
-  color: var(--color-accent-dark);
+.app-shell__logo img {
+  display: block;
+  height: 2.5rem;
+  width: auto;
 }
 
 .app-shell__title {

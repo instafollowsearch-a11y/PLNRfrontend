@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import { ItineraryView } from '../components/ItineraryView';
+import { RefinementChat } from '../components/RefinementChat';
 import { SharePlanModal } from '../components/plans/SharePlanModal';
 import { AppShell } from '../components/layout/AppShell';
 import { Button } from '../components/ui/Button';
@@ -75,6 +76,15 @@ export function ItineraryPage() {
     );
   }
 
+  async function handleRefine(message: string) {
+    if (!sessionUuid || !planType) {
+      return;
+    }
+
+    await planSessionApi.refinePlanSession(sessionUuid, message);
+    navigate(withSession(`/plan/${planType}/suggestions`, sessionUuid));
+  }
+
   const content = session?.itinerary?.content;
   const isViewer = session?.access_role === 'viewer';
   const showPreview = !authLoading && !user && !isViewer;
@@ -90,8 +100,8 @@ export function ItineraryPage() {
       <FunnelStepper current="itinerary" planType={planType} sessionUuid={sessionUuid} />
       {loading || authLoading ? <LoadingState message="Loading itinerary…" /> : null}
 
-      {!loading && !authLoading && visibleContent ? (
-        <>
+      {!loading && !authLoading && visibleContent && !isViewer ? (
+        <RefinementChat messages={session?.refinement_messages ?? []} onSubmit={handleRefine}>
           <ItineraryView
             content={visibleContent}
             planType={planType as PlanTypeSlug}
@@ -137,14 +147,15 @@ export function ItineraryPage() {
               onClose={() => setShareOpen(false)}
             />
           ) : null}
-          {!isViewer && sessionUuid ? (
-            <Button
-              label="Something else instead"
-              variant="secondary"
-              onClick={() => navigate(withSession(`/plan/${planType}/refine`, sessionUuid))}
-            />
-          ) : null}
-        </>
+        </RefinementChat>
+      ) : null}
+
+      {!loading && !authLoading && visibleContent && isViewer ? (
+        <ItineraryView
+          content={visibleContent}
+          planType={planType as PlanTypeSlug}
+          roadTripSummary={roadTripSummary}
+        />
       ) : null}
 
       {!loading && !content ? (

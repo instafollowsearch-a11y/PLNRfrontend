@@ -40,8 +40,8 @@ export function PlanTypeLandingCard({
         onClick();
       }}
     >
-      <span className="plan-landing-card__icon">
-        <Icon size={28} />
+      <span className="plan-landing-card__icon" aria-hidden>
+        <Icon size={26} />
       </span>
       <span className="plan-landing-card__copy">
         <span className="plan-landing-card__title">{label}</span>
@@ -49,7 +49,7 @@ export function PlanTypeLandingCard({
       </span>
       <span className="plan-landing-card__action">
         Start
-        <ArrowRight size={16} />
+        <ArrowRight size={16} aria-hidden />
       </span>
     </a>
   );
