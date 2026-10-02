@@ -3,7 +3,24 @@ import { MemoryRouter } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { AuthProvider } from '../../contexts/AuthContext';
+import { authApi } from '../../lib/api';
+import type { User } from '../../lib/apiTypes';
+import { clearAuthToken, setAuthToken } from '../../lib/authStorage';
 import { AppShell } from './AppShell';
+
+vi.mock('../../lib/authStorage', () => {
+  let token: string | null = null;
+
+  return {
+    getAuthToken: () => token,
+    setAuthToken: (value: string) => {
+      token = value;
+    },
+    clearAuthToken: () => {
+      token = null;
+    },
+  };
+});
 
 vi.mock('../../lib/api', async () => {
   const actual = await vi.importActual<typeof import('../../lib/api')>('../../lib/api');
@@ -15,6 +32,8 @@ vi.mock('../../lib/api', async () => {
       login: vi.fn(),
       register: vi.fn(),
       logout: vi.fn(),
+      updateProfile: vi.fn(),
+      changePassword: vi.fn(),
     },
     accountApi: {
       claimPlanSession: vi.fn(),
@@ -22,9 +41,20 @@ vi.mock('../../lib/api', async () => {
   };
 });
 
+const signedInUser: User = {
+  id: 1,
+  name: 'Ada Lovelace',
+  email: 'ada@example.com',
+  city: 'London',
+  role: 'user',
+};
+
 describe('AppShell', () => {
   afterEach(() => {
     cleanup();
+    clearAuthToken();
+    vi.mocked(authApi.me).mockReset();
+    vi.mocked(authApi.me).mockRejectedValue(new Error('no session'));
   });
 
   it('renders desktop account links for guests on landing', async () => {
@@ -58,4 +88,27 @@ describe('AppShell', () => {
     expect(screen.getByRole('link', { name: /^plnr$/i })).toBeTruthy();
     expect(screen.getByRole('button', { name: /go back/i })).toBeTruthy();
   });
+
+  it('shows an initials avatar for a signed-in user', async () => {
+    setAuthToken('test-token');
+    vi.mocked(authApi.me).mockResolvedValue({
+      data: { user: signedInUser },
+      message: 'User retrieved successfully.',
+    });
+
+    render(
+      <MemoryRouter>
+        <AuthProvider>
+          <AppShell title="Home">
+            <div>content</div>
+          </AppShell>
+        </AuthProvider>
+      </MemoryRouter>,
+    );
+
+    const accountMenu = await screen.findByRole('button', { name: /account menu for ada lovelace/i });
+
+    expect(accountMenu.textContent).toBe('AL');
+  });
 });
+

@@ -4,6 +4,7 @@ import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { AuthLayout } from '../components/auth/AuthLayout';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
+import { PasswordField } from '../components/ui/PasswordField';
 import { useAuth } from '../contexts/AuthContext';
 import { planShareApi } from '../lib/api';
 import type { ApiError } from '../lib/apiTypes';
@@ -91,12 +92,11 @@ export function LoginPage() {
           onChange={(event) => setEmail(event.target.value)}
           required
         />
-        <Input
+        <PasswordField
           label="Password"
-          type="password"
           autoComplete="current-password"
           value={password}
-          onChange={(event) => setPassword(event.target.value)}
+          onChange={setPassword}
           required
         />
         <p className="auth-forgot">

@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import plnrLogo from '../../assets/plnr-logo-black-lettering.png';
 import { useAuth } from '../../contexts/AuthContext';
 import { PRIVACY_POLICY_URL, SUPPORT_EMAIL } from '../../lib/api';
+import { AccountMenu } from './AccountMenu';
 import './AppShell.css';
 
 type AppShellProps = {
@@ -152,6 +153,10 @@ export function AppShell({
             ) : null}
           </nav>
 
+          {isAuthenticated && user?.name ? (
+            <AccountMenu name={user.name} onLogout={() => void handleLogout()} />
+          ) : null}
+
           <button
             ref={menuButtonRef}
             type="button"
@@ -211,6 +216,9 @@ export function AppShell({
                       Admin
                     </Link>
                   ) : null}
+                  <Link to="/account" onClick={closeMenu}>
+                    Profile
+                  </Link>
                   <p className="app-shell__drawer-user">{user?.email}</p>
                   <button type="button" onClick={() => void handleLogout()}>
                     Log out

@@ -4,6 +4,7 @@ import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { AuthLayout } from '../components/auth/AuthLayout';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
+import { PasswordField } from '../components/ui/PasswordField';
 import { useAuth } from '../contexts/AuthContext';
 import type { ApiError } from '../lib/apiTypes';
 import { isInvitePath, resolveRegisterPrefill } from '../lib/inviteHelpers';
@@ -92,20 +93,18 @@ export function RegisterPage() {
           readOnly={prefill.emailPrefillReadonly === true}
           required
         />
-        <Input
+        <PasswordField
           label="Password"
-          type="password"
           autoComplete="new-password"
           value={password}
-          onChange={(event) => setPassword(event.target.value)}
+          onChange={setPassword}
           required
         />
-        <Input
+        <PasswordField
           label="Confirm password"
-          type="password"
           autoComplete="new-password"
           value={passwordConfirmation}
-          onChange={(event) => setPasswordConfirmation(event.target.value)}
+          onChange={setPasswordConfirmation}
           required
         />
         {error ? <p className="error-text">{error}</p> : null}

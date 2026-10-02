@@ -7,6 +7,14 @@ export type AuthPayload = {
   token: string;
 };
 
+export type ProfileUpdate = {
+  name?: string;
+  email?: string;
+  city?: string;
+  current_password?: string;
+  interests?: string[];
+};
+
 export function createAuthApi(baseUrl: string) {
   const { apiRequest } = createApiClient({
     baseUrl,
@@ -75,6 +83,24 @@ export function createAuthApi(baseUrl: string) {
 
     me() {
       return apiRequest<{ user: User }>('/user');
+    },
+
+    updateProfile(profile: ProfileUpdate) {
+      return apiRequest<{ user: User }>('/user', {
+        method: 'PATCH',
+        body: JSON.stringify(profile),
+      });
+    },
+
+    changePassword(currentPassword: string, password: string, passwordConfirmation: string) {
+      return apiRequest<null>('/user/password', {
+        method: 'POST',
+        body: JSON.stringify({
+          current_password: currentPassword,
+          password,
+          password_confirmation: passwordConfirmation,
+        }),
+      });
     },
   };
 }

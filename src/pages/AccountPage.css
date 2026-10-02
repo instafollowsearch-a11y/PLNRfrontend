@@ -1,0 +1,16 @@
+.account-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.account-page__heading {
+  margin: 0;
+  font-size: 1.125rem;
+}
+
+.account-page__note {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.9375rem;
+}

@@ -4,6 +4,7 @@ import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
 import { AdminSettingsPage } from './pages/admin/AdminSettingsPage';
 import { AdminUsersPage } from './pages/admin/AdminUsersPage';
+import { AccountPage } from './pages/AccountPage';
 import { ConfirmPage } from './pages/ConfirmPage';
 import { GatheringPage } from './pages/GatheringPage';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
@@ -45,6 +46,7 @@ export function AppRoutes() {
 
         <Route element={<ProtectedRoute />}>
           <Route path="/plans" element={<MyPlansPage />} />
+          <Route path="/account" element={<AccountPage />} />
         </Route>
 
         <Route element={<ProtectedRoute requireAdmin />}>
