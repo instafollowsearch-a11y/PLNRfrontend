@@ -109,7 +109,7 @@ export function SendSignupModal({ initialEmail, onClose, onSignedUp }: SendSignu
             {error ? <p className="error-text">{error}</p> : null}
 
             <div className="send-signup-modal__actions">
-              <Button label="Sign up & send" type="submit" loading={loading} />
+              <Button label="Sign up & view on PLNR" type="submit" loading={loading} />
               <Button label="Cancel" type="button" variant="ghost" onClick={onClose} />
             </div>
           </form>

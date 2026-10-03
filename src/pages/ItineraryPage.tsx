@@ -126,7 +126,7 @@ export function ItineraryPage() {
             <div className="page-stack">
               {!isViewer ? (
                 <Button
-                  label="Send to my email"
+                  label="View on PLNR"
                   onClick={() => navigate(withSession(`/plan/${planType}/send`, sessionUuid))}
                 />
               ) : null}

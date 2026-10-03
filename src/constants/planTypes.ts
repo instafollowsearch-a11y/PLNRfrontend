@@ -6,7 +6,7 @@ export const PLAN_TYPES = [
   },
   {
     slug: 'night_out',
-    label: 'Plan My Night Out',
+    label: 'Plan my Night/Day out',
     description: 'Group night out with interests, budget, and timing.',
   },
   {

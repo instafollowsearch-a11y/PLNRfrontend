@@ -129,6 +129,7 @@ export function QuestionFlow({ questions, submitLabel, onComplete }: QuestionFlo
           <QuestionField
             question={current}
             value={currentValue}
+            answers={answers}
             onChange={(value) => {
               setAnswers((prev) => ({ ...prev, [current.key]: value }));
               setError(null);

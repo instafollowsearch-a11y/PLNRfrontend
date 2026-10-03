@@ -17,7 +17,8 @@ export type QuestionType =
   | 'date_range'
   | 'datetime_range'
   | 'location'
-  | 'interests';
+  | 'interests'
+  | 'hotel_choices';
 
 export type QuestionConfig = {
   key: string;
@@ -161,8 +162,12 @@ export const DATE_NIGHT_QUESTIONS: QuestionConfig[] = [
   },
 ];
 
-function needsHotelStay(answers: Record<string, string>): boolean {
-  return answers.needs_hotel === 'Yes' || answers.needs_hotel === 'Already booked';
+function needsHotelPick(answers: Record<string, string>): boolean {
+  return answers.needs_hotel === 'Yes';
+}
+
+function alreadyBookedHotel(answers: Record<string, string>): boolean {
+  return answers.needs_hotel === 'Already booked';
 }
 
 const HOTEL_STAY_QUESTIONS: QuestionConfig[] = [
@@ -177,11 +182,18 @@ const HOTEL_STAY_QUESTIONS: QuestionConfig[] = [
     ],
   },
   {
+    key: 'hotel_pick',
+    label: 'Hotels to look at',
+    type: 'hotel_choices',
+    hint: 'Pick one to plan around, or let PLNR suggest one. Booking stays on the hotel’s site.',
+    showIf: needsHotelPick,
+  },
+  {
     key: 'hotel_location',
     label: 'Where is your hotel?',
     type: 'text',
     placeholder: 'Hotel name or address',
-    showIf: needsHotelStay,
+    showIf: alreadyBookedHotel,
   },
   {
     key: 'hotel_shuttle',
@@ -192,7 +204,7 @@ const HOTEL_STAY_QUESTIONS: QuestionConfig[] = [
       { value: 'No', label: 'No' },
       { value: 'Not sure', label: 'Not sure' },
     ],
-    showIf: needsHotelStay,
+    showIf: alreadyBookedHotel,
   },
 ];
 
@@ -219,6 +231,12 @@ export const VACATION_QUESTIONS: QuestionConfig[] = [
     label: 'What are your travel dates?',
     type: 'date_range',
     hint: 'Select your trip start and end dates.',
+  },
+  {
+    key: 'arrival_time',
+    label: 'What time are you arriving or want to arrive?',
+    type: 'time',
+    hint: 'Arrival time on the first day.',
   },
   {
     key: 'budget',

@@ -1,13 +1,21 @@
-import { Crown, Sparkles } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { PRO_UPGRADE_BENEFITS, PRO_UPGRADE_SUMMARY } from '../../constants/proBenefits';
+import {
+  PRO_BUTTON_LABEL,
+  PRO_COMPARISON,
+  PRO_FRIDAY_LINES,
+  PRO_HEADLINE,
+  PRO_PRICE_NOTE,
+  PRO_SAMPLE_CARDS,
+  proFridayTitle,
+  proSubline,
+} from '../../constants/proBenefits';
 import { billingApi } from '../../lib/api';
 import type { BillingConfig } from '../../lib/apiTypes';
 import { billingReturnUrls, formatProPrice, parseBillingConfig } from '../../lib/billingHelpers';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
-import { LoadingState } from '../ui/LoadingState';
 import './ProPaywall.css';
 
 const FALLBACK_PRICE_LABEL = `${formatProPrice(999, 'usd')}/mo`;
@@ -16,15 +24,17 @@ type ProPaywallProps = {
   title?: string;
   subtitle?: string;
   returnPath?: string;
+  city?: string | null;
   onRequireLogin?: () => void;
   onCreateAccount?: () => void;
   isAuthenticated?: boolean;
 };
 
 export function ProPaywall({
-  title = 'Upgrade to Pro',
-  subtitle = PRO_UPGRADE_SUMMARY,
+  title = PRO_HEADLINE,
+  subtitle,
   returnPath = '/weekend',
+  city,
   onRequireLogin,
   onCreateAccount,
   isAuthenticated = true,
@@ -63,42 +73,76 @@ export function ProPaywall({
   }
 
   const priceLabel = loading
-    ? null
+    ? FALLBACK_PRICE_LABEL
     : config !== null
       ? `${formatProPrice(config.pro_monthly_price_cents, config.pro_currency)}/mo`
       : FALLBACK_PRICE_LABEL;
+  const resolvedSubtitle = subtitle ?? proSubline(priceLabel);
 
   return (
     <Card className="pro-paywall">
-      <div className="pro-paywall__icon" aria-hidden>
-        <Crown size={28} />
-      </div>
       <p className="pro-paywall__eyebrow">
         <Sparkles size={14} />
         PLNR Pro
       </p>
       <h2 className="pro-paywall__title">{title}</h2>
-      <p className="pro-paywall__subtitle">{subtitle}</p>
+      <p className="pro-paywall__subtitle">{resolvedSubtitle}</p>
 
-      <ul className="pro-paywall__features">
-        {PRO_UPGRADE_BENEFITS.map((benefit) => (
-          <li key={benefit}>{benefit}</li>
+      <div className="pro-paywall__samples">
+        <article className="pro-paywall__sample pro-paywall__sample--lead">
+          <h3>{proFridayTitle(city)}</h3>
+          <ul>
+            {PRO_FRIDAY_LINES.map((line) => (
+              <li key={line}>{line}</li>
+            ))}
+          </ul>
+        </article>
+        {PRO_SAMPLE_CARDS.map((card) => (
+          <article key={card.title} className="pro-paywall__sample">
+            <h3>{card.title}</h3>
+            <ul>
+              {card.lines.map((line) => (
+                <li key={line}>{line}</li>
+              ))}
+            </ul>
+          </article>
         ))}
-        <li>Weekend event picks for your city</li>
-      </ul>
+      </div>
 
-      {loading ? <LoadingState message="Loading pricing…" /> : null}
-      {priceLabel ? <p className="pro-paywall__price">{priceLabel}</p> : null}
-      {error ? <p className="error-text">{error}</p> : null}
+      <table className="pro-paywall__compare">
+        <thead>
+          <tr>
+            <th scope="col">Free</th>
+            <th scope="col" className="is-pro">
+              Pro
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {PRO_COMPARISON.map(([free, pro]) => (
+            <tr key={free}>
+              <td>{free}</td>
+              <td className="is-pro">{pro}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
 
-      {isAuthenticated ? (
-        <Button label="Upgrade to Pro" onClick={() => void handleUpgrade()} loading={checkoutLoading} />
-      ) : (
-        <>
-          <Button label="Create an account" onClick={() => onCreateAccount?.()} />
-          <Button label="Log in" variant="secondary" onClick={() => onRequireLogin?.()} />
-        </>
-      )}
+      <div className="pro-paywall__offer">
+        <p className="pro-paywall__price">
+          {priceLabel}
+          <span className="pro-paywall__note">{PRO_PRICE_NOTE}</span>
+        </p>
+        {error ? <p className="error-text">{error}</p> : null}
+        {isAuthenticated ? (
+          <Button label={PRO_BUTTON_LABEL} onClick={() => void handleUpgrade()} loading={checkoutLoading} />
+        ) : (
+          <div className="pro-paywall__actions">
+            <Button label="Create an account" onClick={() => onCreateAccount?.()} />
+            <Button label="Log in" variant="secondary" onClick={() => onRequireLogin?.()} />
+          </div>
+        )}
+      </div>
     </Card>
   );
 }

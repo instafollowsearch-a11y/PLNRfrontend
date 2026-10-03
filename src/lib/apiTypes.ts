@@ -36,6 +36,7 @@ export type ItineraryStop = {
   external_url?: string;
   photo_url?: string;
   hours?: string;
+  cost_per_person?: number;
 };
 
 export type ItineraryDay = {

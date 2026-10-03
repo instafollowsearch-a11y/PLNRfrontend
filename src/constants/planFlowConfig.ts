@@ -18,8 +18,8 @@ export type PlanFlowConfig = {
 export const PLAN_FLOW_CONFIG: Record<PlanTypeSlug, PlanFlowConfig> = {
   night_out: {
     slug: 'night_out',
-    title: 'Plan My Night Out',
-    submitLabel: 'Plan my night out',
+    title: 'Plan my Night/Day out',
+    submitLabel: 'Plan my Night/Day out',
     questions: NIGHT_OUT_QUESTIONS,
   },
   date_night: {

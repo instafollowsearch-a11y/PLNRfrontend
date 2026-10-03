@@ -8,6 +8,7 @@ import { DateTimeRangeField } from './DateTimeRangeField';
 import { LocationField } from './LocationField';
 import { NumberField } from './NumberField';
 import { TimeField } from './TimeField';
+import { destinationFromAnswers, HotelChoicesField } from './HotelChoicesField';
 import { InterestPickerField } from './InterestPickerField';
 import { Input } from '../ui/Input';
 import './fields.css';
@@ -16,6 +17,7 @@ type QuestionFieldProps = {
   question: QuestionConfig;
   value: string;
   onChange: (value: string) => void;
+  answers?: Record<string, string>;
 };
 
 function parseJsonValue<T>(value: string, fallback: T): T {
@@ -30,7 +32,7 @@ function parseJsonValue<T>(value: string, fallback: T): T {
   }
 }
 
-export function QuestionField({ question, value, onChange }: QuestionFieldProps) {
+export function QuestionField({ question, value, onChange, answers = {} }: QuestionFieldProps) {
   switch (question.type) {
     case 'date':
       return <DateField value={value} onChange={onChange} />;
@@ -68,6 +70,14 @@ export function QuestionField({ question, value, onChange }: QuestionFieldProps)
           max={question.max}
           step={question.step}
           prefix={question.prefix}
+        />
+      );
+    case 'hotel_choices':
+      return (
+        <HotelChoicesField
+          destination={destinationFromAnswers(answers)}
+          value={value}
+          onChange={onChange}
         />
       );
     case 'interests':

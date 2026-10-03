@@ -84,6 +84,11 @@ function StopRow({
         <h3 className="itinerary-view__stop-name">{stop.name}</h3>
         {stop.hours ? <p className="itinerary-view__stop-hours">{stop.hours}</p> : null}
         <p className="itinerary-view__stop-activity">{stop.activity}</p>
+        {stop.cost_per_person != null && stop.cost_per_person > 0 ? (
+          <p className="itinerary-view__stop-cost">
+            ${Math.round(stop.cost_per_person)} per person · Estimate
+          </p>
+        ) : null}
         {stop.notes ? <p className="itinerary-view__stop-notes">{stop.notes}</p> : null}
         <StopLinks stop={stop} />
       </article>

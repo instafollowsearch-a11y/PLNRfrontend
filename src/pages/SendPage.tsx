@@ -13,6 +13,7 @@ import { Input } from '../components/ui/Input';
 import { PageIntro } from '../components/ui/PageIntro';
 import { useAuth } from '../contexts/AuthContext';
 import type { ApiError } from '../lib/apiTypes';
+import { ProPaywall } from '../components/pro/ProPaywall';
 import { planSessionApi } from '../lib/api';
 import { resolveSessionUuid, savePlanSessionUuid, withSession } from '../lib/session';
 import { getPlanFlowConfig, usePlanTypeParam } from './HomePage';
@@ -34,12 +35,17 @@ export function SendPage() {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
+  const [city, setCity] = useState<string | null>(null);
   const [shareOpen, setShareOpen] = useState(false);
   const [signupOpen, setSignupOpen] = useState(false);
 
   useEffect(() => {
     if (sessionUuid) {
       savePlanSessionUuid(sessionUuid);
+      void planSessionApi
+        .getPlanSession(sessionUuid)
+        .then((response) => setCity(response.data.plan_session.city))
+        .catch(() => setCity(null));
     }
   }, [sessionUuid]);
 
@@ -136,9 +142,9 @@ export function SendPage() {
           <div className="send-success__icon" aria-hidden>
             <CheckCircle2 size={56} strokeWidth={1.75} />
           </div>
-          <h1 className="send-success__title">We emailed your itinerary</h1>
+          <h1 className="send-success__title">View it on PLNR</h1>
           <p className="send-success__lead">
-            Check your inbox at <strong>{email}</strong>.
+            A link was sent to <strong>{email}</strong>.
           </p>
           {isAuthenticated ? (
             <p className="send-success__note">This plan is saved to your account.</p>
@@ -167,6 +173,9 @@ export function SendPage() {
             ) : null}
             <Button label="Plan another outing" variant="ghost" onClick={() => navigate('/')} />
           </div>
+          {isAuthenticated && !user?.is_pro ? (
+            <ProPaywall city={city} returnPath={withSession(`/plan/${planType}/send`, sessionUuid)} />
+          ) : null}
           {shareOpen && sessionUuid ? (
             <SharePlanModal
               sessionUuid={sessionUuid}
@@ -180,15 +189,15 @@ export function SendPage() {
   }
 
   return (
-    <AppShell title="Send itinerary" showBack backTo={`/plan/${planType}/itinerary?session=${sessionUuid}`}>
+    <AppShell title="View on PLNR" showBack backTo={`/plan/${planType}/itinerary?session=${sessionUuid}`}>
       <FunnelStepper current="send" planType={planType} sessionUuid={sessionUuid} />
       <div className="page-stack send-form">
         <PageIntro
-          title="Where should we send it?"
+          title="View on PLNR"
           subtitle={
             isAuthenticated
-              ? 'Send to your account email, or use a different address.'
-              : 'Add your email — we will create your free account and send the itinerary.'
+              ? 'We will email a link to this plan. It stays on PLNR.'
+              : 'Add your email — we will create your free account and send a link to this plan.'
           }
         />
 
@@ -246,7 +255,7 @@ export function SendPage() {
         {error ? <p className="error-text">{error}</p> : null}
 
         <Button
-          label={isAuthenticated ? 'Send itinerary' : 'Sign up & send'}
+          label={isAuthenticated ? 'View on PLNR' : 'Sign up & view on PLNR'}
           onClick={() => void handleSend()}
           loading={isSubmitting}
         />

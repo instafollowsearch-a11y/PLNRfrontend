@@ -20,8 +20,8 @@ const STEPS = [
   },
   {
     icon: Mail,
-    title: 'Email your itinerary',
-    description: 'Receive your finished plan in your inbox.',
+    title: 'View on PLNR',
+    description: 'Open the finished plan on PLNR. A link can go to your inbox.',
   },
 ];
 
@@ -33,7 +33,7 @@ export function HowItWorks() {
           <p className="landing-section-eyebrow">How it works</p>
           <h2 className="landing-section-title">From idea to itinerary in four steps</h2>
           <p className="landing-section-subtitle">
-            PLNR guides you through planning, then sends your finished itinerary by email.
+            PLNR guides you through planning, then keeps the finished plan on PLNR.
           </p>
         </div>
 
