@@ -148,9 +148,9 @@ export function AppShell({
 
         <div className="app-shell__header-right">
           {showUpgrade ? (
-            <button type="button" className="app-shell__upgrade" onClick={() => void handleUpgrade()}>
+            <button type="button" className="app-shell__upgrade app-shell__upgrade--header" aria-label="Upgrade to Pro" onClick={() => void handleUpgrade()}>
               <Crown size={15} strokeWidth={2.25} aria-hidden="true" />
-              Upgrade to Pro
+              <span className="app-shell__upgrade-label">Upgrade to Pro</span>
             </button>
           ) : null}
           <nav className="app-shell__desktop-nav" aria-label="Account navigation">

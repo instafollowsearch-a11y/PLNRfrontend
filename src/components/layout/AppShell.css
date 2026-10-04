@@ -129,6 +129,24 @@
   background: linear-gradient(160deg, #c9a84a, #7d5e16);
 }
 
+@media (max-width: 859px) {
+  .app-shell__upgrade--header {
+    padding: 0.45rem;
+  }
+
+  .app-shell__upgrade--header .app-shell__upgrade-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+}
+
 .app-shell__cta {
   display: inline-flex;
   padding: 0.625rem 1.1rem;
