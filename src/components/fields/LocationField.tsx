@@ -1,27 +1,22 @@
-import L from 'leaflet';
+import * as maplibregl from 'maplibre-gl';
+import type { ExpressionSpecification } from 'maplibre-gl';
+
 import { MapPin, Search } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import type { LocationValue } from '../../lib/fieldValues';
 import { reverseGeocode, searchLocations, type GeocodeResult } from '../../lib/geocoding';
 
-import 'leaflet/dist/leaflet.css';
+import 'maplibre-gl/dist/maplibre-gl.css';
 import './fields.css';
 import './LocationField.css';
 
-import iconRetina from 'leaflet/dist/images/marker-icon-2x.png';
-import icon from 'leaflet/dist/images/marker-icon.png';
-import iconShadow from 'leaflet/dist/images/marker-shadow.png';
-
-const DefaultIcon = L.icon({
-  iconUrl: icon,
-  iconRetinaUrl: iconRetina,
-  shadowUrl: iconShadow,
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-});
-
-L.Marker.prototype.options.icon = DefaultIcon;
+const ENGLISH_PLACE_NAME: ExpressionSpecification = [
+  'coalesce',
+  ['get', 'name_en'],
+  ['get', 'name:en'],
+  ['get', 'name'],
+];
 
 type LocationFieldProps = {
   value: LocationValue | null;
@@ -31,8 +26,8 @@ type LocationFieldProps = {
 
 export function LocationField({ value, placeholder, onChange }: LocationFieldProps) {
   const mapRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<L.Map | null>(null);
-  const markerRef = useRef<L.Marker | null>(null);
+  const mapInstanceRef = useRef<maplibregl.Map | null>(null);
+  const markerRef = useRef<maplibregl.Marker | null>(null);
 
   const [query, setQuery] = useState(value?.label ?? '');
   const [results, setResults] = useState<GeocodeResult[]>([]);
@@ -90,27 +85,39 @@ export function LocationField({ value, placeholder, onChange }: LocationFieldPro
     const initialLat = value?.lat ?? 30.2672;
     const initialLon = value?.lon ?? -97.7431;
 
-    const map = L.map(mapRef.current, {
-      center: [initialLat, initialLon],
+    const map = new maplibregl.Map({
+      container: mapRef.current,
+      center: [initialLon, initialLat],
       zoom: value ? 11 : 4,
-      scrollWheelZoom: true,
+      style: 'https://tiles.openfreemap.org/styles/liberty',
     });
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors',
-      maxZoom: 19,
-    }).addTo(map);
+    map.on('style.load', () => {
+      for (const layer of map.getStyle().layers ?? []) {
+        if (layer.type !== 'symbol' || !layer.layout?.['text-field']) {
+          continue;
+        }
 
-    const marker = L.marker([initialLat, initialLon], { draggable: true }).addTo(map);
+        if (!JSON.stringify(layer.layout['text-field']).includes('name')) {
+          continue;
+        }
+
+        map.setLayoutProperty(layer.id, 'text-field', ENGLISH_PLACE_NAME);
+      }
+    });
+
+    const marker = new maplibregl.Marker({ draggable: true })
+      .setLngLat([initialLon, initialLat])
+      .addTo(map);
 
     marker.on('dragend', () => {
-      const position = marker.getLatLng();
+      const position = marker.getLngLat();
       void applyCoordinates(position.lat, position.lng);
     });
 
     map.on('click', (event) => {
-      marker.setLatLng(event.latlng);
-      void applyCoordinates(event.latlng.lat, event.latlng.lng);
+      marker.setLngLat(event.lngLat);
+      void applyCoordinates(event.lngLat.lat, event.lngLat.lng);
     });
 
     mapInstanceRef.current = map;
@@ -128,8 +135,8 @@ export function LocationField({ value, placeholder, onChange }: LocationFieldPro
       return;
     }
 
-    markerRef.current.setLatLng([value.lat, value.lon]);
-    mapInstanceRef.current.setView([value.lat, value.lon], 11);
+    markerRef.current.setLngLat([value.lon, value.lat]);
+    mapInstanceRef.current.jumpTo({ center: [value.lon, value.lat], zoom: 11 });
   }, [value]);
 
   function selectResult(result: GeocodeResult) {
@@ -138,8 +145,8 @@ export function LocationField({ value, placeholder, onChange }: LocationFieldPro
     setResults([]);
 
     if (markerRef.current && mapInstanceRef.current) {
-      markerRef.current.setLatLng([result.lat, result.lon]);
-      mapInstanceRef.current.setView([result.lat, result.lon], 11);
+      markerRef.current.setLngLat([result.lon, result.lat]);
+      mapInstanceRef.current.jumpTo({ center: [result.lon, result.lat], zoom: 11 });
     }
   }
 

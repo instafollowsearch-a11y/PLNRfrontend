@@ -100,7 +100,7 @@ export function ItineraryPage() {
       <FunnelStepper current="itinerary" planType={planType} sessionUuid={sessionUuid} />
       {loading || authLoading ? <LoadingState message="Loading itinerary…" /> : null}
 
-      {!loading && !authLoading && visibleContent && !isViewer ? (
+      {!loading && !authLoading && visibleContent ? (
         <RefinementChat messages={session?.refinement_messages ?? []} onSubmit={handleRefine}>
           <ItineraryView
             content={visibleContent}
@@ -124,12 +124,10 @@ export function ItineraryPage() {
             </Card>
           ) : (
             <div className="page-stack">
-              {!isViewer ? (
-                <Button
-                  label="View on PLNR"
-                  onClick={() => navigate(withSession(`/plan/${planType}/send`, sessionUuid))}
-                />
-              ) : null}
+              <Button
+                label="View on PLNR"
+                onClick={() => navigate(withSession(`/plan/${planType}/send`, sessionUuid))}
+              />
               {canShare ? (
                 <Button
                   label="Share plan"
@@ -143,19 +141,11 @@ export function ItineraryPage() {
           {shareOpen && sessionUuid ? (
             <SharePlanModal
               sessionUuid={sessionUuid}
-              returnPath={withSession(`/plan/${planType}/itinerary`, sessionUuid)}
+              returnPath="/plans"
               onClose={() => setShareOpen(false)}
             />
           ) : null}
         </RefinementChat>
-      ) : null}
-
-      {!loading && !authLoading && visibleContent && isViewer ? (
-        <ItineraryView
-          content={visibleContent}
-          planType={planType as PlanTypeSlug}
-          roadTripSummary={roadTripSummary}
-        />
       ) : null}
 
       {!loading && !content ? (

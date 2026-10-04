@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 
 import { AuthLayout } from '../components/auth/AuthLayout';
@@ -11,19 +11,35 @@ import type { ApiError } from '../lib/apiTypes';
 import { extractInviteToken, isInvitePath } from '../lib/inviteHelpers';
 import { resolvePostAuthPath } from '../lib/postAuthPath';
 import { withSession } from '../lib/session';
+import { startWebProCheckout } from '../lib/startProCheckout';
 
 export function LoginPage() {
   const { login, isAuthenticated, isAdmin, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const from = (location.state as { from?: string } | null)?.from ?? null;
+  const locationState = location.state as { from?: string; proCheckout?: boolean } | null;
+  const from = locationState?.from ?? null;
+  const proCheckout = locationState?.proCheckout === true;
+  const checkoutStarted = useRef(false);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  if (!authLoading && isAuthenticated) {
+  useEffect(() => {
+    if (authLoading || !isAuthenticated || !proCheckout || checkoutStarted.current) {
+      return;
+    }
+
+    checkoutStarted.current = true;
+    void startWebProCheckout().catch(() => {
+      checkoutStarted.current = false;
+      setError('Unable to start checkout. Try again.');
+    });
+  }, [authLoading, isAuthenticated, proCheckout]);
+
+  if (!authLoading && isAuthenticated && !proCheckout) {
     return <Navigate to={resolvePostAuthPath(user?.role ?? (isAdmin ? 'admin' : 'user'), from)} replace />;
   }
 
@@ -59,6 +75,15 @@ export function LoginPage() {
         }
       }
 
+      if (proCheckout) {
+        try {
+          await startWebProCheckout();
+        } catch {
+          setError('Unable to start checkout. Try again.');
+        }
+        return;
+      }
+
       navigate(resolvePostAuthPath(loggedIn.role, from), { replace: true });
     } catch (err) {
       const apiError = err as ApiError;
@@ -68,7 +93,10 @@ export function LoginPage() {
     }
   }
 
-  const registerState = from ? { from } : undefined;
+  const registerState = {
+    ...(from ? { from } : {}),
+    ...(proCheckout ? { proCheckout: true } : {}),
+  };
 
   return (
     <AuthLayout

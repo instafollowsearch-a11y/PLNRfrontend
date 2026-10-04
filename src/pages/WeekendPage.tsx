@@ -192,7 +192,7 @@ export function WeekendPage() {
       <AppShell title="Weekend picks" showBack backTo="/">
         <div className="page-stack weekend-page">
           <ProPaywall
-            returnPath="/weekend"
+            returnPath="/plans"
             isAuthenticated={false}
             onCreateAccount={() => navigate('/register', { state: { from: '/weekend' } })}
             onRequireLogin={() => navigate('/login', { state: { from: '/weekend' } })}
@@ -206,7 +206,7 @@ export function WeekendPage() {
     return (
       <AppShell title="Weekend picks" showBack backTo="/">
         <div className="page-stack weekend-page">
-          <ProPaywall returnPath="/weekend" isAuthenticated />
+          <ProPaywall returnPath="/plans" isAuthenticated />
         </div>
       </AppShell>
     );

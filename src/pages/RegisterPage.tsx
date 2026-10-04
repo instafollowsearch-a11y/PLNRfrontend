@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 
 import { AuthLayout } from '../components/auth/AuthLayout';
@@ -9,6 +9,7 @@ import { useAuth } from '../contexts/AuthContext';
 import type { ApiError } from '../lib/apiTypes';
 import { isInvitePath, resolveRegisterPrefill } from '../lib/inviteHelpers';
 import { postAuthHome, resolvePostAuthPath } from '../lib/postAuthPath';
+import { startWebProCheckout } from '../lib/startProCheckout';
 
 export function RegisterPage() {
   const { register, isAuthenticated, user, loading: authLoading } = useAuth();
@@ -23,8 +24,21 @@ export function RegisterPage() {
   const [passwordConfirmation, setPasswordConfirmation] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const checkoutStarted = useRef(false);
 
-  if (!authLoading && isAuthenticated) {
+  useEffect(() => {
+    if (authLoading || !isAuthenticated || !prefill.proCheckout || checkoutStarted.current) {
+      return;
+    }
+
+    checkoutStarted.current = true;
+    void startWebProCheckout().catch(() => {
+      checkoutStarted.current = false;
+      setError('Unable to start checkout. Try again.');
+    });
+  }, [authLoading, isAuthenticated, prefill.proCheckout]);
+
+  if (!authLoading && isAuthenticated && !prefill.proCheckout) {
     // Invite signup already accepted the share server-side — never bounce back to the spent invite URL.
     // `from` is often `/invite/:token`; resolvePostAuthPath would send users there after auth flips.
     const dest = isInviteSignup
@@ -48,6 +62,15 @@ export function RegisterPage() {
         prefill.invite_token,
       );
 
+      if (prefill.proCheckout) {
+        try {
+          await startWebProCheckout();
+        } catch {
+          setError('Unable to start checkout. Try again.');
+        }
+        return;
+      }
+
       navigate('/plans', { replace: true });
     } catch (err) {
       const apiError = err as ApiError;
@@ -57,7 +80,10 @@ export function RegisterPage() {
     }
   }
 
-  const loginState = prefill.from ? { from: prefill.from } : undefined;
+  const loginState = {
+    ...(prefill.from ? { from: prefill.from } : {}),
+    ...(prefill.proCheckout ? { proCheckout: true } : {}),
+  };
 
   return (
     <AuthLayout

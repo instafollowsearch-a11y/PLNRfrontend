@@ -174,12 +174,12 @@ export function SendPage() {
             <Button label="Plan another outing" variant="ghost" onClick={() => navigate('/')} />
           </div>
           {isAuthenticated && !user?.is_pro ? (
-            <ProPaywall city={city} returnPath={withSession(`/plan/${planType}/send`, sessionUuid)} />
+            <ProPaywall city={city} returnPath="/plans" />
           ) : null}
           {shareOpen && sessionUuid ? (
             <SharePlanModal
               sessionUuid={sessionUuid}
-              returnPath={withSession(`/plan/${planType}/send`, sessionUuid)}
+              returnPath="/plans"
               onClose={() => setShareOpen(false)}
             />
           ) : null}

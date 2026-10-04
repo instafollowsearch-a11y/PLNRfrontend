@@ -3,6 +3,7 @@ export type RegisterLocationState = {
   invite_token?: string;
   emailPrefillReadonly?: boolean;
   from?: string;
+  proCheckout?: boolean;
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -33,6 +34,10 @@ export function resolveRegisterPrefill(state: unknown): RegisterLocationState {
 
   if (typeof state.from === 'string' && state.from.startsWith('/')) {
     result.from = state.from;
+  }
+
+  if (state.proCheckout === true) {
+    result.proCheckout = true;
   }
 
   return result;

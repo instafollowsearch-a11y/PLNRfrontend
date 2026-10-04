@@ -1,10 +1,11 @@
-import { ArrowLeft, Menu } from 'lucide-react';
+import { ArrowLeft, Crown, Menu } from 'lucide-react';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import plnrLogo from '../../assets/plnr-logo-black-lettering.png';
 import { useAuth } from '../../contexts/AuthContext';
 import { PRIVACY_POLICY_URL, SUPPORT_EMAIL } from '../../lib/api';
+import { startWebProCheckout } from '../../lib/startProCheckout';
 import { AccountMenu } from './AccountMenu';
 import './AppShell.css';
 
@@ -31,10 +32,26 @@ export function AppShell({
   contentWidth = 'default',
 }: AppShellProps) {
   const navigate = useNavigate();
-  const { isAuthenticated, isAdmin, user, logout } = useAuth();
+  const { isAuthenticated, isAdmin, user, logout, loading: authLoading } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const isLanding = variant === 'landing';
+  const showUpgrade = isAuthenticated && !authLoading && user?.is_pro !== true;
+
+  async function handleUpgrade() {
+    closeMenu();
+
+    if (!isAuthenticated) {
+      navigate('/login', { state: { proCheckout: true } });
+      return;
+    }
+
+    try {
+      await startWebProCheckout();
+    } catch {
+      navigate('/account');
+    }
+  }
 
   function handleBack() {
     if (backTo) {
@@ -135,6 +152,12 @@ export function AppShell({
         )}
 
         <div className="app-shell__header-right">
+          {showUpgrade ? (
+            <button type="button" className="app-shell__upgrade" onClick={() => void handleUpgrade()}>
+              <Crown size={15} strokeWidth={2.25} aria-hidden="true" />
+              Upgrade to Pro
+            </button>
+          ) : null}
           <nav className="app-shell__desktop-nav" aria-label="Account navigation">
             {!isLanding ? (
               <Link to="/" className="app-shell__nav-link">
@@ -184,6 +207,12 @@ export function AppShell({
               <Link to="/" onClick={closeMenu}>
                 Home
               </Link>
+              {showUpgrade ? (
+                <button type="button" className="app-shell__upgrade" onClick={() => void handleUpgrade()}>
+                  <Crown size={15} strokeWidth={2.25} aria-hidden="true" />
+                  Upgrade to Pro
+                </button>
+              ) : null}
               {isLanding ? (
                 <>
                   <button

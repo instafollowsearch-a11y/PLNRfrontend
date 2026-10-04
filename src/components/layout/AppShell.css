@@ -109,6 +109,26 @@
   color: var(--color-text);
 }
 
+.app-shell__upgrade {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.9rem;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(160deg, #e2c56a, #9a7420);
+  color: #fff;
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 8px 18px rgba(154, 116, 32, 0.22);
+}
+
+.app-shell__upgrade:hover {
+  background: linear-gradient(160deg, #c9a84a, #7d5e16);
+}
+
 .app-shell__cta {
   display: inline-flex;
   padding: 0.625rem 1.1rem;

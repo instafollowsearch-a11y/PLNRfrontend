@@ -3,12 +3,8 @@ import { useEffect, useState } from 'react';
 
 import {
   PRO_BUTTON_LABEL,
-  PRO_COMPARISON,
-  PRO_FRIDAY_LINES,
   PRO_HEADLINE,
   PRO_PRICE_NOTE,
-  PRO_SAMPLE_CARDS,
-  proFridayTitle,
   proSubline,
 } from '../../constants/proBenefits';
 import { billingApi } from '../../lib/api';
@@ -33,8 +29,7 @@ type ProPaywallProps = {
 export function ProPaywall({
   title = PRO_HEADLINE,
   subtitle,
-  returnPath = '/weekend',
-  city,
+  returnPath = '/plans',
   onRequireLogin,
   onCreateAccount,
   isAuthenticated = true,
@@ -87,46 +82,6 @@ export function ProPaywall({
       </p>
       <h2 className="pro-paywall__title">{title}</h2>
       <p className="pro-paywall__subtitle">{resolvedSubtitle}</p>
-
-      <div className="pro-paywall__samples">
-        <article className="pro-paywall__sample pro-paywall__sample--lead">
-          <h3>{proFridayTitle(city)}</h3>
-          <ul>
-            {PRO_FRIDAY_LINES.map((line) => (
-              <li key={line}>{line}</li>
-            ))}
-          </ul>
-        </article>
-        {PRO_SAMPLE_CARDS.map((card) => (
-          <article key={card.title} className="pro-paywall__sample">
-            <h3>{card.title}</h3>
-            <ul>
-              {card.lines.map((line) => (
-                <li key={line}>{line}</li>
-              ))}
-            </ul>
-          </article>
-        ))}
-      </div>
-
-      <table className="pro-paywall__compare">
-        <thead>
-          <tr>
-            <th scope="col">Free</th>
-            <th scope="col" className="is-pro">
-              Pro
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {PRO_COMPARISON.map(([free, pro]) => (
-            <tr key={free}>
-              <td>{free}</td>
-              <td className="is-pro">{pro}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
 
       <div className="pro-paywall__offer">
         <p className="pro-paywall__price">

@@ -25,7 +25,6 @@ export function SuggestionsPage() {
   const config = planType ? getPlanFlowConfig(planType) : null;
 
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
-  const [accessRole, setAccessRole] = useState<string | null>(null);
   const [refinementMessages, setRefinementMessages] = useState<
     Array<{ role: string; content: string; created_at: string }>
   >([]);
@@ -49,7 +48,6 @@ export function SuggestionsPage() {
       .then((response) => {
         const planSession = response.data.plan_session;
         setSuggestions(planSession.suggestions ?? []);
-        setAccessRole(planSession.access_role ?? null);
         setRefinementMessages(planSession.refinement_messages ?? []);
       })
       .catch(() => setError('Unable to load suggestions.'))
@@ -172,7 +170,6 @@ export function SuggestionsPage() {
   }
 
   const readyCount = suggestions.filter((suggestion) => suggestion.itinerary_content).length;
-  const canRefine = accessRole !== 'viewer';
   const suggestionList = (
     <>
       <p className="suggestions-progress">
@@ -219,13 +216,11 @@ export function SuggestionsPage() {
         />
       ) : null}
 
-      {!loading && !error && suggestions.length > 0 && canRefine ? (
+      {!loading && !error && suggestions.length > 0 ? (
         <RefinementChat messages={refinementMessages} onSubmit={handleRefine}>
           {suggestionList}
         </RefinementChat>
       ) : null}
-
-      {!loading && !error && suggestions.length > 0 && !canRefine ? suggestionList : null}
     </AppShell>
   );
 }

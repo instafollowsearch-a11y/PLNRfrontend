@@ -3,7 +3,7 @@ import { planTypeAccents, planTypeIcons } from '../../constants/theme';
 import { useNavigate } from 'react-router-dom';
 
 import { PlanTypeLandingCard } from './PlanTypeLandingCard';
-import { WeekendPicksEntry } from './WeekendPicksEntry';
+import { HomeProSection } from './HomeProSection';
 import './PlanTypeGrid.css';
 
 export function PlanTypeGrid() {
@@ -35,8 +35,7 @@ export function PlanTypeGrid() {
         </div>
 
         <div className="plan-type-grid__pro">
-          <p className="plan-type-grid__pro-label">Pro features</p>
-          <WeekendPicksEntry />
+          <HomeProSection />
         </div>
       </div>
     </section>
