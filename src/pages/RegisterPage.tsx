@@ -9,6 +9,7 @@ import { useAuth } from '../contexts/AuthContext';
 import type { ApiError } from '../lib/apiTypes';
 import { isInvitePath, resolveRegisterPrefill } from '../lib/inviteHelpers';
 import { postAuthHome, resolvePostAuthPath } from '../lib/postAuthPath';
+import { checkoutErrorMessage } from '../lib/billingHelpers';
 import { startWebProCheckout } from '../lib/startProCheckout';
 
 export function RegisterPage() {
@@ -32,9 +33,9 @@ export function RegisterPage() {
     }
 
     checkoutStarted.current = true;
-    void startWebProCheckout().catch(() => {
+    void startWebProCheckout().catch((err: unknown) => {
       checkoutStarted.current = false;
-      setError('Unable to start checkout. Try again.');
+      setError(checkoutErrorMessage(err));
     });
   }, [authLoading, isAuthenticated, prefill.proCheckout]);
 
@@ -65,8 +66,8 @@ export function RegisterPage() {
       if (prefill.proCheckout) {
         try {
           await startWebProCheckout();
-        } catch {
-          setError('Unable to start checkout. Try again.');
+        } catch (err) {
+          setError(checkoutErrorMessage(err));
         }
         return;
       }

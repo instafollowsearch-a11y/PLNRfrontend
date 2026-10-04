@@ -1,4 +1,5 @@
 .home-pro {
+  scroll-margin-top: 5.5rem;
   display: flex;
   flex-direction: column;
   gap: 1.15rem;

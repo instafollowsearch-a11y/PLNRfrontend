@@ -95,14 +95,6 @@ export function ProActions({ isPro, returnPath = '/plans' }: ProActionsProps) {
 
     try {
       const response = await billingApi.createPortalSession(billingPortalReturnUrl(returnPath));
-
-      if (response.data.fake) {
-        setManageOpen(true);
-        setLoading(false);
-
-        return;
-      }
-
       window.location.href = response.data.portal_url;
     } catch (err) {
       const apiError = err as ApiError;

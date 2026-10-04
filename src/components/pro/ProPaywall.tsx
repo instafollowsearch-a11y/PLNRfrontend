@@ -9,7 +9,7 @@ import {
 } from '../../constants/proBenefits';
 import { billingApi } from '../../lib/api';
 import type { BillingConfig } from '../../lib/apiTypes';
-import { billingReturnUrls, formatProPrice, parseBillingConfig } from '../../lib/billingHelpers';
+import { billingReturnUrls, checkoutErrorMessage, formatProPrice, parseBillingConfig } from '../../lib/billingHelpers';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import './ProPaywall.css';
@@ -61,8 +61,8 @@ export function ProPaywall({
       const { successUrl, cancelUrl } = billingReturnUrls(returnPath);
       const response = await billingApi.createCheckoutSession(successUrl, cancelUrl);
       window.location.href = response.data.checkout_url;
-    } catch {
-      setError('Unable to start checkout. Try again.');
+    } catch (err) {
+      setError(checkoutErrorMessage(err));
       setCheckoutLoading(false);
     }
   }

@@ -11,6 +11,7 @@ import type { ApiError } from '../lib/apiTypes';
 import { extractInviteToken, isInvitePath } from '../lib/inviteHelpers';
 import { resolvePostAuthPath } from '../lib/postAuthPath';
 import { withSession } from '../lib/session';
+import { checkoutErrorMessage } from '../lib/billingHelpers';
 import { startWebProCheckout } from '../lib/startProCheckout';
 
 export function LoginPage() {
@@ -33,9 +34,9 @@ export function LoginPage() {
     }
 
     checkoutStarted.current = true;
-    void startWebProCheckout().catch(() => {
+    void startWebProCheckout().catch((err: unknown) => {
       checkoutStarted.current = false;
-      setError('Unable to start checkout. Try again.');
+      setError(checkoutErrorMessage(err));
     });
   }, [authLoading, isAuthenticated, proCheckout]);
 
@@ -78,8 +79,8 @@ export function LoginPage() {
       if (proCheckout) {
         try {
           await startWebProCheckout();
-        } catch {
-          setError('Unable to start checkout. Try again.');
+        } catch (err) {
+          setError(checkoutErrorMessage(err));
         }
         return;
       }

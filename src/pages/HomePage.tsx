@@ -1,3 +1,6 @@
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+
 import {
   getPlanFlowConfig,
   isPlanTypeSlug,
@@ -18,6 +21,16 @@ function scrollToId(id: string) {
 }
 
 export function HomePage() {
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.hash !== '#plnr-pro') {
+      return;
+    }
+
+    scrollToId('plnr-pro');
+  }, [location.hash]);
+
   return (
     <AppShell variant="landing">
       <LandingHero

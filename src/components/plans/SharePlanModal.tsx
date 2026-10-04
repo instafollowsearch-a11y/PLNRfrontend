@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { PRO_UPGRADE_SUMMARY } from '../../constants/proBenefits';
 import { billingApi, planShareApi } from '../../lib/api';
 import type { ApiError } from '../../lib/apiTypes';
-import { billingReturnUrls } from '../../lib/billingHelpers';
+import { billingReturnUrls, checkoutErrorMessage } from '../../lib/billingHelpers';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
@@ -38,8 +38,8 @@ export function SharePlanModal({
       const { successUrl, cancelUrl } = billingReturnUrls(returnPath);
       const response = await billingApi.createCheckoutSession(successUrl, cancelUrl);
       window.location.href = response.data.checkout_url;
-    } catch {
-      setError('Unable to start checkout. Try again.');
+    } catch (err) {
+      setError(checkoutErrorMessage(err));
       setLoading(false);
     }
   }

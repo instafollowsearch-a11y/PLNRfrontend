@@ -5,7 +5,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import plnrLogo from '../../assets/plnr-logo-black-lettering.png';
 import { useAuth } from '../../contexts/AuthContext';
 import { PRIVACY_POLICY_URL, SUPPORT_EMAIL } from '../../lib/api';
-import { startWebProCheckout } from '../../lib/startProCheckout';
 import { AccountMenu } from './AccountMenu';
 import './AppShell.css';
 
@@ -38,19 +37,15 @@ export function AppShell({
   const isLanding = variant === 'landing';
   const showUpgrade = isAuthenticated && !authLoading && user?.is_pro !== true;
 
-  async function handleUpgrade() {
+  function handleUpgrade() {
     closeMenu();
 
-    if (!isAuthenticated) {
-      navigate('/login', { state: { proCheckout: true } });
+    if (window.location.pathname === '/') {
+      scrollToId('plnr-pro');
       return;
     }
 
-    try {
-      await startWebProCheckout();
-    } catch {
-      navigate('/account');
-    }
+    navigate('/#plnr-pro');
   }
 
   function handleBack() {

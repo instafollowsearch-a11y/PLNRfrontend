@@ -10,6 +10,7 @@ import {
   type ProMatrixMark,
 } from '../../constants/proBenefits';
 import { useAuth } from '../../contexts/AuthContext';
+import { checkoutErrorMessage } from '../../lib/billingHelpers';
 import { startWebProCheckout } from '../../lib/startProCheckout';
 import './HomeProSection.css';
 
@@ -36,14 +37,14 @@ export function HomeProSection() {
 
     try {
       await startWebProCheckout();
-    } catch {
-      setError('Unable to start checkout. Try again.');
+    } catch (err) {
+      setError(checkoutErrorMessage(err));
       setIsLoading(false);
     }
   }
 
   return (
-    <section className="home-pro" aria-labelledby="home-pro-title">
+    <section id="plnr-pro" className="home-pro" aria-labelledby="home-pro-title">
       <p className="home-pro__eyebrow">
         <span className="home-pro__eyebrow-icon" aria-hidden="true">
           <Crown size={14} strokeWidth={2.25} />
@@ -89,7 +90,7 @@ export function HomeProSection() {
 
       {error ? <p className="error-text">{error}</p> : null}
       <button className="home-pro__cta" type="button" onClick={() => void handleGetPro()} disabled={isLoading}>
-        {isLoading ? 'Opening Stripe…' : PRO_BUTTON_LABEL}
+        {PRO_BUTTON_LABEL}
       </button>
     </section>
   );

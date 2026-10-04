@@ -2,7 +2,7 @@ import { execSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { expect, test, type APIRequestContext, type Page } from '@playwright/test';
+import { expect, test, type APIRequestContext } from '@playwright/test';
 
 import { DEMO_ADMIN, DEMO_USER, loginAs } from './helpers';
 
@@ -61,37 +61,8 @@ async function loginToken(request: APIRequestContext, email: string, password: s
   return body.data!.token!;
 }
 
-async function ensurePro(request: APIRequestContext, token: string) {
-  const me = await request.get(`${API_URL}/user`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  expect(me.ok()).toBeTruthy();
-  const body = (await me.json()) as { data?: { user?: { is_pro?: boolean } } };
-
-  if (body.data?.user?.is_pro) {
-    return;
-  }
-
-  const checkout = await request.post(`${API_URL}/billing/checkout-session`, {
-    headers: { Authorization: `Bearer ${token}` },
-    data: {
-      success_url: 'http://127.0.0.1:5173/plans',
-      cancel_url: 'http://127.0.0.1:5173/plans',
-    },
-  });
-  expect(checkout.ok(), await checkout.text()).toBeTruthy();
-}
-
-async function activateProViaUi(page: Page) {
-  await page.goto('/plans');
-  const manage = page.getByRole('button', { name: /manage pro/i });
-  if (await manage.isVisible().catch(() => false)) {
-    return;
-  }
-
-  await page.getByRole('button', { name: /upgrade to pro/i }).click();
-  await expect(page).toHaveURL(/billing=success/, { timeout: 20_000 });
-  await expect(page.getByRole('button', { name: /manage pro/i })).toBeVisible({ timeout: 20_000 });
+async function ensurePro(_request: APIRequestContext, _token: string) {
+  runArtisan(`plnr:seed-demo-plan ${DEMO_USER.email} --activate-pro`);
 }
 
 async function mailpitHasTo(email: string): Promise<boolean> {
@@ -141,18 +112,18 @@ test.describe('Pro features — human QA', () => {
     expect((await me.json()).data.user.is_pro).toBe(false);
   });
 
-  test('upgrade to Pro via fake Stripe and open weekend form', async ({ page }) => {
+  test('header upgrade opens the home Pro section and checkout requires Stripe', async ({ page }) => {
     runArtisan(`plnr:seed-demo-plan ${DEMO_USER.email} --reset-pro`);
 
     await loginAs(page, DEMO_USER.email, DEMO_USER.password);
-    await activateProViaUi(page);
-    await page.goto('/weekend');
-    await expect(page.getByRole('heading', { name: /your weekend picks/i })).toBeVisible({
-      timeout: 15_000,
-    });
-    await expect(page.getByLabel(/city search/i)).toBeVisible();
-    await expect(page.getByRole('button', { name: /pick on map/i })).toBeVisible();
-    await expect(page.getByRole('button', { name: /generate picks/i })).toBeVisible();
+    await page.goto('/plans');
+    await page.getByRole('banner').getByRole('button', { name: /upgrade to pro/i }).click();
+    await expect(page).toHaveURL(/#plnr-pro/);
+    await expect(page.getByRole('heading', { name: /your weekend is already planned/i })).toBeVisible();
+
+    await page.getByRole('button', { name: /get pro/i }).click();
+    await expect(page.getByText(/stripe is not configured/i)).toBeVisible();
+    await expect(page.getByRole('button', { name: /get pro/i })).toBeVisible();
   });
 
   test('admin settings expose Pro price and store URLs', async ({ page }) => {

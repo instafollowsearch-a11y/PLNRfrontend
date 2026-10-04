@@ -58,6 +58,19 @@ export function billingReturnUrls(pathname: string): { successUrl: string; cance
 }
 
 /** Clean return URL for Stripe Customer Portal (no pre-set billing query). */
+/** Shows the API reason when checkout cannot start. */
+export function checkoutErrorMessage(error: unknown): string {
+  if (typeof error === 'object' && error !== null && 'message' in error) {
+    const message = error.message;
+
+    if (typeof message === 'string' && message.trim() !== '') {
+      return message;
+    }
+  }
+
+  return 'Stripe is not configured. Add a secret key in Admin → Settings.';
+}
+
 export function billingPortalReturnUrl(pathname: string): string {
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
   const path = pathname.startsWith('/') ? pathname : `/${pathname}`;
