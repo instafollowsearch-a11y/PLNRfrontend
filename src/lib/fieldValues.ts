@@ -105,7 +105,19 @@ export function serializeAnswerForApi(question: QuestionConfig, rawValue: string
     case 'location': {
       const location = parseJson<LocationValue>(rawValue);
 
-      return location?.label ?? rawValue;
+      if (!location?.label) {
+        return rawValue;
+      }
+
+      if (question.key === 'area_center') {
+        return JSON.stringify({
+          label: location.label,
+          lat: location.lat,
+          lon: location.lon,
+        });
+      }
+
+      return location.label;
     }
     case 'interests': {
       const parsed = parseInterestValue(rawValue, question.interestOptions ?? []);

@@ -373,7 +373,7 @@ export function AdminSettingsPage() {
             <section className="admin-settings__section">
               <header className="admin-settings__header">
                 <h2>
-                  <MapPin size={16} aria-hidden /> Listing photos
+                  <MapPin size={16} aria-hidden /> Google
                 </h2>
                 <Badge variant={sourceBadge(settings.google_places_api_key_source)}>
                   Key: {sourceLabel(settings.google_places_api_key_source)}
@@ -383,12 +383,12 @@ export function AdminSettingsPage() {
               <p className="admin-settings__hint">
                 {settings.google_places_api_key_set
                   ? `Key in use${settings.google_places_api_key_hint ? ` (${settings.google_places_api_key_hint})` : ''}.`
-                  : 'No Google Places key configured in admin or .env. Stops stay as text until one is saved.'}{' '}
-                Enter a new key only when you want to override. Leave blank to keep the current key.
+                  : 'No Google key configured in admin or .env.'}{' '}
+                This one key covers every Google service, including place photos and drive time. Enter a new key only when you want to override. Leave blank to keep the current key.
               </p>
 
               <Input
-                label="Google Places API key"
+                label="Google API key"
                 type="password"
                 autoComplete="off"
                 placeholder={

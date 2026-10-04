@@ -58,6 +58,42 @@ export const ACTIVITY_MIX_OPTIONS = [
   { value: 'Balanced mix each day', label: 'Balanced mix each day' },
 ] as const;
 
+function wantsOneArea(answers: Record<string, string>): boolean {
+  return answers.stay_in_area === 'Yes';
+}
+
+const AREA_QUESTIONS: QuestionConfig[] = [
+  {
+    key: 'stay_in_area',
+    label: 'Stay in one area?',
+    type: 'select',
+    hint: 'Limit the night to a radius around one neighborhood.',
+    options: [
+      { value: 'No', label: 'No' },
+      { value: 'Yes', label: 'Yes' },
+    ],
+  },
+  {
+    key: 'area_center',
+    label: 'Which area?',
+    type: 'location',
+    placeholder: 'Search for a neighborhood…',
+    hint: 'Pick the center of the night.',
+    showIf: wantsOneArea,
+  },
+  {
+    key: 'area_radius_miles',
+    label: 'How far from that area?',
+    type: 'select',
+    options: [
+      { value: '1', label: '1 mile' },
+      { value: '3', label: '3 miles' },
+      { value: '5', label: '5 miles' },
+    ],
+    showIf: wantsOneArea,
+  },
+];
+
 export const NIGHT_OUT_QUESTIONS: QuestionConfig[] = [
   {
     key: 'city',
@@ -105,6 +141,7 @@ export const NIGHT_OUT_QUESTIONS: QuestionConfig[] = [
     type: 'time',
     hint: 'When should the evening begin?',
   },
+  ...AREA_QUESTIONS,
 ];
 
 export const DATE_NIGHT_QUESTIONS: QuestionConfig[] = [
@@ -160,6 +197,7 @@ export const DATE_NIGHT_QUESTIONS: QuestionConfig[] = [
     max: 10,
     step: 1,
   },
+  ...AREA_QUESTIONS,
 ];
 
 function needsHotelPick(answers: Record<string, string>): boolean {

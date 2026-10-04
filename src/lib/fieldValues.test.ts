@@ -33,4 +33,13 @@ describe('fieldValues', () => {
 
     expect(result).toBe('Austin, Texas');
   });
+
+  it('keeps coordinates for the chosen area', () => {
+    const result = serializeAnswerForApi(
+      { key: 'area_center', label: 'Which area?', type: 'location' },
+      JSON.stringify({ label: 'East Austin', lat: 30.26, lon: -97.74 }),
+    );
+
+    expect(JSON.parse(result)).toEqual({ label: 'East Austin', lat: 30.26, lon: -97.74 });
+  });
 });
