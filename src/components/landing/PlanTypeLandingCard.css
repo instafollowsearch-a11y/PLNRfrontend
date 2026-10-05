@@ -3,7 +3,7 @@
   --plan-photo-position: center;
   position: relative;
   display: grid;
-  grid-template-rows: 45fr 55fr;
+  grid-template-rows: 50fr 50fr;
   min-height: 18rem;
   height: 100%;
   padding: 0;
