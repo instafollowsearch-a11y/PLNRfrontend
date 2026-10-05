@@ -64,12 +64,14 @@ function StopPhoto({ stop }: { stop: ItineraryStop }) {
   }
 
   return (
-    <img
-      className="itinerary-view__photo"
-      src={stop.photo_url}
-      alt={stop.name}
-      onError={() => setHasFailed(true)}
-    />
+    <div className="itinerary-view__photo-frame">
+      <img
+        className="itinerary-view__photo"
+        src={stop.photo_url}
+        alt={stop.name}
+        onError={() => setHasFailed(true)}
+      />
+    </div>
   );
 }
 

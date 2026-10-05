@@ -121,6 +121,7 @@
 
 .itinerary-view__stop {
   flex: 1;
+  min-width: 0;
   margin-bottom: var(--spacing-md);
   padding: var(--spacing-md);
   overflow: hidden;
@@ -139,13 +140,19 @@
   font-weight: 600;
 }
 
-.itinerary-view__photo {
-  display: block;
-  width: calc(100% + (var(--spacing-md) * 2));
+.itinerary-view__photo-frame {
   height: 148px;
   margin: calc(var(--spacing-md) * -1) calc(var(--spacing-md) * -1) var(--spacing-md);
-  object-fit: cover;
+  overflow: hidden;
   border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+.itinerary-view__photo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
 }
 
 .itinerary-view__stop-name {
