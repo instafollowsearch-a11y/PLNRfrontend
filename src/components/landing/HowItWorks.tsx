@@ -1,4 +1,4 @@
-import { CheckCircle2, Mail, MessageSquare, Sparkles } from 'lucide-react';
+import { CheckCircle2, MessageSquare, Sparkles, Users } from 'lucide-react';
 
 import './HowItWorks.css';
 
@@ -10,8 +10,8 @@ const STEPS = [
   },
   {
     icon: Sparkles,
-    title: 'Get AI suggestions',
-    description: 'We generate tailored outing ideas you can refine anytime.',
+    title: 'Get curated plans',
+    description: 'We put together outing ideas based on your interests.',
   },
   {
     icon: CheckCircle2,
@@ -19,9 +19,9 @@ const STEPS = [
     description: 'Pick a plan and we build a detailed timeline for you.',
   },
   {
-    icon: Mail,
-    title: 'View on PLNR',
-    description: 'Open the finished plan on PLNR. A link can go to your inbox.',
+    icon: Users,
+    title: 'Enjoy your plans with friends',
+    description: 'Share a link so friends can open the plan with you.',
   },
 ];
 
@@ -33,7 +33,7 @@ export function HowItWorks() {
           <p className="landing-section-eyebrow">How it works</p>
           <h2 className="landing-section-title">From idea to itinerary in four steps</h2>
           <p className="landing-section-subtitle">
-            PLNR guides you through planning, then keeps the finished plan on PLNR.
+            PLNR guides you through planning, then you share the finished plan.
           </p>
         </div>
 

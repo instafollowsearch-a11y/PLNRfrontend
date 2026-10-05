@@ -38,12 +38,11 @@ export function LandingHero({ onStartPlanning, onHowItWorks }: LandingHeroProps)
           </ul>
           <p className="landing-hero__eyebrow">
             <Sparkles size={16} />
-            Free AI planning
+            Curated for you
           </p>
           <h1 className="landing-hero__headline">Plan unforgettable outings in minutes</h1>
           <p className="landing-hero__subhead">
-            Free AI-powered date nights, group plans, vacations, and road trips—delivered to your
-            inbox.
+            Custom-made, curated plans instantly, based on your interests.
           </p>
 
           <div className="landing-hero__actions">

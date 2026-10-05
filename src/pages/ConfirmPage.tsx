@@ -110,8 +110,6 @@ export function ConfirmPage() {
             planType={planType as PlanTypeSlug}
             onSelect={() => undefined}
             selectable={false}
-            planStatus={suggestion.itinerary_content ? 'ready' : undefined}
-            itinerary={suggestion.itinerary_content}
           />
         ) : null}
 

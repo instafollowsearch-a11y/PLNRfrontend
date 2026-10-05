@@ -23,6 +23,9 @@ export type AdminSettings = {
   google_places_api_key_set?: boolean;
   google_places_api_key_source?: string;
   google_places_api_key_hint?: string | null;
+  findlocal_api_key_set?: boolean;
+  findlocal_api_key_source?: string;
+  findlocal_api_key_hint?: string | null;
   anthropic_model?: string;
   anthropic_model_source?: string;
   anthropic_model_env?: string;
@@ -70,10 +73,18 @@ export type AdminSettings = {
   stripe_fake_env?: boolean;
 };
 
+export type PlanCardImages = {
+  date_night: string | null;
+  night_out: string | null;
+  vacation: string | null;
+  road_trip: string | null;
+};
+
 export type AdminSettingsUpdate = {
   free_plans_per_month?: number;
   anthropic_api_key?: string;
   google_places_api_key?: string;
+  findlocal_api_key?: string;
   anthropic_model?: string;
   anthropic_url?: string;
   mail_from_address?: string;
@@ -91,6 +102,7 @@ export type AdminSettingsUpdate = {
   stripe_fake?: boolean;
   clear_anthropic_api_key?: boolean;
   clear_google_places_api_key?: boolean;
+  clear_findlocal_api_key?: boolean;
   clear_anthropic_model?: boolean;
   clear_anthropic_url?: boolean;
   clear_mail_from_address?: boolean;
@@ -166,6 +178,34 @@ export function createAccountApi(baseUrl: string) {
       return apiRequest<{ settings: AdminSettings }>('/admin/settings', {
         method: 'PATCH',
         body: JSON.stringify(settings),
+      });
+    },
+
+    getPlanCardImages() {
+      return apiRequest<{ images: PlanCardImages }>('/plan-card-images');
+    },
+
+    savePlanCardImageUrl(planType: string, url: string) {
+      return apiRequest<{ images: PlanCardImages }>('/admin/plan-card-images', {
+        method: 'POST',
+        body: JSON.stringify({ plan_type: planType, url }),
+      });
+    },
+
+    uploadPlanCardImage(planType: string, file: File) {
+      const body = new FormData();
+      body.append('plan_type', planType);
+      body.append('image', file);
+
+      return apiRequest<{ images: PlanCardImages }>('/admin/plan-card-images', {
+        method: 'POST',
+        body,
+      });
+    },
+
+    resetPlanCardImage(planType: string) {
+      return apiRequest<{ images: PlanCardImages }>(`/admin/plan-card-images/${planType}`, {
+        method: 'DELETE',
       });
     },
   };

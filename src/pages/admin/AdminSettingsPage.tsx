@@ -2,6 +2,7 @@ import { CreditCard, Crown, Gauge, Info, KeyRound, Mail, MapPin, Sparkles } from
 import { useEffect, useState, type FormEvent } from 'react';
 
 import { AdminNav } from '../../components/admin/AdminNav';
+import { PlanCardImagesSection } from '../../components/admin/PlanCardImagesSection';
 import { AppShell } from '../../components/layout/AppShell';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
@@ -39,6 +40,7 @@ type DirtyKey =
   | 'free_plans_per_month'
   | 'anthropic_api_key'
   | 'google_places_api_key'
+  | 'findlocal_api_key'
   | 'anthropic_model'
   | 'anthropic_url'
   | 'mail_from_address'
@@ -59,6 +61,7 @@ export function AdminSettingsPage() {
   const [freePlansPerDay, setFreePlansPerDay] = useState('5');
   const [anthropicApiKey, setAnthropicApiKey] = useState('');
   const [googlePlacesApiKey, setGooglePlacesApiKey] = useState('');
+  const [findLocalApiKey, setFindLocalApiKey] = useState('');
   const [anthropicModel, setAnthropicModel] = useState('');
   const [anthropicUrl, setAnthropicUrl] = useState('');
   const [mailFromAddress, setMailFromAddress] = useState('');
@@ -89,6 +92,7 @@ export function AdminSettingsPage() {
     setFreePlansPerDay(String(typeof next.free_plans_per_month === 'number' ? next.free_plans_per_month : 5));
     setAnthropicApiKey('');
     setGooglePlacesApiKey('');
+    setFindLocalApiKey('');
     setAnthropicModel(typeof next.anthropic_model === 'string' ? next.anthropic_model : '');
     setAnthropicUrl(typeof next.anthropic_url === 'string' ? next.anthropic_url : '');
     setMailFromAddress(typeof next.mail_from_address === 'string' ? next.mail_from_address : '');
@@ -137,6 +141,10 @@ export function AdminSettingsPage() {
 
       if (dirty.google_places_api_key && googlePlacesApiKey.trim()) {
         payload.google_places_api_key = googlePlacesApiKey.trim();
+      }
+
+      if (dirty.findlocal_api_key && findLocalApiKey.trim()) {
+        payload.findlocal_api_key = findLocalApiKey.trim();
       }
 
       if (dirty.anthropic_model && anthropicModel.trim()) {
@@ -406,6 +414,46 @@ export function AdminSettingsPage() {
                   type="button"
                   variant="ghost"
                   onClick={() => void clearOverride({ clear_google_places_api_key: true })}
+                />
+              ) : null}
+            </section>
+
+            <section className="admin-settings__section">
+              <header className="admin-settings__header">
+                <h2>
+                  <MapPin size={16} aria-hidden /> Find Local
+                </h2>
+                <Badge variant={sourceBadge(settings.findlocal_api_key_source)}>
+                  Key: {sourceLabel(settings.findlocal_api_key_source)}
+                </Badge>
+              </header>
+
+              <p className="admin-settings__hint">
+                {settings.findlocal_api_key_set
+                  ? `Key in use${settings.findlocal_api_key_hint ? ` (${settings.findlocal_api_key_hint})` : ''}.`
+                  : 'No Find Local key configured in admin or .env.'}{' '}
+                Used for local events in covered cities. Enter a new key only when you want to override. Leave blank to keep the current key.
+              </p>
+
+              <Input
+                label="Find Local API key"
+                type="password"
+                autoComplete="off"
+                placeholder={
+                  settings.findlocal_api_key_set ? '•••••••• (leave blank to keep)' : 'Paste the key'
+                }
+                value={findLocalApiKey}
+                onChange={(event) => {
+                  setFindLocalApiKey(event.target.value);
+                  markDirty('findlocal_api_key');
+                }}
+              />
+              {settings.findlocal_api_key_source === 'admin' ? (
+                <Button
+                  label="Use .env key instead"
+                  type="button"
+                  variant="ghost"
+                  onClick={() => void clearOverride({ clear_findlocal_api_key: true })}
                 />
               ) : null}
             </section>
@@ -716,6 +764,8 @@ export function AdminSettingsPage() {
             <Button label="Save settings" type="submit" loading={saving} />
           </form>
         ) : null}
+
+        {!loading ? <PlanCardImagesSection /> : null}
       </div>
     </AppShell>
   );

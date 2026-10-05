@@ -130,6 +130,10 @@
 }
 
 @media (max-width: 859px) {
+  .app-shell:not(.app-shell--landing) .app-shell__logo {
+    display: none;
+  }
+
   .app-shell__upgrade--header {
     padding: 0.45rem;
   }

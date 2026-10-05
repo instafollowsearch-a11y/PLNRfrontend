@@ -10,19 +10,56 @@ export const PRO_UPGRADE_SUMMARY =
 export const PRO_QUOTES = [
   {
     title: 'Custom weekend plans',
+    body: 'Curated and delivered for you automatically based on your interests.',
     quote: 'Hello Donovan here is your weekend schedule',
     icon: 'calendar',
   },
   {
-    title: 'View plans together in real time',
+    title: 'View plans together',
+    body: 'In real time.',
     quote: 'Del is viewing this plan',
     icon: 'people',
   },
   {
     title: 'Ping notifications',
+    body: 'Based off your interests.',
     quote: 'Did you know this is happening today?',
     icon: 'bell',
   },
+] as const;
+
+export const PRO_ALSO = [
+  { title: 'Unlimited generated plans', body: '', icon: 'infinity' },
+  {
+    title: 'Hyper-local events',
+    body: 'Karaoke, run clubs, open mics, movies on the lawn',
+    icon: 'pin',
+  },
+  { title: 'VIP support', body: '', icon: 'star' },
+] as const;
+
+export const PRO_PRICE = '$9.99';
+
+export const PRO_PRICE_INTERVAL = '/mo';
+
+export const PRO_UPGRADE_LABEL = 'Upgrade to Pro';
+
+export const FREE_COMPARE = [
+  { included: false, label: 'Custom weekend plans, curated for you automatically' },
+  { included: false, label: 'View plans together in real time' },
+  { included: false, label: 'Ping notifications based off your interests' },
+  { included: true, label: '5 generated plans' },
+  { included: false, label: 'Hyper-local events' },
+  { included: false, label: 'VIP support' },
+] as const;
+
+export const PRO_COMPARE = [
+  { included: true, label: 'Custom weekend plans, curated for you automatically' },
+  { included: true, label: 'View plans together in real time' },
+  { included: true, label: 'Ping notifications based off your interests' },
+  { included: true, label: 'Unlimited generated plans' },
+  { included: true, label: 'Hyper-local events' },
+  { included: true, label: 'VIP support' },
 ] as const;
 
 export const PRO_CHECKOUT_PATH = '/pro-checkout';

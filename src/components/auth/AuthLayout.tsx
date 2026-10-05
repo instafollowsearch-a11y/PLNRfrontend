@@ -21,8 +21,7 @@ export function AuthLayout({ title, subtitle, children, footer }: AuthLayoutProp
           </Link>
           <p className="auth-layout__tagline">Plan nights worth remembering.</p>
           <p className="auth-layout__blurb">
-            Free AI planning for date nights, group outings, vacations, and road trips—then email your
-            itinerary in minutes.
+            Custom-made, curated plans instantly, based on your interests.
           </p>
         </div>
       </aside>

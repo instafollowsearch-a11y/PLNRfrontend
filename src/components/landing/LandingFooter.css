@@ -34,6 +34,22 @@
   margin: 0;
 }
 
+.landing-footer__mark {
+  display: none;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0;
+  color: var(--footer-text);
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.landing-footer__mark svg {
+  color: var(--color-accent);
+}
+
 .landing-footer__tagline {
   display: flex;
   align-items: center;
@@ -204,7 +220,11 @@ a.landing-footer__store:hover {
   }
 
   .landing-footer__logo {
-    height: 4.25rem;
+    display: none;
+  }
+
+  .landing-footer__mark {
+    display: inline-flex;
   }
 
   .landing-footer__tagline {

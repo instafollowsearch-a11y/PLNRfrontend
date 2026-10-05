@@ -265,6 +265,7 @@ export function WeekendPage() {
             <WeekendPicksResults
               items={recommendation.items}
               saturdayPlan={recommendation.saturday_plan}
+              eventCredits={recommendation.event_credits}
             />
 
             {error ? <p className="error-text">{error}</p> : null}

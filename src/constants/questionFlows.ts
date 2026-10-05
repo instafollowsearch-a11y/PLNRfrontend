@@ -201,7 +201,7 @@ export const DATE_NIGHT_QUESTIONS: QuestionConfig[] = [
 ];
 
 function needsHotelPick(answers: Record<string, string>): boolean {
-  return answers.needs_hotel === "I don't have a hotel";
+  return answers.needs_hotel === "I need a hotel";
 }
 
 function alreadyBookedHotel(answers: Record<string, string>): boolean {
@@ -214,7 +214,7 @@ const HOTEL_STAY_QUESTIONS: QuestionConfig[] = [
     label: 'Do you need a hotel?',
     type: 'select',
     options: [
-      { value: "I don't have a hotel", label: "I don't have a hotel" },
+      { value: "I need a hotel", label: "I need a hotel" },
       { value: 'Already booked', label: 'Already booked' },
       { value: "I don't need a hotel", label: "I don't need a hotel" },
     ],
@@ -335,6 +335,12 @@ export const ROAD_TRIP_QUESTIONS: QuestionConfig[] = [
     type: 'location',
     placeholder: 'Search destination…',
     hint: 'City or address.',
+  },
+  {
+    key: 'departure_date',
+    label: 'When are you leaving?',
+    type: 'date',
+    hint: 'The day you start the drive.',
   },
   {
     key: 'arrival_date',

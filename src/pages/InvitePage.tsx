@@ -2,6 +2,7 @@ import { MapPin, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
+import { ItineraryView } from '../components/ItineraryView';
 import { AppShell } from '../components/layout/AppShell';
 import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
@@ -11,6 +12,7 @@ import { LoadingState } from '../components/ui/LoadingState';
 import { PageIntro } from '../components/ui/PageIntro';
 import { useAuth } from '../contexts/AuthContext';
 import { planShareApi } from '../lib/api';
+import { GUEST_CLEAR_STOP_COUNT } from '../lib/itineraryPreview';
 import type { ApiError, PlanSharePreview } from '../lib/apiTypes';
 import { withSession } from '../lib/session';
 import './InvitePage.css';
@@ -74,6 +76,7 @@ export function InvitePage() {
     preview && user?.email
       ? user.email.toLowerCase() === preview.invitee_email.toLowerCase()
       : false;
+  const canSeeFullPlan = Boolean(isAuthenticated && emailMatches);
 
   return (
     <AppShell title="Plan invite" showBack backTo="/">
@@ -113,6 +116,14 @@ export function InvitePage() {
                 <Users size={14} aria-hidden />
                 Invited as {preview.invitee_email}
               </p>
+              {preview.itinerary ? (
+                <ItineraryView
+                  content={preview.itinerary}
+                  planType={preview.plan.plan_type.slug}
+                  fadeAfterStopCount={canSeeFullPlan ? undefined : GUEST_CLEAR_STOP_COUNT}
+                  eventCredits={preview.event_credits}
+                />
+              ) : null}
             </Card>
 
             {preview.status !== 'pending' ? (
@@ -149,7 +160,7 @@ export function InvitePage() {
                 <p className="invite-page__auth-lead">
                   {preview.account_exists
                     ? 'Log in with the invited email to accept.'
-                    : 'Create an account with the invited email to view the plan.'}
+                    : 'Create an account to see the rest of this plan.'}
                 </p>
                 {preview.account_exists ? (
                   <Button
@@ -160,7 +171,7 @@ export function InvitePage() {
                   />
                 ) : (
                   <Button
-                    label="Create account"
+                    label="Create an account"
                     onClick={() =>
                       navigate('/register', {
                         state: {

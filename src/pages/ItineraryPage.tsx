@@ -14,7 +14,7 @@ import { FunnelStepper } from '../components/ui/FunnelStepper';
 import { LoadingState } from '../components/ui/LoadingState';
 import { useAuth } from '../contexts/AuthContext';
 import { planSessionApi } from '../lib/api';
-import { previewItinerary } from '../lib/itineraryPreview';
+import { GUEST_CLEAR_STOP_COUNT } from '../lib/itineraryPreview';
 import { resolveSessionUuid, withSession } from '../lib/session';
 import { getPlanFlowConfig, usePlanTypeParam } from './HomePage';
 
@@ -88,7 +88,6 @@ export function ItineraryPage() {
   const content = session?.itinerary?.content;
   const isViewer = session?.access_role === 'viewer';
   const showPreview = !authLoading && !user && !isViewer;
-  const visibleContent = content && showPreview ? previewItinerary(content) : content;
   const returnPath = withSession(`/plan/${planType}/itinerary`, sessionUuid);
   const canShare =
     Boolean(user) &&
@@ -100,12 +99,14 @@ export function ItineraryPage() {
       <FunnelStepper current="itinerary" planType={planType} sessionUuid={sessionUuid} />
       {loading || authLoading ? <LoadingState message="Loading itinerary…" /> : null}
 
-      {!loading && !authLoading && visibleContent ? (
+      {!loading && !authLoading && content ? (
         <RefinementChat messages={session?.refinement_messages ?? []} onSubmit={handleRefine}>
           <ItineraryView
-            content={visibleContent}
+            content={content}
             planType={planType as PlanTypeSlug}
+            fadeAfterStopCount={showPreview ? GUEST_CLEAR_STOP_COUNT : undefined}
             roadTripSummary={roadTripSummary}
+            eventCredits={session?.event_credits}
           />
           {showPreview ? (
             <Card className="page-stack">
@@ -125,7 +126,7 @@ export function ItineraryPage() {
           ) : (
             <div className="page-stack">
               <Button
-                label="View on PLNR"
+                label="Share your plans"
                 onClick={() => navigate(withSession(`/plan/${planType}/send`, sessionUuid))}
               />
               {canShare ? (

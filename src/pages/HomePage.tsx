@@ -37,8 +37,8 @@ export function HomePage() {
         onStartPlanning={() => scrollToId('plans')}
         onHowItWorks={() => scrollToId('how-it-works')}
       />
-      <HowItWorks />
       <PlanTypeGrid />
+      <HowItWorks />
       <TrustStrip />
       <LandingFooter />
     </AppShell>

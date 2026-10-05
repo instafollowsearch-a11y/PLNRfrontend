@@ -399,6 +399,75 @@
   padding-inline: 0;
 }
 
+.admin-plan-photos__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.admin-plan-photo {
+  display: grid;
+  grid-template-columns: 7.5rem minmax(0, 1fr);
+  gap: var(--spacing-md);
+  align-items: start;
+}
+
+.admin-plan-photo__preview {
+  display: grid;
+  place-items: center;
+  width: 7.5rem;
+  height: 5.5rem;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background: var(--color-accent-soft);
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.admin-plan-photo__preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.admin-plan-photo h3 {
+  margin: 0 0 0.35rem;
+  font-size: 0.95rem;
+}
+
+.admin-plan-photo__file {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: var(--spacing-sm);
+  color: var(--color-text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.admin-plan-photo__file input {
+  font: inherit;
+  font-weight: 500;
+}
+
+.admin-plan-photo__status {
+  margin: var(--spacing-sm) 0 0;
+  color: var(--color-text-secondary);
+  font-size: 0.8125rem;
+}
+
+.admin-plan-photo__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+}
+
+.admin-plan-photo__actions .ui-button {
+  width: auto;
+}
+
 .admin-settings-form__saved {
   margin: 0;
   padding: 0.55rem 0.75rem;

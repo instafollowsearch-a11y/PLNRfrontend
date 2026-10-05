@@ -1,11 +1,13 @@
 .plan-landing-card {
   --plan-accent: var(--color-accent);
+  --plan-photo-position: center;
   position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 1.15rem;
-  min-height: 100%;
-  padding: 1.35rem 1.35rem 1.2rem;
+  display: grid;
+  grid-template-rows: 45fr 55fr;
+  min-height: 18rem;
+  height: 100%;
+  padding: 0;
+  overflow: hidden;
   border-style: solid;
   border-width: 3px 1px 1px;
   border-color: var(--plan-accent)
@@ -38,6 +40,33 @@
   outline-offset: 3px;
 }
 
+.plan-landing-card__photo {
+  position: relative;
+  min-height: 0;
+}
+
+.plan-landing-card__photo img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--plan-photo-position);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 38%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 38%, transparent 100%);
+}
+
+.plan-landing-card__body {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  min-height: 0;
+  margin-top: -2.75rem;
+  padding: 0 1.35rem 1.2rem;
+}
+
 .plan-landing-card__icon {
   display: inline-flex;
   align-items: center;
@@ -54,7 +83,6 @@
   display: flex;
   flex-direction: column;
   gap: 0.45rem;
-  flex: 1;
 }
 
 .plan-landing-card__title {
@@ -106,8 +134,13 @@
 
 @media (max-width: 767px) {
   .plan-landing-card {
-    padding: 1.15rem 1.15rem 1.05rem;
+    min-height: 18rem;
     border-radius: 18px;
+  }
+
+  .plan-landing-card__body {
+    margin-top: -2.25rem;
+    padding: 0 1.15rem 1.05rem;
   }
 
   .plan-landing-card__title {

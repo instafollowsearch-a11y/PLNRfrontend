@@ -3,7 +3,7 @@ import { Calendar, Mail, Sparkles } from 'lucide-react';
 import './TrustStrip.css';
 
 const ITEMS = [
-  { icon: Sparkles, label: 'AI-powered suggestions' },
+  { icon: Sparkles, label: 'Curated plans' },
   { icon: Calendar, label: 'Free to plan' },
   { icon: Mail, label: 'Delivered by email' },
 ];

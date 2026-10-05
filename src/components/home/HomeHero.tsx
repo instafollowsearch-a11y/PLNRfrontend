@@ -25,13 +25,13 @@ export function HomeHero() {
       <p className="home-hero__eyebrow">{getGreeting()}</p>
       <h2 className="home-hero__heading">Plan your next outing</h2>
       <p className="home-hero__subheading">
-        AI-powered date nights, group plans, vacations, and road trips — free to start.
+        Custom-made, curated plans instantly, based on your interests.
       </p>
 
       <div className="home-hero__pills">
         <span className="home-hero__pill">
           <Sparkles size={14} />
-          AI suggestions
+          Curated plans
         </span>
         <span className="home-hero__pill">
           <Gift size={14} />

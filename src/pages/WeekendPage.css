@@ -44,6 +44,16 @@
   font-size: 0.875rem;
 }
 
+.weekend-page__credit {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.8125rem;
+}
+
+.weekend-page__credit a {
+  color: var(--color-accent);
+}
+
 .weekend-page__stops {
   margin: 0;
   padding-left: 1.25rem;
@@ -95,6 +105,16 @@
 
 .weekend-page__event-link:hover {
   background: color-mix(in srgb, var(--color-accent-soft) 70%, var(--color-accent-glow));
+}
+
+.weekend-page__findlocal {
+  display: inline-flex;
+  margin-top: var(--spacing-sm);
+  color: var(--color-accent);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
 }
 
 .weekend-page__event-venue,

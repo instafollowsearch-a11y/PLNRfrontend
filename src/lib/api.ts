@@ -37,7 +37,7 @@ export type {
   WeekendRecommendation,
   PlanSharePreview,
 } from './apiTypes';
-export type { AdminSettings, AdminSettingsUpdate, AccountApi } from './accountApi';
+export type { AdminSettings, AdminSettingsUpdate, AccountApi, PlanCardImages } from './accountApi';
 export type { PlanSessionApi } from './planSessions';
 export type { BillingApi } from './billingApi';
 export type { WeekendApi } from './weekendApi';

@@ -1,10 +1,10 @@
 import type { PlanTypeSlug } from '../constants/planFlowConfig';
 import type { Suggestion } from '../lib/apiTypes';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import { RefinementChat } from '../components/RefinementChat';
-import { SuggestionCard, type PlanDraftStatus } from '../components/SuggestionCard';
+import { SuggestionCard } from '../components/SuggestionCard';
 import { AppShell } from '../components/layout/AppShell';
 import { Button } from '../components/ui/Button';
 import { EmptyState } from '../components/ui/EmptyState';
@@ -31,10 +31,8 @@ export function SuggestionsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [retrying, setRetrying] = useState(false);
-  const [failedIds, setFailedIds] = useState<number[]>([]);
   const [choosingId, setChoosingId] = useState<number | null>(null);
   const [chooseError, setChooseError] = useState<string | null>(null);
-  const startedIds = useRef<Set<number>>(new Set());
 
   useEffect(() => {
     if (!sessionUuid) {
@@ -54,37 +52,6 @@ export function SuggestionsPage() {
       .finally(() => setLoading(false));
   }, [sessionUuid]);
 
-  useEffect(() => {
-    if (!sessionUuid) {
-      return;
-    }
-
-    for (const suggestion of suggestions) {
-      if (suggestion.itinerary_content || startedIds.current.has(suggestion.id)) {
-        continue;
-      }
-
-      startedIds.current.add(suggestion.id);
-      const suggestionId = suggestion.id;
-
-      void planSessionApi
-        .draftSuggestionPlan(sessionUuid, suggestionId)
-        .then((response) => {
-          const content = response.data.suggestion.itinerary_content;
-
-          setSuggestions((current) =>
-            current.map((item) =>
-              item.id === suggestionId ? { ...item, itinerary_content: content } : item,
-            ),
-          );
-          setFailedIds((current) => current.filter((id) => id !== suggestionId));
-        })
-        .catch(() => {
-          setFailedIds((current) => (current.includes(suggestionId) ? current : [...current, suggestionId]));
-        });
-    }
-  }, [sessionUuid, suggestions]);
-
   async function handleRetry() {
     if (!sessionUuid) {
       return;
@@ -95,8 +62,6 @@ export function SuggestionsPage() {
 
     try {
       const response = await planSessionApi.generateSuggestions(sessionUuid);
-      startedIds.current.clear();
-      setFailedIds([]);
       setSuggestions(response.data.suggestions);
     } catch {
       setError('Unable to generate suggestions. Please try again.');
@@ -105,20 +70,12 @@ export function SuggestionsPage() {
     }
   }
 
-  function handleRetryPlan(suggestionId: number) {
-    startedIds.current.delete(suggestionId);
-    setFailedIds((current) => current.filter((id) => id !== suggestionId));
-    setSuggestions((current) => current.map((item) => ({ ...item })));
-  }
-
   async function handleRefine(message: string) {
     if (!sessionUuid) {
       return;
     }
 
     const response = await planSessionApi.refinePlanSession(sessionUuid, message);
-    startedIds.current.clear();
-    setFailedIds([]);
     setSuggestions(response.data.suggestions);
     setRefinementMessages(response.data.plan_session.refinement_messages ?? []);
   }
@@ -141,18 +98,6 @@ export function SuggestionsPage() {
     }
   }
 
-  function planStatus(suggestion: Suggestion): PlanDraftStatus {
-    if (suggestion.itinerary_content) {
-      return 'ready';
-    }
-
-    if (failedIds.includes(suggestion.id)) {
-      return 'failed';
-    }
-
-    return 'writing';
-  }
-
   if (!planType || !config) {
     return (
       <AppShell showBack backTo="/">
@@ -169,22 +114,15 @@ export function SuggestionsPage() {
     );
   }
 
-  const readyCount = suggestions.filter((suggestion) => suggestion.itinerary_content).length;
   const suggestionList = (
     <>
-      <p className="suggestions-progress">
-        {readyCount} of {suggestions.length} plans ready.
-      </p>
       <div className="suggestions-list">
         {suggestions.map((suggestion) => (
           <SuggestionCard
             key={suggestion.id}
             suggestion={suggestion}
             planType={planType as PlanTypeSlug}
-            planStatus={planStatus(suggestion)}
-            itinerary={suggestion.itinerary_content}
             onSelect={(item) => void handleSelect(item)}
-            onRetry={() => handleRetryPlan(suggestion.id)}
             choosing={choosingId === suggestion.id}
           />
         ))}

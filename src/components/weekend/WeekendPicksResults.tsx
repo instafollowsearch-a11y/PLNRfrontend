@@ -1,13 +1,14 @@
 import { ExternalLink } from 'lucide-react';
 
 import { Card } from '../ui/Card';
-import type { SaturdayPlan, WeekendRecommendationItem } from '../../lib/apiTypes';
+import type { EventCredit, SaturdayPlan, WeekendRecommendationItem } from '../../lib/apiTypes';
 import { itemsForDay, usesWeekendDays, WEEKEND_DAYS } from '../../lib/weekendDays';
 import '../../pages/WeekendPage.css';
 
 interface WeekendPicksResultsProps {
   items: WeekendRecommendationItem[];
   saturdayPlan?: SaturdayPlan | null;
+  eventCredits?: EventCredit[];
 }
 
 function formatEventDate(value: string | null): string {
@@ -24,12 +25,19 @@ function formatEventDate(value: string | null): string {
   });
 }
 
+function isFindLocalEventPage(href: string): boolean {
+  return href.startsWith('https://findlocal.community/event/');
+}
+
 function EventCard({ item }: { item: WeekendRecommendationItem }) {
+  const findLocalUrl =
+    item.source === 'findlocal' && item.url && isFindLocalEventPage(item.url) ? item.url : null;
+
   return (
     <Card className="weekend-page__event">
       <div className="weekend-page__event-head">
         <h3>{item.title}</h3>
-        {item.url ? (
+        {item.url && !findLocalUrl ? (
           <a
             href={item.url}
             target="_blank"
@@ -44,17 +52,41 @@ function EventCard({ item }: { item: WeekendRecommendationItem }) {
       <p className="weekend-page__event-venue">{item.venue || 'Venue TBA'}</p>
       <p className="weekend-page__event-time">{formatEventDate(item.starts_at)}</p>
       <p className="weekend-page__event-reason">{item.reason}</p>
+      {findLocalUrl ? (
+        <a href={findLocalUrl} target="_blank" rel="noreferrer" className="weekend-page__findlocal">
+          View on Find Local
+        </a>
+      ) : null}
     </Card>
   );
 }
 
-export function WeekendPicksResults({ items, saturdayPlan }: WeekendPicksResultsProps) {
+function EventCredits({ credits }: { credits?: EventCredit[] }) {
+  const visible = (credits ?? []).filter((credit) => credit.url && credit.label);
+
+  if (visible.length === 0) {
+    return null;
+  }
+
+  return (
+    <p className="weekend-page__credit">
+      {visible.map((credit) => (
+        <a key={credit.source} href={credit.url} target="_blank" rel="noreferrer">
+          {credit.label}
+        </a>
+      ))}
+    </p>
+  );
+}
+
+export function WeekendPicksResults({ items, saturdayPlan, eventCredits }: WeekendPicksResultsProps) {
   if (!usesWeekendDays(items)) {
     return (
       <div className="weekend-page__list">
         {items.map((item) => (
           <EventCard key={item.event_id} item={item} />
         ))}
+        <EventCredits credits={eventCredits} />
       </div>
     );
   }
@@ -97,6 +129,7 @@ export function WeekendPicksResults({ items, saturdayPlan }: WeekendPicksResults
           </Card>
         </section>
       ) : null}
+      <EventCredits credits={eventCredits} />
     </div>
   );
 }

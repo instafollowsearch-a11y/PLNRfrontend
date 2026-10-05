@@ -16,7 +16,7 @@ export type VacationAnswers = {
 
 export function parseVacationAnswers(raw: Record<string, string>): VacationAnswers {
   const needsHotel = raw.needs_hotel === 'Already booked';
-  const wantsHotel = raw.needs_hotel === "I don't have a hotel";
+  const wantsHotel = raw.needs_hotel === "I need a hotel";
 
   return {
     destination: raw.destination?.trim() ?? '',
@@ -49,11 +49,11 @@ export function validateVacationAnswers(answers: Record<string, unknown>): boole
     typed.group_size >= 1 &&
     typed.activity_mix.length >= 3 &&
     typed.arrival_time.length > 0 &&
-    (typed.needs_hotel === "I don't have a hotel" ||
+    (typed.needs_hotel === "I need a hotel" ||
       typed.needs_hotel === "I don't need a hotel" ||
       typed.needs_hotel === 'Already booked') &&
     (typed.needs_hotel === "I don't need a hotel" ||
-      (typed.needs_hotel === "I don't have a hotel" && (typed.hotel_pick?.length ?? 0) > 0) ||
+      (typed.needs_hotel === "I need a hotel" && (typed.hotel_pick?.length ?? 0) > 0) ||
       (typed.needs_hotel === 'Already booked' &&
         (typed.hotel_location?.length ?? 0) > 0 &&
         (typed.hotel_shuttle === 'Yes' || typed.hotel_shuttle === 'No' || typed.hotel_shuttle === 'Not sure'))) &&

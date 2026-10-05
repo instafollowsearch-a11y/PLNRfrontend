@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import type { ItineraryContent, ItineraryStop } from '../lib/apiTypes';
+import type { EventCredit, ItineraryContent, ItineraryStop } from '../lib/apiTypes';
+import { splitItineraryPreview } from '../lib/itineraryPreview';
 import { Clock, ExternalLink, MapPin } from 'lucide-react';
 
 import './ItineraryView.css';
@@ -7,18 +8,28 @@ import './ItineraryView.css';
 type ItineraryViewProps = {
   content: ItineraryContent;
   planType?: string;
+  fadeAfterStopCount?: number;
   roadTripSummary?: {
     gas?: number;
     food?: number;
     driveTime?: string;
   };
+  eventCredits?: EventCredit[];
 };
 
+function isFindLocalEventPage(href: string): boolean {
+  return href.startsWith('https://findlocal.community/event/');
+}
+
 function StopLinks({ stop }: { stop: ItineraryStop }) {
+  const findLocalUrl = [stop.findlocal_url, stop.venue_url, stop.external_url].find(
+    (href) => href && isFindLocalEventPage(href),
+  );
   const links = [
-    stop.venue_url ? { href: stop.venue_url, label: 'Open venue' } : null,
+    findLocalUrl ? { href: findLocalUrl, label: 'View on Find Local' } : null,
+    stop.venue_url && stop.venue_url !== findLocalUrl ? { href: stop.venue_url, label: 'Open venue' } : null,
     stop.maps_url ? { href: stop.maps_url, label: 'Directions' } : null,
-    stop.external_url && stop.external_url !== stop.venue_url
+    stop.external_url && stop.external_url !== stop.venue_url && stop.external_url !== findLocalUrl
       ? { href: stop.external_url, label: 'More info' }
       : null,
   ].filter(Boolean) as Array<{ href: string; label: string }>;
@@ -99,14 +110,59 @@ function StopRow({
 
 function renderStops(stops: ItineraryContent['stops']) {
   return (stops ?? []).map((stop, index) => (
-    <StopRow key={`${stop.time}-${index}`} stop={stop} isLast={index === (stops?.length ?? 0) - 1} />
+    <StopRow key={`${stop.time}-${stop.name}-${index}`} stop={stop} isLast={index === (stops?.length ?? 0) - 1} />
   ));
 }
 
-export function ItineraryView({ content, planType, roadTripSummary }: ItineraryViewProps) {
+function EventCredits({ credits }: { credits?: EventCredit[] }) {
+  const visible = (credits ?? []).filter((credit) => credit.url && credit.label);
+
+  if (visible.length === 0) {
+    return null;
+  }
+
+  return (
+    <p className="itinerary-view__credit">
+      {visible.map((credit) => (
+        <a key={credit.source} href={credit.url} target="_blank" rel="noreferrer">
+          {credit.label}
+        </a>
+      ))}
+    </p>
+  );
+}
+
+function ItineraryStops({ content }: { content: ItineraryContent }) {
+  if (content.days?.length) {
+    return (
+      <>
+        {content.days.map((day, dayIndex) => (
+          <div key={`${day.date}-${dayIndex}`} className="itinerary-view__day">
+            {day.date ? <h3>{day.date}</h3> : null}
+            {day.theme ? <p className="itinerary-view__day-theme">{day.theme}</p> : null}
+            {renderStops(day.stops)}
+          </div>
+        ))}
+      </>
+    );
+  }
+
+  return <>{renderStops(content.stops ?? [])}</>;
+}
+
+export function ItineraryView({
+  content,
+  planType,
+  fadeAfterStopCount,
+  roadTripSummary,
+  eventCredits,
+}: ItineraryViewProps) {
   const showRoadTripStrip =
     planType === 'road_trip' &&
     (roadTripSummary?.gas != null || roadTripSummary?.food != null || roadTripSummary?.driveTime);
+  const parts = fadeAfterStopCount == null ? null : splitItineraryPreview(content, fadeAfterStopCount);
+  const visible = parts?.clear ?? content;
+  const faded = parts?.faded ?? null;
 
   return (
     <section className="itinerary-view">
@@ -130,15 +186,13 @@ export function ItineraryView({ content, planType, roadTripSummary }: ItineraryV
         </div>
       ) : null}
 
-      {content.days?.length
-        ? content.days.map((day, dayIndex) => (
-            <div key={`${day.date}-${dayIndex}`} className="itinerary-view__day">
-              <h3>{day.date}</h3>
-              {day.theme ? <p className="itinerary-view__day-theme">{day.theme}</p> : null}
-              {renderStops(day.stops)}
-            </div>
-          ))
-        : renderStops(content.stops ?? [])}
+      <ItineraryStops content={visible} />
+      {faded ? (
+        <div className="itinerary-view__locked" aria-hidden="true">
+          <ItineraryStops content={faded} />
+        </div>
+      ) : null}
+      <EventCredits credits={eventCredits} />
     </section>
   );
 }

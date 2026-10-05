@@ -34,6 +34,7 @@ export type ItineraryStop = {
   venue_url?: string;
   maps_url?: string;
   external_url?: string;
+  findlocal_url?: string;
   photo_url?: string;
   hours?: string;
   address?: string;
@@ -60,10 +61,17 @@ export type PlanSharedBy = {
   email: string;
 };
 
+export type EventCredit = {
+  source: string;
+  label: string;
+  url: string;
+};
+
 export type PlanSession = {
   uuid: string;
   status: string;
   city: string | null;
+  event_credits?: EventCredit[];
   recipient_phone?: string | null;
   answers: Record<string, unknown>;
   plan_type?: { slug: PlanTypeSlug; label: string };
@@ -137,6 +145,7 @@ export type WeekendRecommendation = {
   window_end: string | null;
   items: WeekendRecommendationItem[];
   saturday_plan?: SaturdayPlan | null;
+  event_credits?: EventCredit[];
   email_sent_at: string | null;
   created_at?: string;
 };
@@ -153,6 +162,8 @@ export type PlanSharePreview = {
     status: string;
     plan_type: { slug: string; label: string };
   };
+  itinerary?: ItineraryContent | null;
+  event_credits?: EventCredit[];
   urls: { web: string | null; app: string };
   app_store_url: string | null;
   play_store_url: string | null;

@@ -1,5 +1,6 @@
 import * as maplibregl from 'maplibre-gl';
 import type { ExpressionSpecification } from 'maplibre-gl';
+import { setWorkerUrl } from 'maplibre-gl';
 
 import { MapPin, Search } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -11,10 +12,15 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import './fields.css';
 import './LocationField.css';
 
+if (import.meta.env.PROD) {
+  setWorkerUrl(`${import.meta.env.BASE_URL}assets/maplibre-gl-worker.mjs`);
+}
+
 const ENGLISH_PLACE_NAME: ExpressionSpecification = [
   'coalesce',
   ['get', 'name_en'],
   ['get', 'name:en'],
+  ['get', 'name:latin'],
   ['get', 'name'],
 ];
 
@@ -102,7 +108,11 @@ export function LocationField({ value, placeholder, onChange }: LocationFieldPro
           continue;
         }
 
-        map.setLayoutProperty(layer.id, 'text-field', ENGLISH_PLACE_NAME);
+        try {
+          map.setLayoutProperty(layer.id, 'text-field', ENGLISH_PLACE_NAME);
+        } catch {
+          // Keep the style's own label if this layer rejects the replacement.
+        }
       }
     });
 

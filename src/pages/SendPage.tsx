@@ -142,7 +142,7 @@ export function SendPage() {
           <div className="send-success__icon" aria-hidden>
             <CheckCircle2 size={56} strokeWidth={1.75} />
           </div>
-          <h1 className="send-success__title">View it on PLNR</h1>
+          <h1 className="send-success__title">Link sent</h1>
           <p className="send-success__lead">
             A link was sent to <strong>{email}</strong>.
           </p>
@@ -189,14 +189,14 @@ export function SendPage() {
   }
 
   return (
-    <AppShell title="View on PLNR" showBack backTo={`/plan/${planType}/itinerary?session=${sessionUuid}`}>
+    <AppShell title="Share your plans" showBack backTo={`/plan/${planType}/itinerary?session=${sessionUuid}`}>
       <FunnelStepper current="send" planType={planType} sessionUuid={sessionUuid} />
       <div className="page-stack send-form">
         <PageIntro
-          title="View on PLNR"
+          title="Share your plans"
           subtitle={
             isAuthenticated
-              ? 'We will email a link to this plan. It stays on PLNR.'
+              ? 'We will email a link to this plan.'
               : 'Add your email — we will create your free account and send a link to this plan.'
           }
         />
@@ -255,7 +255,7 @@ export function SendPage() {
         {error ? <p className="error-text">{error}</p> : null}
 
         <Button
-          label={isAuthenticated ? 'View on PLNR' : 'Sign up & view on PLNR'}
+          label={isAuthenticated ? 'Share your plans' : 'Sign up and share your plans'}
           onClick={() => void handleSend()}
           loading={isSubmitting}
         />

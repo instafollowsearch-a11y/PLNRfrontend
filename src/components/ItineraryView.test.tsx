@@ -92,4 +92,34 @@ describe('ItineraryView', () => {
     expect(screen.getByRole('heading', { name: 'Quiet Bar' })).toBeInTheDocument();
     expect(screen.queryByText(/friday:/i)).not.toBeInTheDocument();
   });
+
+  it('links a matched stop to its Find Local event page', () => {
+    render(
+      <ItineraryView
+        content={{
+          title: 'Night Out',
+          summary: 'A fun evening',
+          stops: [
+            {
+              time: '9:00 PM',
+              name: 'Sarah Sharp Quintet',
+              activity: 'Live jazz',
+              notes: '',
+              findlocal_url: 'https://findlocal.community/event/11111111-1111-1111-1111-111111111111',
+              venue_url: 'https://example.com/elephant-room',
+            },
+          ],
+        }}
+      />,
+    );
+
+    expect(screen.getByRole('link', { name: 'View on Find Local' })).toHaveAttribute(
+      'href',
+      'https://findlocal.community/event/11111111-1111-1111-1111-111111111111',
+    );
+    expect(screen.getByRole('link', { name: /open venue/i })).toHaveAttribute(
+      'href',
+      'https://example.com/elephant-room',
+    );
+  });
 });

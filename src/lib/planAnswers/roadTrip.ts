@@ -1,6 +1,7 @@
 export type RoadTripAnswers = {
   start_location: string;
   end_location: string;
+  departure_date: string;
   arrival_date: string;
   departure_time: string;
   car_type: string;
@@ -18,11 +19,12 @@ export type RoadTripAnswers = {
 export function parseRoadTripAnswers(raw: Record<string, string>): RoadTripAnswers {
   const stopPreference = raw.stop_preference === 'with_stops' ? 'with_stops' : 'straight';
   const needsHotel = raw.needs_hotel === 'Already booked';
-  const wantsHotel = raw.needs_hotel === "I don't have a hotel";
+  const wantsHotel = raw.needs_hotel === "I need a hotel";
 
   return {
     start_location: raw.start_location?.trim() ?? '',
     end_location: raw.end_location?.trim() ?? '',
+    departure_date: raw.departure_date?.trim() ?? '',
     arrival_date: raw.arrival_date?.trim() ?? '',
     departure_time: raw.departure_time?.trim() ?? '',
     car_type: raw.car_type?.trim() ?? '',
@@ -49,6 +51,7 @@ export function validateRoadTripAnswers(answers: Record<string, unknown>): boole
   return (
     typed.start_location.length > 0 &&
     typed.end_location.length > 0 &&
+    typed.departure_date.length > 0 &&
     typed.arrival_date.length > 0 &&
     typed.departure_time.length > 0 &&
     typed.car_type.length > 0 &&
@@ -58,11 +61,11 @@ export function validateRoadTripAnswers(answers: Record<string, unknown>): boole
     typed.food_preferences.length >= 3 &&
     Number.isFinite(typed.group_size) &&
     typed.group_size >= 1 &&
-    (typed.needs_hotel === "I don't have a hotel" ||
+    (typed.needs_hotel === "I need a hotel" ||
       typed.needs_hotel === "I don't need a hotel" ||
       typed.needs_hotel === 'Already booked') &&
     (typed.needs_hotel === "I don't need a hotel" ||
-      (typed.needs_hotel === "I don't have a hotel" && (typed.hotel_pick?.length ?? 0) > 0) ||
+      (typed.needs_hotel === "I need a hotel" && (typed.hotel_pick?.length ?? 0) > 0) ||
       (typed.needs_hotel === 'Already booked' &&
         (typed.hotel_location?.length ?? 0) > 0 &&
         (typed.hotel_shuttle === 'Yes' || typed.hotel_shuttle === 'No' || typed.hotel_shuttle === 'Not sure')))
