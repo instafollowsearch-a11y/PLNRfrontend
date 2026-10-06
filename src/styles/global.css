@@ -94,6 +94,12 @@ img {
   max-width: 40rem;
 }
 
+.prose-page h2 {
+  margin: 0.25rem 0 0;
+  font-size: 1.2rem;
+  line-height: 1.3;
+}
+
 .prose-page p,
 .prose-page li {
   margin: 0;

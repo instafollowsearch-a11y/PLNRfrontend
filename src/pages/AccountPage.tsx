@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { AppShell } from '../components/layout/AppShell';
 import { Button } from '../components/ui/Button';
@@ -17,7 +18,8 @@ function fieldMessage(error: ApiError | null, field: string): string | null {
 }
 
 export function AccountPage() {
-  const { user, refreshUser } = useAuth();
+  const { user, refreshUser, logout } = useAuth();
+  const navigate = useNavigate();
   const [name, setName] = useState(user?.name ?? '');
   const [email, setEmail] = useState(user?.email ?? '');
   const [city, setCity] = useState(user?.city ?? '');
@@ -33,6 +35,10 @@ export function AccountPage() {
   const [passwordMessage, setPasswordMessage] = useState<string | null>(null);
   const [isSavingPassword, setIsSavingPassword] = useState(false);
   const [hasLoadedProfile, setHasLoadedProfile] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [isDeleteConfirming, setIsDeleteConfirming] = useState(false);
+  const [deleteError, setDeleteError] = useState<ApiError | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -103,6 +109,32 @@ export function AccountPage() {
       });
     } finally {
       setIsSavingPassword(false);
+    }
+  }
+
+  function handleDeleteRequest(event: FormEvent) {
+    event.preventDefault();
+    setDeleteError(null);
+    setIsDeleteConfirming(true);
+  }
+
+  async function handleDeleteConfirm() {
+    setIsDeleting(true);
+    setDeleteError(null);
+
+    try {
+      await authApi.deleteAccount(deletePassword);
+      await logout();
+      navigate('/');
+    } catch (err) {
+      const apiError = err as ApiError;
+      setIsDeleteConfirming(false);
+      setDeleteError({
+        message: firstApiError(err, 'Unable to delete this account.'),
+        errors: apiError.errors,
+      });
+    } finally {
+      setIsDeleting(false);
     }
   }
 
@@ -203,6 +235,39 @@ export function AccountPage() {
             {passwordMessage ? <p role="status">{passwordMessage}</p> : null}
             {passwordError && !passwordError.errors ? <p className="error-text">{passwordError.message}</p> : null}
             <Button label="Update password" type="submit" loading={isSavingPassword} variant="secondary" />
+          </form>
+        </Card>
+
+        <Card>
+          <form className="page-stack" aria-label="Delete account" onSubmit={handleDeleteRequest}>
+            <h2 className="account-page__heading">Delete account</h2>
+            <p className="account-page__note">
+              This permanently deletes your account, saved plans, and sign-in. Plans other people own stay with them.
+            </p>
+            <PasswordField
+              label="Password"
+              name="delete-password"
+              autoComplete="current-password"
+              value={deletePassword}
+              onChange={(value) => {
+                setDeletePassword(value);
+                setIsDeleteConfirming(false);
+              }}
+              error={fieldMessage(deleteError, 'password') ?? fieldMessage(deleteError, 'account')}
+              required
+            />
+            {deleteError && !deleteError.errors ? <p className="error-text">{deleteError.message}</p> : null}
+            {isDeleteConfirming ? (
+              <Button
+                label="Yes, delete my account"
+                type="button"
+                variant="secondary"
+                loading={isDeleting}
+                onClick={() => void handleDeleteConfirm()}
+              />
+            ) : (
+              <Button label="Delete account" type="submit" variant="secondary" />
+            )}
           </form>
         </Card>
       </div>

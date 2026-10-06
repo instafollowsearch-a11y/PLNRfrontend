@@ -4,7 +4,7 @@ import './TrustStrip.css';
 
 const ITEMS = [
   { icon: Sparkles, label: 'Curated plans' },
-  { icon: Calendar, label: 'Free to plan' },
+  { icon: Calendar, label: 'Plans worth sharing' },
   { icon: Mail, label: 'Delivered by email' },
 ];
 

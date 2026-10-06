@@ -102,6 +102,13 @@ export function createAuthApi(baseUrl: string) {
         }),
       });
     },
+
+    deleteAccount(password: string) {
+      return apiRequest<null>('/user', {
+        method: 'DELETE',
+        body: JSON.stringify({ password }),
+      });
+    },
   };
 }
 

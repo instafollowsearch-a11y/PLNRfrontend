@@ -151,7 +151,7 @@ export function LandingFooter() {
 
       <div className="landing-footer__bottom">
         <p className="landing-footer__copy">© {year} PLNR. All rights reserved.</p>
-        <p className="landing-footer__note">Free to plan · No account required</p>
+        <p className="landing-footer__note">Plans worth sharing</p>
       </div>
     </footer>
   );

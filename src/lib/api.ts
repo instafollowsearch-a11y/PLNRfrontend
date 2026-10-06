@@ -22,7 +22,7 @@ export const weekendApi = createWeekendApi(API_URL);
 export const planShareApi = createPlanShareApi(API_URL);
 
 export const PRIVACY_POLICY_URL =
-  import.meta.env.VITE_PRIVACY_POLICY_URL ?? 'https://plnr.app/privacy';
+  import.meta.env.VITE_PRIVACY_POLICY_URL ?? 'https://myplnr.app/privacy';
 
 export const SUPPORT_EMAIL = import.meta.env.VITE_SUPPORT_EMAIL ?? 'support@plnr.app';
 
