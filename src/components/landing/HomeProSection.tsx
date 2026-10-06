@@ -1,5 +1,5 @@
-import { Check, Crown, Image, Infinity, MapPin, Minus, Star } from 'lucide-react';
-import { useState, type ReactNode } from 'react';
+import { Check, Crown, Infinity, MapPin, Minus, Star } from 'lucide-react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import {
@@ -17,12 +17,11 @@ import { checkoutErrorMessage } from '../../lib/billingHelpers';
 import { startWebProCheckout } from '../../lib/startProCheckout';
 import './HomeProSection.css';
 
-const WEEKEND_STOPS = [
-  ['FRI', 'Open mic'],
-  ['SAT', 'Run club'],
-  ['SAT', 'Movies on the lawn'],
-  ['SUN', 'Karaoke'],
-] as const;
+const PHONE_SHOTS: Record<(typeof PRO_QUOTES)[number]['icon'], string> = {
+  calendar: '/pro/weekend-picks.png',
+  people: '/pro/shared-itinerary.png',
+  bell: '/pro/weekend-notification.png',
+};
 
 export function HomeProSection() {
   const { isAuthenticated } = useAuth();
@@ -72,7 +71,7 @@ export function HomeProSection() {
               <p className="home-pro__feature-body">{card.body}</p>
             </div>
             <div className="home-pro__visual" aria-hidden="true">
-              <PhoneFrame>{phoneScreen(card.icon)}</PhoneFrame>
+              <PhoneFrame src={PHONE_SHOTS[card.icon]} tone={card.icon === 'bell' ? 'dark' : 'light'} />
             </div>
           </article>
         ))}
@@ -131,101 +130,35 @@ const ALSO_ICONS = {
   star: Star,
 } as const;
 
-function phoneScreen(icon: (typeof PRO_QUOTES)[number]['icon']) {
-  if (icon === 'people') {
-    return <TogetherScreen />;
-  }
-
-  if (icon === 'bell') {
-    return <PingScreen />;
-  }
-
-  return <WeekendScreen />;
-}
-
-function PhoneFrame({ children }: { children: ReactNode }) {
+function PhoneFrame({ src, tone }: { src: string; tone: 'light' | 'dark' }) {
   return (
     <div className="pro-phone">
       <div className="pro-phone__bezel">
-        <div className="pro-phone__screen">
-          <span className="pro-phone__island" />
-          {children}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function WeekendScreen() {
-  return (
-    <div className="pro-screen pro-screen--weekend">
-      <div className="pro-screen__brand">
-        <strong>PLNR</strong>
-        <span className="pro-screen__avatar">D</span>
-      </div>
-      <p className="pro-screen__hello">Hello Donovan</p>
-      <p className="pro-screen__sub">Here’s your weekend schedule</p>
-      <ul className="pro-screen__days">
-        {WEEKEND_STOPS.map(([day, name]) => (
-          <li key={`${day}-${name}`}>
-            <span>{day}</span>
-            {name}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-function TogetherScreen() {
-  return (
-    <div className="pro-screen pro-screen--together">
-      <p className="pro-screen__live">
-        <span className="pro-screen__avatar pro-screen__avatar--live">D</span>
-        <span className="pro-screen__live-dot" />
-        Del is viewing this plan
-      </p>
-      <p className="pro-screen__hello">Your plan</p>
-      <div className="pro-screen__timeline">
-        <div className="pro-screen__stop">
-          <span className="pro-screen__dot" />
-          <div>
-            <small>5:00 PM</small>
-            <strong>Dinner</strong>
+        <div className={`pro-phone__screen${tone === 'dark' ? ' pro-phone__screen--dark' : ''}`}>
+          <div className="pro-phone__status">
+            <span className="pro-phone__time">9:41</span>
+            <span className="pro-phone__status-icons">
+              <svg viewBox="0 0 16 12" aria-hidden="true">
+                <rect x="0" y="7.2" width="2.6" height="4.8" rx="0.7" />
+                <rect x="4.4" y="4.6" width="2.6" height="7.4" rx="0.7" />
+                <rect x="8.8" y="2.2" width="2.6" height="9.8" rx="0.7" />
+                <rect x="13.2" y="0" width="2.6" height="12" rx="0.7" />
+              </svg>
+              <svg viewBox="0 0 15 12" aria-hidden="true">
+                <path d="M7.5 9.15a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4Z" />
+                <path d="M3.15 7.15a6 6 0 0 1 8.7 0" />
+                <path d="M0.85 4.55a9.2 9.2 0 0 1 13.3 0" />
+              </svg>
+              <svg viewBox="0 0 25 12" aria-hidden="true">
+                <rect x="0.7" y="0.7" width="20" height="10.6" rx="2.4" />
+                <rect x="2.3" y="2.3" width="15.2" height="7.4" rx="1.1" />
+                <path d="M21.6 3.7h1.1a1.2 1.2 0 0 1 1.2 1.2v2.2a1.2 1.2 0 0 1-1.2 1.2h-1.1" />
+              </svg>
+            </span>
           </div>
-        </div>
-        <div className="pro-screen__stop pro-screen__stop--active">
-          <span className="pro-screen__dot" />
-          <div>
-            <small>8:00 PM</small>
-            <strong>Drinks</strong>
-            <em>Del</em>
-          </div>
+          <img className="pro-phone__shot" src={src} alt="" />
         </div>
       </div>
-    </div>
-  );
-}
-
-function PingScreen() {
-  return (
-    <div className="pro-screen pro-screen--ping">
-      <div className="pro-screen__notice">
-        <span className="pro-screen__mark">P</span>
-        <div>
-          <p className="pro-screen__notice-meta">
-            <strong>PLNR</strong>
-            <span>now</span>
-          </p>
-          <p>Did you know this is happening today?</p>
-        </div>
-      </div>
-      <p className="pro-screen__interest">Based off your interests</p>
-      <div className="pro-screen__photo">
-        <Image size={22} strokeWidth={1.75} />
-        <span>[Group pilates photo]</span>
-      </div>
-      <p className="pro-screen__ping-title">Did you see group pilates happening on Wednesday?</p>
     </div>
   );
 }

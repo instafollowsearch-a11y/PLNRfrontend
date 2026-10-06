@@ -1,4 +1,4 @@
-import { Heart, Mail, MapPin } from 'lucide-react';
+import { Heart, Mail } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -89,10 +89,6 @@ export function LandingFooter() {
       <div className="landing-footer__inner">
         <div className="landing-footer__brand">
           <img className="landing-footer__logo" src={plnrLogo} alt="PLNR" />
-          <p className="landing-footer__mark">
-            <MapPin size={22} aria-hidden />
-            PLNR
-          </p>
           <p className="landing-footer__tagline">
             <Heart size={14} aria-hidden />
             Plan better outings, together.

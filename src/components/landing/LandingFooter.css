@@ -34,22 +34,6 @@
   margin: 0;
 }
 
-.landing-footer__mark {
-  display: none;
-  align-items: center;
-  gap: 0.45rem;
-  margin: 0;
-  color: var(--footer-text);
-  font-family: var(--font-display);
-  font-size: 1.35rem;
-  font-weight: 700;
-  letter-spacing: -0.03em;
-}
-
-.landing-footer__mark svg {
-  color: var(--color-accent);
-}
-
 .landing-footer__tagline {
   display: flex;
   align-items: center;
@@ -220,11 +204,7 @@ a.landing-footer__store:hover {
   }
 
   .landing-footer__logo {
-    display: none;
-  }
-
-  .landing-footer__mark {
-    display: inline-flex;
+    height: 3.25rem;
   }
 
   .landing-footer__tagline {

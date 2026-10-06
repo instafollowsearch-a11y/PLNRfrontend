@@ -93,7 +93,7 @@ describe('ItineraryView', () => {
     expect(screen.queryByText(/friday:/i)).not.toBeInTheDocument();
   });
 
-  it('links a matched stop to its Find Local event page', () => {
+  it('opens the venue without a Find Local label', () => {
     render(
       <ItineraryView
         content={{
@@ -113,10 +113,7 @@ describe('ItineraryView', () => {
       />,
     );
 
-    expect(screen.getByRole('link', { name: 'View on Find Local' })).toHaveAttribute(
-      'href',
-      'https://findlocal.community/event/11111111-1111-1111-1111-111111111111',
-    );
+    expect(screen.queryByRole('link', { name: 'View on Find Local' })).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: /open venue/i })).toHaveAttribute(
       'href',
       'https://example.com/elephant-room',

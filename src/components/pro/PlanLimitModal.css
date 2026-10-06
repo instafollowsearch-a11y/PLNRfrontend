@@ -1,0 +1,63 @@
+.plan-limit-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-lg);
+}
+
+.plan-limit-modal__scrim {
+  position: absolute;
+  inset: 0;
+  border: none;
+  background: rgba(28, 24, 20, 0.48);
+  cursor: pointer;
+  backdrop-filter: blur(3px);
+}
+
+.plan-limit-modal__panel-wrap {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 420px);
+}
+
+.plan-limit-modal__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: calc(var(--spacing-xxl) + 2px);
+  background:
+    radial-gradient(circle at top right, rgba(212, 98, 42, 0.12), transparent 52%),
+    var(--color-surface);
+}
+
+.plan-limit-modal__eyebrow {
+  margin: 0;
+  color: var(--color-accent-dark);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.plan-limit-modal__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.plan-limit-modal__lead {
+  margin: 0;
+  color: var(--color-text-secondary);
+  line-height: 1.55;
+}
+
+.plan-limit-modal__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}

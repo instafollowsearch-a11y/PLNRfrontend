@@ -360,256 +360,88 @@
 }
 
 .pro-phone__screen {
-  position: relative;
-  min-height: 450px;
-  padding: 1.9rem 0.8rem 1rem;
+  display: flex;
+  flex-direction: column;
+  aspect-ratio: 390 / 844;
+  overflow: hidden;
   border-radius: 28px;
-  background: var(--color-surface);
+  background: #f7f4f0;
 }
 
-.pro-phone__island {
-  position: absolute;
-  top: 8px;
-  left: 50%;
-  width: 84px;
-  height: 18px;
-  transform: translateX(-50%);
-  border-radius: 999px;
-  background: var(--color-text);
+.pro-phone__screen--dark {
+  background: #3c312a;
 }
 
-.pro-screen__brand,
-.pro-screen__live {
+.pro-phone__status {
   display: flex;
+  flex: none;
   align-items: center;
-}
-
-.pro-screen__brand {
   justify-content: space-between;
-  margin-bottom: 1.15rem;
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
+  height: 34px;
+  padding: 7px 13px 0 16px;
+  color: #1c1c1c;
 }
 
-.pro-screen__avatar {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.7rem;
-  height: 1.7rem;
-  border-radius: 999px;
-  background: var(--color-accent);
+.pro-phone__screen--dark .pro-phone__status {
   color: #fff;
-  font-size: 0.72rem;
+  background: radial-gradient(90% 160% at 50% 140%, #5b4636 0%, #3c312a 72%);
+}
+
+.pro-phone__time {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 13px;
   font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
 }
 
-.pro-screen__hello {
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: 1.32rem;
-  line-height: 1.05;
-  letter-spacing: -0.04em;
-}
-
-.pro-screen__sub,
-.pro-screen__interest {
-  margin: 0.35rem 0 0.9rem;
-  color: var(--color-text-muted);
-  font-size: 0.78rem;
-}
-
-.pro-screen__days {
-  display: flex;
-  flex-direction: column;
-  gap: 0.55rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.pro-screen__days li {
+.pro-phone__status-icons {
   display: flex;
   align-items: center;
-  gap: 0.55rem;
-  padding: 0.58rem 0.65rem;
-  border: 1px solid var(--color-border-light);
-  border-radius: 15px;
-  background: #fff;
-  font-size: 0.82rem;
-  font-weight: 600;
+  gap: 5px;
 }
 
-.pro-screen__days span {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 2.35rem;
-  padding: 0.28rem 0.4rem;
-  border-radius: 999px;
-  background: var(--color-accent-soft);
-  color: var(--color-accent-dark);
-  font-size: 0.62rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-}
-
-.pro-screen__live {
-  gap: 0.4rem;
-  width: fit-content;
-  margin: 0.2rem 0 1.35rem;
-  padding: 0.28rem 0.7rem 0.28rem 0.28rem;
-  border-radius: 999px;
-  background: var(--color-surface-muted);
-  color: var(--color-text-secondary);
-  font-size: 0.72rem;
-  font-weight: 600;
-}
-
-.pro-screen__avatar--live {
-  width: 1.35rem;
-  height: 1.35rem;
-  font-size: 0.62rem;
-}
-
-.pro-screen__live-dot {
-  width: 0.4rem;
-  height: 0.4rem;
-  margin-left: -0.55rem;
-  border: 1.5px solid #fff;
-  border-radius: 999px;
-  background: var(--color-success);
-}
-
-.pro-screen__timeline {
-  display: flex;
-  flex-direction: column;
-  gap: 0.7rem;
-  margin-top: 1.1rem;
-  margin-left: 0.35rem;
-  padding-left: 0.85rem;
-  border-left: 2px solid var(--color-border-light);
-}
-
-.pro-screen__stop {
-  position: relative;
-}
-
-.pro-screen__dot {
-  position: absolute;
-  top: 1.15rem;
-  left: -1.22rem;
-  width: 0.7rem;
-  height: 0.7rem;
-  border-radius: 999px;
-  background: var(--color-accent);
-}
-
-.pro-screen__stop > div {
-  position: relative;
-  padding: 0.75rem 0.8rem;
-  border: 1px solid var(--color-border-light);
-  border-radius: 16px;
-  background: #fff;
-}
-
-.pro-screen__stop small,
-.pro-screen__stop strong {
+.pro-phone__status-icons svg {
   display: block;
+  height: 11px;
+  fill: currentColor;
 }
 
-.pro-screen__stop small {
-  color: var(--color-text-muted);
-  font-size: 0.72rem;
+.pro-phone__status-icons svg:nth-child(1) {
+  width: 15px;
 }
 
-.pro-screen__stop strong {
-  font-size: 0.88rem;
+.pro-phone__status-icons svg:nth-child(2) {
+  width: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
 }
 
-.pro-screen__stop--active > div {
-  border-color: var(--color-accent);
-  border-width: 1.5px;
+.pro-phone__status-icons svg:nth-child(2) path:first-child {
+  fill: currentColor;
+  stroke: none;
 }
 
-.pro-screen__stop em {
-  position: absolute;
-  top: -0.45rem;
-  right: 0.55rem;
-  padding: 0.05rem 0.4rem;
-  border-radius: 999px;
-  background: var(--color-accent);
-  color: #fff;
-  font-size: 0.62rem;
-  font-style: normal;
-  font-weight: 700;
+.pro-phone__status-icons svg:nth-child(3) {
+  width: 23px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.35;
 }
 
-.pro-screen__notice {
-  display: flex;
-  gap: 0.55rem;
-  margin-top: 0.35rem;
-  padding: 0.7rem;
-  border: 1px solid var(--color-border-light);
-  border-radius: 16px;
-  background: #fff;
-  box-shadow: 0 10px 24px rgba(26, 26, 26, 0.06);
+.pro-phone__status-icons svg:nth-child(3) rect:nth-child(2),
+.pro-phone__status-icons svg:nth-child(3) path {
+  fill: currentColor;
+  stroke: none;
 }
 
-.pro-screen__mark {
-  display: inline-flex;
-  flex: 0 0 auto;
-  align-items: center;
-  justify-content: center;
-  width: 1.7rem;
-  height: 1.7rem;
-  border-radius: 8px;
-  background: var(--color-accent);
-  color: #fff;
-  font-size: 0.75rem;
-  font-weight: 800;
-}
-
-.pro-screen__notice-meta {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.75rem;
-  margin: 0 0 0.15rem;
-  font-size: 0.68rem;
-}
-
-.pro-screen__notice-meta span,
-.pro-screen__notice p {
-  color: var(--color-text-secondary);
-}
-
-.pro-screen__notice p {
-  margin: 0;
-  font-size: 0.82rem;
-  font-weight: 700;
-  line-height: 1.25;
-  color: var(--color-text);
-}
-
-.pro-screen__photo {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
-  height: 128px;
-  margin-bottom: 0.9rem;
-  border-radius: 18px;
-  background: var(--color-accent-soft);
-  color: var(--color-accent-dark);
-  font-size: 0.78rem;
-}
-
-.pro-screen__ping-title {
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: 1.18rem;
-  line-height: 1.15;
-  letter-spacing: -0.04em;
+.pro-phone__shot {
+  display: block;
+  width: 100%;
+  min-height: 0;
+  flex: 1;
+  object-fit: cover;
+  object-position: top center;
 }

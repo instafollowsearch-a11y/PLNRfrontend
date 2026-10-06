@@ -25,19 +25,12 @@ function formatEventDate(value: string | null): string {
   });
 }
 
-function isFindLocalEventPage(href: string): boolean {
-  return href.startsWith('https://findlocal.community/event/');
-}
-
 function EventCard({ item }: { item: WeekendRecommendationItem }) {
-  const findLocalUrl =
-    item.source === 'findlocal' && item.url && isFindLocalEventPage(item.url) ? item.url : null;
-
   return (
     <Card className="weekend-page__event">
       <div className="weekend-page__event-head">
         <h3>{item.title}</h3>
-        {item.url && !findLocalUrl ? (
+        {item.url ? (
           <a
             href={item.url}
             target="_blank"
@@ -52,11 +45,6 @@ function EventCard({ item }: { item: WeekendRecommendationItem }) {
       <p className="weekend-page__event-venue">{item.venue || 'Venue TBA'}</p>
       <p className="weekend-page__event-time">{formatEventDate(item.starts_at)}</p>
       <p className="weekend-page__event-reason">{item.reason}</p>
-      {findLocalUrl ? (
-        <a href={findLocalUrl} target="_blank" rel="noreferrer" className="weekend-page__findlocal">
-          View on Find Local
-        </a>
-      ) : null}
     </Card>
   );
 }

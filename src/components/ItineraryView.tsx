@@ -17,19 +17,11 @@ type ItineraryViewProps = {
   eventCredits?: EventCredit[];
 };
 
-function isFindLocalEventPage(href: string): boolean {
-  return href.startsWith('https://findlocal.community/event/');
-}
-
 function StopLinks({ stop }: { stop: ItineraryStop }) {
-  const findLocalUrl = [stop.findlocal_url, stop.venue_url, stop.external_url].find(
-    (href) => href && isFindLocalEventPage(href),
-  );
   const links = [
-    findLocalUrl ? { href: findLocalUrl, label: 'View on Find Local' } : null,
-    stop.venue_url && stop.venue_url !== findLocalUrl ? { href: stop.venue_url, label: 'Open venue' } : null,
+    stop.venue_url ? { href: stop.venue_url, label: 'Open venue' } : null,
     stop.maps_url ? { href: stop.maps_url, label: 'Directions' } : null,
-    stop.external_url && stop.external_url !== stop.venue_url && stop.external_url !== findLocalUrl
+    stop.external_url && stop.external_url !== stop.venue_url
       ? { href: stop.external_url, label: 'More info' }
       : null,
   ].filter(Boolean) as Array<{ href: string; label: string }>;
