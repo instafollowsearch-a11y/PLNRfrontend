@@ -13,6 +13,38 @@ export type AdminStats = {
   admins_total: number;
   plan_sessions_today: number;
   plan_sessions_total: number;
+  pro_users_total: number;
+  visits_today: number;
+};
+
+export type VisitPlan = 'guest' | 'free' | 'pro';
+
+export type AdminVisit = {
+  id: number;
+  occurred_at: string;
+  path: string;
+  referrer: string | null;
+  ip_address: string | null;
+  user_agent: string | null;
+  browser: string | null;
+  browser_version: string | null;
+  platform: string | null;
+  platform_version: string | null;
+  device: string | null;
+  device_type: string | null;
+  is_robot: boolean;
+  language: string | null;
+  timezone: string | null;
+  screen: string | null;
+  plan: VisitPlan;
+  user: { id: number; name: string; email: string } | null;
+};
+
+export type VisitListQuery = {
+  page?: number;
+  search?: string;
+  audience?: 'signed_in' | 'guest' | '';
+  plan?: VisitPlan | '';
 };
 
 export type AdminSettings = {
@@ -151,6 +183,37 @@ export function createAccountApi(baseUrl: string) {
 
     getAdminStats() {
       return apiRequest<AdminStats>('/admin/stats');
+    },
+
+    recordVisit(visit: {
+      path: string;
+      referrer?: string;
+      language?: string;
+      timezone?: string;
+      screen?: string;
+    }) {
+      return apiRequest<{ visit: AdminVisit } | null>('/visits', {
+        method: 'POST',
+        body: JSON.stringify(visit),
+      });
+    },
+
+    listVisits(query: VisitListQuery = {}) {
+      const params = new URLSearchParams({ page: String(query.page ?? 1) });
+
+      if (query.search?.trim()) {
+        params.set('search', query.search.trim());
+      }
+
+      if (query.audience) {
+        params.set('audience', query.audience);
+      }
+
+      if (query.plan) {
+        params.set('plan', query.plan);
+      }
+
+      return apiRequest<{ visits: AdminVisit[]; meta: PaginatedMeta }>(`/admin/visits?${params.toString()}`);
     },
 
     listUsers(search = '', page = 1) {

@@ -31,6 +31,7 @@ export function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<'all' | UserRole>('all');
+  const [planFilter, setPlanFilter] = useState<'all' | 'free' | 'pro'>('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [updatingId, setUpdatingId] = useState<number | null>(null);
@@ -76,17 +77,31 @@ export function AdminUsersPage() {
   }
 
   const visibleUsers = useMemo(() => {
-    if (roleFilter === 'all') {
-      return users;
-    }
+    return users.filter((user) => {
+      if (roleFilter !== 'all' && user.role !== roleFilter) {
+        return false;
+      }
 
-    return users.filter((user) => user.role === roleFilter);
-  }, [users, roleFilter]);
+      if (planFilter === 'pro') {
+        return user.is_pro === true;
+      }
+
+      if (planFilter === 'free') {
+        return user.is_pro !== true;
+      }
+
+      return true;
+    });
+  }, [users, roleFilter, planFilter]);
 
   return (
     <AppShell title="Users" showBack backTo="/admin" contentWidth="wide">
       <div className="page-stack admin-page">
-        <PageIntro eyebrow="Admin" title="Users" subtitle="Search accounts and manage admin access." />
+        <PageIntro
+          eyebrow="Admin"
+          title="Users"
+          subtitle="Search accounts, see Free or Pro, and manage admin access."
+        />
         <AdminNav />
 
         <form className="admin-search" onSubmit={(event) => void handleSearch(event)}>
@@ -120,10 +135,32 @@ export function AdminUsersPage() {
           ))}
         </div>
 
+        <div className="admin-role-filters" role="tablist" aria-label="Filter by plan">
+          {(
+            [
+              { id: 'all', label: 'All plans' },
+              { id: 'pro', label: 'Pro' },
+              { id: 'free', label: 'Free' },
+            ] as const
+          ).map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              role="tab"
+              aria-selected={planFilter === item.id}
+              className={`admin-role-filters__btn${planFilter === item.id ? ' is-active' : ''}`}
+              onClick={() => setPlanFilter(item.id)}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+
         {!loading && !error ? (
           <p className="admin-users__count">
             {visibleUsers.length} account{visibleUsers.length === 1 ? '' : 's'}
             {roleFilter !== 'all' ? ` · ${roleFilter}` : ''}
+            {planFilter !== 'all' ? ` · ${planFilter}` : ''}
           </p>
         ) : null}
 
@@ -136,11 +173,18 @@ export function AdminUsersPage() {
             description={
               search.trim()
                 ? 'Try a different name or email.'
-                : 'No accounts match this role filter.'
+                : 'No accounts match this filter.'
             }
             action={
-              roleFilter !== 'all' ? (
-                <Button label="Show all roles" variant="secondary" onClick={() => setRoleFilter('all')} />
+              roleFilter !== 'all' || planFilter !== 'all' ? (
+                <Button
+                  label="Show all accounts"
+                  variant="secondary"
+                  onClick={() => {
+                    setRoleFilter('all');
+                    setPlanFilter('all');
+                  }}
+                />
               ) : undefined
             }
           />
@@ -156,6 +200,7 @@ export function AdminUsersPage() {
                 <div>
                   <div className="admin-users__name-row">
                     <strong>{user.name}</strong>
+                    <Badge variant={user.is_pro ? 'success' : 'muted'}>{user.is_pro ? 'Pro' : 'Free'}</Badge>
                     <Badge variant={user.role === 'admin' ? 'accent' : 'muted'}>{user.role}</Badge>
                   </div>
                   <p>{user.email}</p>

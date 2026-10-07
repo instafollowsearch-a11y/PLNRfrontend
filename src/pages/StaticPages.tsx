@@ -11,7 +11,7 @@ export function PrivacyPage() {
       <article className="prose-page">
         <PageIntro
           title="Privacy policy"
-          subtitle="How PLNR handles your information. Last updated October 6, 2026."
+          subtitle="How PLNR handles your information. Last updated October 7, 2026."
         />
         <p>
           PLNR is the outing planner at{' '}
@@ -30,6 +30,10 @@ export function PrivacyPage() {
           <li>Email addresses you use when you send a plan or invite someone to view one.</li>
           <li>A push token if you allow reminders on your phone.</li>
           <li>The IP address of a guest session, used only to apply the free monthly plan limit and to protect the service.</li>
+          <li>
+            On the website, the page you open, the time, your browser, device, and IP address, so we can see how
+            the site is used.
+          </li>
           <li>
             Payment references. On the website, Stripe processes the card. We store the card brand, last four
             digits, expiry, and a Stripe customer id. We do not store the full card number.
@@ -56,13 +60,14 @@ export function PrivacyPage() {
         <p>We do not sell personal information.</p>
         <h2>How long we keep it</h2>
         <p>
-          We keep account and plan information while the account is open. Guest plan limits tied to an IP
-          address are kept for the current monthly window.
+          We keep account and plan information while the account is open. Website visit records for a
+          signed-in person are deleted with the account. Guest visit records stay. Guest plan limits tied to an
+          IP address are kept for the current monthly window.
         </p>
         <h2>Deleting your account</h2>
         <p>
           Signed-in people can delete an account from the account screen. Enter your password, confirm, and
-          we delete the account, its saved plans, push tokens, and saved card records. Plans that belong to
+          we delete the account, its saved plans, website visit records, push tokens, and saved card records. Plans that belong to
           someone else stay with them. You can also email {SUPPORT_EMAIL} and ask us to delete the account.
           We may keep a payment or security record when the law requires it.
         </p>

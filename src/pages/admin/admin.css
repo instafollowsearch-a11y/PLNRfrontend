@@ -276,6 +276,73 @@
   font-size: 0.75rem !important;
 }
 
+.admin-visits {
+  overflow-x: auto;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.admin-visits table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.admin-visits th,
+.admin-visits td {
+  padding: 0.8rem 1rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--color-border-light);
+  white-space: nowrap;
+}
+
+.admin-visits th {
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.admin-visits tr:last-child td {
+  border-bottom: 0;
+}
+
+.admin-visits__page {
+  white-space: normal;
+  max-width: 16rem;
+  word-break: break-word;
+}
+
+.admin-visits__sub {
+  display: block;
+  margin-top: 2px;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+}
+
+.admin-visits__pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.admin-visits__pager p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.admin-visits__pager .ui-button {
+  width: auto;
+  min-width: 7rem;
+}
+
 .admin-limit-hero {
   display: flex;
   align-items: center;

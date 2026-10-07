@@ -1,9 +1,11 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import { VisitTracker } from './components/visits/VisitTracker';
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
 import { AdminSettingsPage } from './pages/admin/AdminSettingsPage';
 import { AdminUsersPage } from './pages/admin/AdminUsersPage';
+import { AdminVisitsPage } from './pages/admin/AdminVisitsPage';
 import { AccountPage } from './pages/AccountPage';
 import { ConfirmPage } from './pages/ConfirmPage';
 import { GatheringPage } from './pages/GatheringPage';
@@ -25,6 +27,7 @@ import { WeekendPage } from './pages/WeekendPage';
 export function AppRoutes() {
   return (
     <BrowserRouter>
+      <VisitTracker />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
@@ -52,6 +55,7 @@ export function AppRoutes() {
         <Route element={<ProtectedRoute requireAdmin />}>
           <Route path="/admin" element={<AdminDashboardPage />} />
           <Route path="/admin/users" element={<AdminUsersPage />} />
+          <Route path="/admin/visits" element={<AdminVisitsPage />} />
           <Route path="/admin/settings" element={<AdminSettingsPage />} />
         </Route>
 

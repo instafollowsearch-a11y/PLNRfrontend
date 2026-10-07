@@ -1,4 +1,4 @@
-import { ArrowRight, CalendarRange, Settings2, Shield, Users } from 'lucide-react';
+import { ArrowRight, CalendarRange, Crown, Eye, Settings2, Shield, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -37,7 +37,7 @@ export function AdminDashboardPage() {
         <PageIntro
           eyebrow="Admin"
           title={firstName ? `${firstName}’s dashboard` : 'Admin dashboard'}
-          subtitle="Overview of accounts, plan volume, and free monthly limits."
+          subtitle="Overview of accounts, Pro membership, visits, and free monthly limits."
         />
         <AdminNav />
 
@@ -53,6 +53,14 @@ export function AdminDashboardPage() {
               <p className="admin-stats__label">Users</p>
               <p className="admin-stats__value">{stats.users_total}</p>
               <p className="admin-stats__hint">Registered accounts</p>
+            </div>
+            <div className="admin-stats__item" role="listitem">
+              <div className="admin-stats__icon" aria-hidden>
+                <Crown size={16} />
+              </div>
+              <p className="admin-stats__label">Pro</p>
+              <p className="admin-stats__value">{stats.pro_users_total}</p>
+              <p className="admin-stats__hint">Active Pro accounts</p>
             </div>
             <div className="admin-stats__item" role="listitem">
               <div className="admin-stats__icon" aria-hidden>
@@ -78,6 +86,14 @@ export function AdminDashboardPage() {
               <p className="admin-stats__value">{stats.plan_sessions_total}</p>
               <p className="admin-stats__hint">All-time sessions</p>
             </div>
+            <div className="admin-stats__item" role="listitem">
+              <div className="admin-stats__icon" aria-hidden>
+                <Eye size={16} />
+              </div>
+              <p className="admin-stats__label">Visits today</p>
+              <p className="admin-stats__value">{stats.visits_today}</p>
+              <p className="admin-stats__hint">Website page views</p>
+            </div>
           </div>
         ) : null}
 
@@ -88,7 +104,14 @@ export function AdminDashboardPage() {
               <Link to="/admin/users" className="admin-quick__card">
                 <div>
                   <p className="admin-quick__label">Users</p>
-                  <p className="admin-quick__copy">Search accounts and manage admin roles.</p>
+                  <p className="admin-quick__copy">Search accounts, see Free or Pro, and manage admin roles.</p>
+                </div>
+                <ArrowRight size={18} aria-hidden />
+              </Link>
+              <Link to="/admin/visits" className="admin-quick__card">
+                <div>
+                  <p className="admin-quick__label">Visits</p>
+                  <p className="admin-quick__copy">See who opened the site, on which page, and on which device.</p>
                 </div>
                 <ArrowRight size={18} aria-hidden />
               </Link>
