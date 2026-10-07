@@ -1,10 +1,7 @@
 import { useState } from 'react';
 
-import { PRO_UPGRADE_SUMMARY } from '../../constants/proBenefits';
-import { billingApi, planShareApi } from '../../lib/api';
+import { planShareApi } from '../../lib/api';
 import type { ApiError } from '../../lib/apiTypes';
-import { billingReturnUrls, checkoutErrorMessage } from '../../lib/billingHelpers';
-import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
@@ -21,28 +18,11 @@ export function SharePlanModal({
   sessionUuid,
   onClose,
   onSent,
-  returnPath = '/plans',
 }: SharePlanModalProps) {
-  const { user } = useAuth();
-  const isPro = Boolean(user?.is_pro);
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
-
-  async function handleUpgrade() {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const { successUrl, cancelUrl } = billingReturnUrls(returnPath);
-      const response = await billingApi.createCheckoutSession(successUrl, cancelUrl);
-      window.location.href = response.data.checkout_url;
-    } catch (err) {
-      setError(checkoutErrorMessage(err));
-      setLoading(false);
-    }
-  }
 
   async function handleSubmit() {
     if (!email.trim()) {
@@ -80,20 +60,7 @@ export function SharePlanModal({
             Share this plan
           </h2>
 
-          {!isPro ? (
-            <>
-              <p className="share-plan-modal__lead">
-                {PRO_UPGRADE_SUMMARY} Upgrade to invite someone to this plan.
-              </p>
-              {error ? <p className="error-text">{error}</p> : null}
-              <div className="share-plan-modal__actions">
-                <Button label="Upgrade to Pro" onClick={() => void handleUpgrade()} loading={loading} />
-                <Button label="Not now" variant="ghost" onClick={onClose} />
-              </div>
-            </>
-          ) : null}
-
-          {isPro && sent ? (
+          {sent ? (
             <>
               <p className="share-plan-modal__lead">
                 Invite sent to <strong>{email}</strong>. They can view the itinerary once they accept.
@@ -102,7 +69,7 @@ export function SharePlanModal({
             </>
           ) : null}
 
-          {isPro && !sent ? (
+          {!sent ? (
             <>
               <p className="share-plan-modal__lead">
                 Send a view-only invite. They will see the itinerary but cannot edit the plan.

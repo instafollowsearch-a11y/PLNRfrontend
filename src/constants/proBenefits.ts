@@ -4,8 +4,7 @@ export const PRO_BUTTON_LABEL = 'Get Pro — $9.99/mo';
 
 export const PRO_PRICE_NOTE = 'Less than the cover.';
 
-export const PRO_UPGRADE_SUMMARY =
-  'Custom weekend plans, plans together in real time, and interest pings.';
+export const PRO_UPGRADE_SUMMARY = 'Custom weekend plans and interest pings.';
 
 export const PRO_QUOTES = [
   {
@@ -46,7 +45,7 @@ export const PRO_UPGRADE_LABEL = 'Upgrade to Pro';
 
 export const FREE_COMPARE = [
   { included: false, label: 'Custom weekend plans, curated for you automatically' },
-  { included: false, label: 'View plans together in real time' },
+  { included: true, label: 'View plans together in real time' },
   { included: false, label: 'Ping notifications based off your interests' },
   { included: true, label: '5 generated plans' },
   { included: false, label: 'Hyper-local events' },
@@ -81,7 +80,7 @@ export const PRO_MATRIX: ReadonlyArray<{
     pro: true,
     group: 'pro',
   },
-  { feature: 'View plans together in real time', free: false, pro: true, group: 'pro' },
+  { feature: 'View plans together in real time', free: true, pro: true, group: 'both' },
   {
     feature: 'Ping notifications based off your interest',
     free: false,
@@ -103,7 +102,7 @@ export const PRO_COMPARISON: ReadonlyArray<readonly [string, string]> = [
     'You ask for a plan',
     'Custom weekend plans curated and delivered for you automatically based on your interest',
   ],
-  ['The plan is yours', 'View plans together in real time'],
+  ['View plans together in real time', 'View plans together in real time'],
   ['You remember the time', 'Ping notifications based off your interest'],
   ['5 plans a month', 'Unlimited amount of generated plan'],
   ['Not included', 'hyper local event (karaoke, run clubs, open mics, movies on the lawn)'],
