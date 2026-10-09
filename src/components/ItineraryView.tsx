@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import type { EventCredit, ItineraryContent, ItineraryStop } from '../lib/apiTypes';
+import { useId, useState } from 'react';
+import type { EventCredit, ItineraryContent, ItineraryDay, ItineraryStop } from '../lib/apiTypes';
+import { dayTabLabels } from '../lib/itineraryDays';
 import { splitItineraryPreview } from '../lib/itineraryPreview';
 import { Clock, ExternalLink, MapPin } from 'lucide-react';
 
@@ -126,19 +127,61 @@ function EventCredits({ credits }: { credits?: EventCredit[] }) {
   );
 }
 
-function ItineraryStops({ content }: { content: ItineraryContent }) {
-  if (content.days?.length) {
-    return (
-      <>
-        {content.days.map((day, dayIndex) => (
-          <div key={`${day.date}-${dayIndex}`} className="itinerary-view__day">
-            {day.date ? <h3>{day.date}</h3> : null}
-            {day.theme ? <p className="itinerary-view__day-theme">{day.theme}</p> : null}
-            {renderStops(day.stops)}
-          </div>
+function DayBlock({ day }: { day: ItineraryDay }) {
+  return (
+    <div className="itinerary-view__day">
+      {day.date ? <h3>{day.date}</h3> : null}
+      {day.theme ? <p className="itinerary-view__day-theme">{day.theme}</p> : null}
+      {renderStops(day.stops)}
+    </div>
+  );
+}
+
+function DayTabs({ days }: { days: ItineraryDay[] }) {
+  const baseId = useId();
+  const [selected, setSelected] = useState(0);
+  const labels = dayTabLabels(days.map((day) => day.date));
+  const index = selected < days.length ? selected : 0;
+  const day = days[index];
+
+  return (
+    <div className="itinerary-view__days">
+      <div className="itinerary-view__day-tabs" role="tablist" aria-label="Days">
+        {labels.map((label, tabIndex) => (
+          <button
+            key={`${label}-${tabIndex}`}
+            type="button"
+            role="tab"
+            id={`${baseId}-tab-${tabIndex}`}
+            aria-selected={tabIndex === index}
+            aria-controls={`${baseId}-panel`}
+            className={`itinerary-view__day-tab${tabIndex === index ? ' is-active' : ''}`}
+            onClick={() => setSelected(tabIndex)}
+          >
+            {label}
+          </button>
         ))}
-      </>
-    );
+      </div>
+      <div
+        role="tabpanel"
+        id={`${baseId}-panel`}
+        aria-labelledby={`${baseId}-tab-${index}`}
+      >
+        {day ? <DayBlock day={day} /> : null}
+      </div>
+    </div>
+  );
+}
+
+function ItineraryStops({ content }: { content: ItineraryContent }) {
+  const days = content.days ?? [];
+
+  if (days.length > 1) {
+    return <DayTabs days={days} />;
+  }
+
+  if (days.length === 1) {
+    return <DayBlock day={days[0]} />;
   }
 
   return <>{renderStops(content.stops ?? [])}</>;

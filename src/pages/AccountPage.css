@@ -9,6 +9,17 @@
   font-size: 1.125rem;
 }
 
+.account-page__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.account-page__label {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
 .account-page__note {
   margin: 0;
   color: var(--color-text-secondary);

@@ -32,6 +32,7 @@ type LocationFieldProps = {
 
 export function LocationField({ value, placeholder, onChange }: LocationFieldProps) {
   const mapRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const mapInstanceRef = useRef<maplibregl.Map | null>(null);
   const markerRef = useRef<maplibregl.Marker | null>(null);
 
@@ -40,28 +41,40 @@ export function LocationField({ value, placeholder, onChange }: LocationFieldPro
   const [isSearching, setIsSearching] = useState(false);
   const [showMap, setShowMap] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
+  const [mapReady, setMapReady] = useState(false);
+  const [isResolvingPin, setIsResolvingPin] = useState(false);
+  const applyCoordinatesRef = useRef<(lat: number, lon: number) => void>(() => undefined);
+  const valueRef = useRef(value);
+  valueRef.current = value;
 
   const applyCoordinates = useCallback(
     async (lat: number, lon: number) => {
       setMapError(null);
+      setIsResolvingPin(true);
 
-      const result = await reverseGeocode(lat, lon);
-      const selected = result ?? {
-        label: `${lat.toFixed(4)}, ${lon.toFixed(4)}`,
-        lat,
-        lon,
-      };
+      try {
+        const result = await reverseGeocode(lat, lon);
+        const selected = result ?? {
+          label: `${lat.toFixed(4)}, ${lon.toFixed(4)}`,
+          lat,
+          lon,
+        };
 
-      setQuery(selected.label);
-      onChange(selected);
-      setResults([]);
+        setQuery(selected.label);
+        onChange(selected);
+        setResults([]);
 
-      if (!result) {
-        setMapError('Place name could not be looked up. The pin is still selected.');
+        if (!result) {
+          setMapError('Place name could not be looked up. The pin is still selected.');
+        }
+      } finally {
+        setIsResolvingPin(false);
       }
     },
     [onChange],
   );
+
+  applyCoordinatesRef.current = applyCoordinates;
 
   useEffect(() => {
     const trimmed = query.trim();
@@ -88,32 +101,39 @@ export function LocationField({ value, placeholder, onChange }: LocationFieldPro
       return;
     }
 
-    const initialLat = value?.lat ?? 30.2672;
-    const initialLon = value?.lon ?? -97.7431;
+    setMapReady(false);
+    const initial = valueRef.current;
+    const initialLat = initial?.lat ?? 30.2672;
+    const initialLon = initial?.lon ?? -97.7431;
 
     const map = new maplibregl.Map({
       container: mapRef.current,
       center: [initialLon, initialLat],
-      zoom: value ? 11 : 4,
+      zoom: initial ? 11 : 4,
+      fadeDuration: 0,
       style: 'https://tiles.openfreemap.org/styles/liberty',
     });
 
-    map.on('style.load', () => {
-      for (const layer of map.getStyle().layers ?? []) {
-        if (layer.type !== 'symbol' || !layer.layout?.['text-field']) {
-          continue;
-        }
+    map.once('style.load', () => {
+      map.resize();
+      setMapReady(true);
+      window.requestAnimationFrame(() => {
+        for (const layer of map.getStyle().layers ?? []) {
+          if (layer.type !== 'symbol' || !layer.layout?.['text-field']) {
+            continue;
+          }
 
-        if (!JSON.stringify(layer.layout['text-field']).includes('name')) {
-          continue;
-        }
+          if (!JSON.stringify(layer.layout['text-field']).includes('name')) {
+            continue;
+          }
 
-        try {
-          map.setLayoutProperty(layer.id, 'text-field', ENGLISH_PLACE_NAME);
-        } catch {
-          // Keep the style's own label if this layer rejects the replacement.
+          try {
+            map.setLayoutProperty(layer.id, 'text-field', ENGLISH_PLACE_NAME);
+          } catch {
+            // Keep the style's own label if this layer rejects the replacement.
+          }
         }
-      }
+      });
     });
 
     const marker = new maplibregl.Marker({ draggable: true })
@@ -122,12 +142,12 @@ export function LocationField({ value, placeholder, onChange }: LocationFieldPro
 
     marker.on('dragend', () => {
       const position = marker.getLngLat();
-      void applyCoordinates(position.lat, position.lng);
+      applyCoordinatesRef.current(position.lat, position.lng);
     });
 
     map.on('click', (event) => {
       marker.setLngLat(event.lngLat);
-      void applyCoordinates(event.lngLat.lat, event.lngLat.lng);
+      applyCoordinatesRef.current(event.lngLat.lat, event.lngLat.lng);
     });
 
     mapInstanceRef.current = map;
@@ -137,8 +157,9 @@ export function LocationField({ value, placeholder, onChange }: LocationFieldPro
       map.remove();
       mapInstanceRef.current = null;
       markerRef.current = null;
+      setMapReady(false);
     };
-  }, [showMap, applyCoordinates, value]);
+  }, [showMap]);
 
   useEffect(() => {
     if (!mapInstanceRef.current || !markerRef.current || !value) {
@@ -150,6 +171,7 @@ export function LocationField({ value, placeholder, onChange }: LocationFieldPro
   }, [value]);
 
   function selectResult(result: GeocodeResult) {
+    inputRef.current?.blur();
     setQuery(result.label);
     onChange(result);
     setResults([]);
@@ -165,6 +187,7 @@ export function LocationField({ value, placeholder, onChange }: LocationFieldPro
       <div className="location-field__search">
         <Search size={18} className="location-field__search-icon" aria-hidden />
         <input
+          ref={inputRef}
           type="text"
           className="field-control location-field__input"
           placeholder={placeholder ?? 'Search for a place…'}
@@ -199,7 +222,14 @@ export function LocationField({ value, placeholder, onChange }: LocationFieldPro
 
       {showMap ? (
         <div className="location-field__map-wrap">
-          <div ref={mapRef} className="location-field__map" aria-label="Map picker" />
+          <div className="location-field__map-frame">
+            <div ref={mapRef} className="location-field__map" aria-label="Map picker" />
+            {!mapReady || isResolvingPin ? (
+              <div className="location-field__map-status" role="status">
+                {isResolvingPin ? 'Finding this place…' : 'Loading map…'}
+              </div>
+            ) : null}
+          </div>
           <p className="field-hint">Click the map or drag the pin to choose a location.</p>
         </div>
       ) : null}

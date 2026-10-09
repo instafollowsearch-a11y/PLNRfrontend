@@ -19,6 +19,7 @@ type AuthContextValue = {
   isAuthenticated: boolean;
   isAdmin: boolean;
   login: (email: string, password: string) => Promise<User>;
+  loginWithGoogle: (idToken: string, inviteToken?: string) => Promise<User>;
   register: (
     name: string,
     email: string,
@@ -27,7 +28,7 @@ type AuthContextValue = {
     inviteToken?: string,
   ) => Promise<User>;
   logout: () => Promise<void>;
-  refreshUser: () => Promise<void>;
+  refreshUser: () => Promise<User | null>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -57,15 +58,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(null);
       setLoading(false);
 
-      return;
+      return null;
     }
 
     try {
       const response = await authApi.me();
       setUser(response.data.user);
+
+      return response.data.user;
     } catch {
       clearAuthToken();
       setUser(null);
+
+      return null;
     } finally {
       setLoading(false);
     }
@@ -77,6 +82,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(async (email: string, password: string) => {
     const response = await authApi.login(email, password);
+    setAuthToken(response.data.token);
+    setUser(response.data.user);
+    await claimGuestSessionIfPresent();
+
+    return response.data.user;
+  }, []);
+
+  const loginWithGoogle = useCallback(async (idToken: string, inviteToken?: string) => {
+    const response = await authApi.loginWithGoogle(idToken, inviteToken);
     setAuthToken(response.data.token);
     setUser(response.data.user);
     await claimGuestSessionIfPresent();
@@ -126,11 +140,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isAuthenticated: user !== null,
       isAdmin: user?.role === 'admin',
       login,
+      loginWithGoogle,
       register,
       logout,
       refreshUser,
     }),
-    [user, loading, login, register, logout, refreshUser],
+    [user, loading, login, loginWithGoogle, register, logout, refreshUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

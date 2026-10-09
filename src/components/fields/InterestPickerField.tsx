@@ -1,5 +1,5 @@
 import { Check, Plus, Sparkles } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 
 import {
   buildInterestString,
@@ -21,12 +21,18 @@ type InterestPickerFieldProps = {
 export function InterestPickerField({ value, presets, placeholder, onChange }: InterestPickerFieldProps) {
   const parsed = useMemo(() => parseInterestValue(value, presets), [value, presets]);
   const [draft, setDraft] = useState('');
+  const customInputRef = useRef<HTMLInputElement>(null);
+
+  function dismissKeyboard() {
+    customInputRef.current?.blur();
+  }
 
   function commit(next: InterestValue) {
     onChange(encodeInterestValue(next));
   }
 
   function togglePreset(option: string) {
+    dismissKeyboard();
     const selected = parsed.selected.includes(option)
       ? parsed.selected.filter((item) => item !== option)
       : [...parsed.selected, option];
@@ -35,6 +41,7 @@ export function InterestPickerField({ value, presets, placeholder, onChange }: I
   }
 
   function addCustom() {
+    dismissKeyboard();
     const trimmed = draft.trim();
 
     if (!trimmed) {
@@ -84,6 +91,7 @@ export function InterestPickerField({ value, presets, placeholder, onChange }: I
         </label>
         <div className="interest-picker__custom-row">
           <input
+            ref={customInputRef}
             id="interest-custom"
             type="text"
             className="field-control interest-picker__custom-input"

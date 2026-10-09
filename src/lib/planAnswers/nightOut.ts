@@ -1,4 +1,6 @@
-export type NightOutAnswers = {
+import { areaAnswersAreValid, parseAreaAnswers, type AreaAnswers } from './area';
+
+export type NightOutAnswers = AreaAnswers & {
   city: string;
   interests: string;
   group_size: number;
@@ -15,6 +17,7 @@ export function parseNightOutAnswers(raw: Record<string, string>): NightOutAnswe
     budget_per_person: Number(raw.budget_per_person),
     dates: raw.dates?.trim() ?? '',
     start_time: raw.start_time?.trim() ?? '',
+    ...parseAreaAnswers(raw),
   };
 }
 
@@ -29,6 +32,7 @@ export function validateNightOutAnswers(answers: Record<string, unknown>): boole
     Number.isFinite(typed.budget_per_person) &&
     typed.budget_per_person >= 1 &&
     typed.dates.length > 0 &&
-    typed.start_time.length > 0
+    typed.start_time.length > 0 &&
+    areaAnswersAreValid(typed)
   );
 }

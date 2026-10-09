@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 
 import { AuthLayout } from '../components/auth/AuthLayout';
+import { GoogleSignInButton } from '../components/auth/GoogleSignInButton';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { PasswordField } from '../components/ui/PasswordField';
@@ -15,7 +16,7 @@ import { checkoutErrorMessage } from '../lib/billingHelpers';
 import { startWebProCheckout } from '../lib/startProCheckout';
 
 export function LoginPage() {
-  const { login, isAuthenticated, isAdmin, user, loading: authLoading } = useAuth();
+  const { login, loginWithGoogle, isAuthenticated, isAdmin, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const locationState = location.state as { from?: string; proCheckout?: boolean } | null;
@@ -44,6 +45,43 @@ export function LoginPage() {
     return <Navigate to={resolvePostAuthPath(user?.role ?? (isAdmin ? 'admin' : 'user'), from)} replace />;
   }
 
+  async function continueAfterAuth(loggedIn: { role: string }) {
+    if (isInvitePath(from)) {
+      const token = extractInviteToken(from ?? '');
+
+      if (token) {
+        try {
+          const response = await planShareApi.acceptPlanShare(token);
+          const session = response.data.plan_session;
+          const slug = session?.plan_type?.slug ?? 'night_out';
+
+          if (session?.uuid) {
+            navigate(withSession(`/plan/${slug}/itinerary`, session.uuid), { replace: true });
+
+            return;
+          }
+        } catch (err) {
+          const apiError = err as ApiError;
+          setError(apiError.message || 'Logged in, but unable to accept invite.');
+          navigate(resolvePostAuthPath(loggedIn.role, from), { replace: true });
+
+          return;
+        }
+      }
+    }
+
+    if (proCheckout) {
+      try {
+        await startWebProCheckout();
+      } catch (err) {
+        setError(checkoutErrorMessage(err));
+      }
+      return;
+    }
+
+    navigate(resolvePostAuthPath(loggedIn.role, from), { replace: true });
+  }
+
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     setLoading(true);
@@ -51,44 +89,25 @@ export function LoginPage() {
 
     try {
       const loggedIn = await login(email.trim(), password);
-
-      if (isInvitePath(from)) {
-        const token = extractInviteToken(from ?? '');
-
-        if (token) {
-          try {
-            const response = await planShareApi.acceptPlanShare(token);
-            const session = response.data.plan_session;
-            const slug = session?.plan_type?.slug ?? 'night_out';
-
-            if (session?.uuid) {
-              navigate(withSession(`/plan/${slug}/itinerary`, session.uuid), { replace: true });
-
-              return;
-            }
-          } catch (err) {
-            const apiError = err as ApiError;
-            setError(apiError.message || 'Logged in, but unable to accept invite.');
-            navigate(resolvePostAuthPath(loggedIn.role, from), { replace: true });
-
-            return;
-          }
-        }
-      }
-
-      if (proCheckout) {
-        try {
-          await startWebProCheckout();
-        } catch (err) {
-          setError(checkoutErrorMessage(err));
-        }
-        return;
-      }
-
-      navigate(resolvePostAuthPath(loggedIn.role, from), { replace: true });
+      await continueAfterAuth(loggedIn);
     } catch (err) {
       const apiError = err as ApiError;
       setError(apiError.message || 'Unable to log in.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleGoogleCredential(idToken: string) {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const loggedIn = await loginWithGoogle(idToken);
+      await continueAfterAuth(loggedIn);
+    } catch (err) {
+      const apiError = err as ApiError;
+      setError(apiError.message || 'Unable to log in with Google.');
     } finally {
       setLoading(false);
     }
@@ -112,6 +131,7 @@ export function LoginPage() {
         </>
       }
     >
+      <GoogleSignInButton onCredential={(idToken) => void handleGoogleCredential(idToken)} onError={setError} />
       <form className="page-stack" onSubmit={(event) => void handleSubmit(event)}>
         <Input
           label="Email"

@@ -1,5 +1,6 @@
 import { Crown, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { PRO_UPGRADE_SUMMARY } from '../../constants/proBenefits';
 import { useAuth } from '../../contexts/AuthContext';
@@ -11,6 +12,7 @@ import {
   formatProPrice,
   parseBillingConfig,
 } from '../../lib/billingHelpers';
+import { needsWeekendSetup } from '../../lib/weekendSetup';
 import { Button } from '../ui/Button';
 import './ProActions.css';
 
@@ -38,6 +40,7 @@ function formatPeriodEnd(value?: string | null): string | null {
 
 export function ProActions({ isPro, returnPath = '/plans' }: ProActionsProps) {
   const { user, refreshUser } = useAuth();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [config, setConfig] = useState<BillingConfig | null>(null);
@@ -67,12 +70,16 @@ export function ProActions({ isPro, returnPath = '/plans' }: ProActionsProps) {
 
     if (billing === 'success') {
       setNotice('Welcome to Pro — your subscription is active.');
-      void refreshUser();
+      void refreshUser().then((next) => {
+        if (needsWeekendSetup(next)) {
+          navigate('/pro/setup', { replace: true });
+        }
+      });
       params.delete('billing');
       const next = params.toString();
       window.history.replaceState({}, '', `${window.location.pathname}${next ? `?${next}` : ''}`);
     }
-  }, [refreshUser]);
+  }, [navigate, refreshUser]);
 
   async function handleUpgrade() {
     setLoading(true);

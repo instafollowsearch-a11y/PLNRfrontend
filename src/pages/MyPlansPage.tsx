@@ -318,11 +318,11 @@ export function MyPlansPage() {
                     <button
                       type="button"
                       className="my-plans__share"
-                      aria-label={`Share ${session.city || 'plan'}`}
+                      aria-label={`Send invitation for ${session.city || 'this plan'}`}
                       onClick={() => setShareUuid(session.uuid)}
                     >
                       <Share2 size={16} aria-hidden />
-                      Share
+                      Send invitation
                     </button>
                   ) : null}
                 </div>

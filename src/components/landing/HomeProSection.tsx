@@ -68,7 +68,7 @@ export function HomeProSection() {
             <div className="home-pro__copy">
               <span className="home-pro__index">{String(index + 1).padStart(2, '0')}</span>
               <h3 className="home-pro__feature-title">{card.title}</h3>
-              <p className="home-pro__feature-body">{card.body}</p>
+              {card.body ? <p className="home-pro__feature-body">{card.body}</p> : null}
             </div>
             <div className="home-pro__visual" aria-hidden="true">
               <PhoneFrame src={PHONE_SHOTS[card.icon]} tone={card.icon === 'bell' ? 'dark' : 'light'} />
@@ -119,6 +119,13 @@ export function HomeProSection() {
             <CompareList items={PRO_COMPARE} />
           </article>
         </div>
+      </div>
+
+      <div className="home-pro__why">
+        <h3 className="home-pro__why-title">Why Pro</h3>
+        <p className="home-pro__why-body">
+          Your weekend arrives on Friday, already built from your interests. Share it as you go, and get a nudge before each stop.
+        </p>
       </div>
     </section>
   );

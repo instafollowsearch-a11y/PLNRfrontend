@@ -24,6 +24,8 @@ export const planShareApi = createPlanShareApi(API_URL);
 export const PRIVACY_POLICY_URL =
   import.meta.env.VITE_PRIVACY_POLICY_URL ?? 'https://myplnr.app/privacy';
 
+export const TERMS_URL = import.meta.env.VITE_TERMS_URL ?? 'https://myplnr.app/terms';
+
 export const SUPPORT_EMAIL = import.meta.env.VITE_SUPPORT_EMAIL ?? 'support@plnr.app';
 
 export type {

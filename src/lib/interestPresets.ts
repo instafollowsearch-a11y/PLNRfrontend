@@ -136,6 +136,39 @@ export function parseInterestValue(raw: string, presets: readonly string[]): Int
   return { selected, custom };
 }
 
+export const WEEKEND_INTEREST_PRESETS = [
+  'Club / nightlife',
+  'Live music',
+  'Comedy shows',
+  'Art galleries',
+  'Food festivals',
+  'Outdoor markets',
+  'Theater',
+  'Sports events',
+  'Wine tasting',
+  'Dancing',
+  'Craft beer',
+  'Family-friendly',
+  'Night markets',
+] as const;
+
 export function encodeInterestValue(value: InterestValue): string {
   return JSON.stringify(value);
+}
+
+export function interestList(raw: string, presets: readonly string[]): string[] {
+  const summary = buildInterestString(parseInterestValue(raw, presets));
+
+  if (!summary) {
+    return [];
+  }
+
+  return summary
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+export function pickerValueFromInterests(interests: string[] | undefined, presets: readonly string[]): string {
+  return encodeInterestValue(parseInterestValue((interests ?? []).join(', '), presets));
 }

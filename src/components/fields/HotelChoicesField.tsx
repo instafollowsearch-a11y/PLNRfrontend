@@ -31,6 +31,53 @@ export function destinationFromAnswers(answers: Record<string, string>): string 
   return raw.trim();
 }
 
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function requestHotels(place: string, isCancelled: () => boolean): Promise<HotelChoice[]> {
+  const deadline = Date.now() + 90000;
+
+  while (!isCancelled() && Date.now() < deadline) {
+    try {
+      const response = await fetch(`${API_URL}/hotel-suggestions`, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ destination: place }),
+      });
+
+      if (response.status === 202) {
+        await sleep(2000);
+        continue;
+      }
+
+      if (!response.ok) {
+        throw new Error('unavailable');
+      }
+
+      const body = (await response.json()) as { data?: HotelChoice[] | { status?: string } };
+
+      if (!Array.isArray(body.data) && body.data?.status === 'generating') {
+        await sleep(2000);
+        continue;
+      }
+
+      return Array.isArray(body.data) ? body.data : [];
+    } catch (error) {
+      if (error instanceof Error && error.message === 'unavailable') {
+        throw error;
+      }
+
+      await sleep(2000);
+    }
+  }
+
+  throw new Error('unavailable');
+}
+
 export function HotelChoicesField({ destination, value, onChange }: HotelChoicesFieldProps) {
   const [hotels, setHotels] = useState<HotelChoice[]>([]);
   const [isLoading, setIsLoading] = useState(destination.trim().length >= 2);
@@ -50,23 +97,10 @@ export function HotelChoicesField({ destination, value, onChange }: HotelChoices
     setIsLoading(true);
     setHasError(false);
 
-    void fetch(`${API_URL}/hotel-suggestions`, {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ destination: place }),
-    })
-      .then(async (response) => {
-        if (!response.ok) {
-          throw new Error('unavailable');
-        }
-
-        const body = (await response.json()) as { data?: HotelChoice[] };
-
+    void requestHotels(place, () => isCancelled)
+      .then((choices) => {
         if (!isCancelled) {
-          setHotels(Array.isArray(body.data) ? body.data : []);
+          setHotels(choices);
         }
       })
       .catch(() => {

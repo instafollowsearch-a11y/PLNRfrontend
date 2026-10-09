@@ -15,6 +15,7 @@ import { InvitePage } from './pages/InvitePage';
 import { ItineraryPage } from './pages/ItineraryPage';
 import { LoginPage } from './pages/LoginPage';
 import { MyPlansPage } from './pages/MyPlansPage';
+import { ProSetupPage } from './pages/ProSetupPage';
 import { QuestionsPage } from './pages/QuestionsPage';
 import { RefinePage } from './pages/RefinePage';
 import { RegisterPage } from './pages/RegisterPage';
@@ -49,6 +50,7 @@ export function AppRoutes() {
 
         <Route element={<ProtectedRoute />}>
           <Route path="/plans" element={<MyPlansPage />} />
+          <Route path="/pro/setup" element={<ProSetupPage />} />
           <Route path="/account" element={<AccountPage />} />
         </Route>
 

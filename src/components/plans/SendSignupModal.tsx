@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 
 import { useAuth } from '../../contexts/AuthContext';
 import type { ApiError } from '../../lib/apiTypes';
+import { TermsAcceptance } from '../auth/TermsAcceptance';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
@@ -19,6 +20,7 @@ export function SendSignupModal({ initialEmail, onClose, onSignedUp }: SendSignu
   const [email, setEmail] = useState(initialEmail);
   const [password, setPassword] = useState('');
   const [passwordConfirmation, setPasswordConfirmation] = useState('');
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -33,6 +35,12 @@ export function SendSignupModal({ initialEmail, onClose, onSignedUp }: SendSignu
 
     if (password !== passwordConfirmation) {
       setError('Passwords do not match.');
+
+      return;
+    }
+
+    if (!acceptedTerms) {
+      setError('Accept the terms and conditions to create an account.');
 
       return;
     }
@@ -105,6 +113,8 @@ export function SendSignupModal({ initialEmail, onClose, onSignedUp }: SendSignu
               onChange={(event) => setPasswordConfirmation(event.target.value)}
               required
             />
+
+            <TermsAcceptance accepted={acceptedTerms} onChange={setAcceptedTerms} />
 
             {error ? <p className="error-text">{error}</p> : null}
 

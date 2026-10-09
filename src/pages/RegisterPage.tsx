@@ -2,6 +2,8 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 
 import { AuthLayout } from '../components/auth/AuthLayout';
+import { GoogleSignInButton } from '../components/auth/GoogleSignInButton';
+import { TermsAcceptance } from '../components/auth/TermsAcceptance';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { PasswordField } from '../components/ui/PasswordField';
@@ -13,7 +15,7 @@ import { checkoutErrorMessage } from '../lib/billingHelpers';
 import { startWebProCheckout } from '../lib/startProCheckout';
 
 export function RegisterPage() {
-  const { register, isAuthenticated, user, loading: authLoading } = useAuth();
+  const { register, loginWithGoogle, isAuthenticated, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const prefill = resolveRegisterPrefill(location.state);
@@ -23,6 +25,7 @@ export function RegisterPage() {
   const [email, setEmail] = useState(prefill.email ?? '');
   const [password, setPassword] = useState('');
   const [passwordConfirmation, setPasswordConfirmation] = useState('');
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const checkoutStarted = useRef(false);
@@ -49,8 +52,46 @@ export function RegisterPage() {
     return <Navigate to={dest} replace />;
   }
 
+  async function handleGoogleCredential(idToken: string) {
+    if (!acceptedTerms) {
+      setError('Accept the terms and conditions to create an account.');
+
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      await loginWithGoogle(idToken, prefill.invite_token);
+
+      if (prefill.proCheckout) {
+        try {
+          await startWebProCheckout();
+        } catch (err) {
+          setError(checkoutErrorMessage(err));
+        }
+        return;
+      }
+
+      navigate('/plans', { replace: true });
+    } catch (err) {
+      const apiError = err as ApiError;
+      setError(apiError.message || 'Unable to continue with Google.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
+
+    if (!acceptedTerms) {
+      setError('Accept the terms and conditions to create an account.');
+
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -103,6 +144,8 @@ export function RegisterPage() {
         </>
       }
     >
+      <TermsAcceptance accepted={acceptedTerms} onChange={setAcceptedTerms} />
+      <GoogleSignInButton onCredential={(idToken) => void handleGoogleCredential(idToken)} onError={setError} />
       <form className="page-stack" onSubmit={(event) => void handleSubmit(event)}>
         <Input
           label="Name"

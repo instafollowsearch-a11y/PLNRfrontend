@@ -39,27 +39,48 @@
 
 .landing-hero__types {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: row;
   gap: 0.5rem;
+  width: 100%;
   margin: 0 0 var(--spacing-md);
   padding: 0;
   list-style: none;
 }
 
 .landing-hero__types li {
-  display: inline-flex;
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.landing-hero__type {
+  display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.35rem;
-  padding: 0.35rem 0.7rem;
+  width: 100%;
+  min-height: 36px;
+  padding: 0.35rem 0.65rem;
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-pill);
   background: rgba(255, 255, 255, 0.72);
+  color: var(--color-text-secondary);
   font-size: 0.8125rem;
   font-weight: 600;
-  color: var(--color-text-secondary);
+  text-decoration: none;
+  transition: transform 0.15s ease;
 }
 
-.landing-hero__types svg {
+.landing-hero__type:hover {
+  transform: translateY(-1px);
+}
+
+.landing-hero__type:focus-visible {
+  outline: 3px solid var(--color-accent-soft);
+  outline-offset: 2px;
+}
+
+.landing-hero__type svg {
   color: var(--color-accent);
   flex-shrink: 0;
 }

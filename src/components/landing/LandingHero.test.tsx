@@ -1,11 +1,16 @@
 import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 
 import { LandingHero } from './LandingHero';
 
 describe('LandingHero', () => {
   it('renders headline and primary CTA', () => {
-    render(<LandingHero onStartPlanning={vi.fn()} onHowItWorks={vi.fn()} />);
+    render(
+      <MemoryRouter>
+        <LandingHero onStartPlanning={vi.fn()} onHowItWorks={vi.fn()} />
+      </MemoryRouter>,
+    );
 
     expect(screen.getByText('Date night')).toBeTruthy();
     expect(screen.getByText('Road trip')).toBeTruthy();

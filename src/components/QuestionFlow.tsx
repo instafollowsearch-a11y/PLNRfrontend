@@ -77,7 +77,17 @@ export function QuestionFlow({ questions, submitLabel, onComplete }: QuestionFlo
     return true;
   }
 
+  function dismissKeyboard() {
+    const active = document.activeElement;
+
+    if (active instanceof HTMLElement) {
+      active.blur();
+    }
+  }
+
   async function handleNext() {
+    dismissKeyboard();
+
     if (!validateCurrent()) {
       return;
     }
@@ -106,6 +116,8 @@ export function QuestionFlow({ questions, submitLabel, onComplete }: QuestionFlo
   }
 
   function handleBack() {
+    dismissKeyboard();
+
     if (step === 0) {
       return;
     }

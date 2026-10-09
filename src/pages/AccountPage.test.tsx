@@ -8,6 +8,10 @@ import type { User } from '../lib/apiTypes';
 import { clearAuthToken, setAuthToken } from '../lib/authStorage';
 import { AccountPage } from './AccountPage';
 
+vi.mock('../components/fields/LocationField', () => ({
+  LocationField: () => <div>City map</div>,
+}));
+
 vi.mock('../lib/authStorage', () => {
   let token: string | null = null;
 
@@ -80,5 +84,41 @@ describe('AccountPage', () => {
     });
 
     expect(within(details).getByLabelText(/current password/i)).toHaveAttribute('type', 'password');
+  });
+
+  it('saves a changed interest list', async () => {
+    setAuthToken('test-token');
+    vi.mocked(authApi.me).mockResolvedValue({
+      data: { user: { ...signedInUser, interests: ['Live music'] } },
+      message: 'User retrieved successfully.',
+    });
+    vi.mocked(authApi.updateProfile).mockResolvedValue({
+      data: {
+        user: { ...signedInUser, interests: ['Live music', 'Pottery'] },
+        weekend_delivery: 'skipped',
+      },
+      message: 'Profile updated successfully.',
+    });
+
+    render(
+      <MemoryRouter>
+        <AuthProvider>
+          <AccountPage />
+        </AuthProvider>
+      </MemoryRouter>,
+    );
+
+    const details = await screen.findByRole('form', { name: /profile details/i });
+    fireEvent.change(within(details).getByPlaceholderText('Add your own…'), {
+      target: { value: 'Pottery' },
+    });
+    fireEvent.click(within(details).getByRole('button', { name: 'Add' }));
+    fireEvent.submit(details);
+
+    expect(authApi.updateProfile).toHaveBeenCalledWith(
+      expect.objectContaining({
+        interests: ['Live music', 'Pottery'],
+      }),
+    );
   });
 });

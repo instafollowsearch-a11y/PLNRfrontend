@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { ItineraryView } from './ItineraryView';
@@ -118,5 +118,53 @@ describe('ItineraryView', () => {
       'href',
       'https://example.com/elephant-room',
     );
+  });
+
+  it('shows one day at a time when the plan spans several days', () => {
+    render(
+      <ItineraryView
+        content={{
+          title: 'Barcelona',
+          summary: 'A week away',
+          days: [
+            {
+              date: 'Wednesday, June 10, 2026',
+              theme: 'Arrive',
+              stops: [{ time: '10:00 AM', name: 'Market', activity: 'Browse', notes: '' }],
+            },
+            {
+              date: 'Thursday, June 11, 2026',
+              theme: 'Walk',
+              stops: [{ time: '11:00 AM', name: 'Park', activity: 'Sit', notes: '' }],
+            },
+          ],
+        }}
+      />,
+    );
+
+    expect(screen.getByRole('tab', { name: 'Wednesday', selected: true })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Market' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Park' })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Thursday' }));
+
+    expect(screen.getByRole('heading', { name: 'Park' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Market' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('tablist')).toBeInTheDocument();
+  });
+
+  it('keeps a single day as one list', () => {
+    render(
+      <ItineraryView
+        content={{
+          title: 'Night Out',
+          summary: 'One evening',
+          stops: [{ time: '8:00 PM', name: 'Jazz Club', activity: 'Live music', notes: '' }],
+        }}
+      />,
+    );
+
+    expect(screen.queryByRole('tab')).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Jazz Club' })).toBeInTheDocument();
   });
 });

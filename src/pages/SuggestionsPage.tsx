@@ -134,7 +134,10 @@ export function SuggestionsPage() {
   return (
     <AppShell title="Suggestions" showBack backTo={`/plan/${planType}`}>
       <FunnelStepper current="suggestions" planType={planType} sessionUuid={sessionUuid} />
-      <PageIntro title="Pick an idea" subtitle="Tap a suggestion that fits the vibe you want." />
+      <PageIntro
+        title="Pick a plan"
+        subtitle="Choose the one you’re interested in, and we’ll send you the complete curated plan."
+      />
 
       {loading ? <LoadingState message="Loading suggestions…" /> : null}
 

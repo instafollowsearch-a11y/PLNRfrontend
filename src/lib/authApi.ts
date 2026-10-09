@@ -53,6 +53,19 @@ export function createAuthApi(baseUrl: string) {
       });
     },
 
+    loginWithGoogle(idToken: string, inviteToken?: string) {
+      const body: Record<string, string> = { id_token: idToken };
+
+      if (inviteToken?.trim()) {
+        body.invite_token = inviteToken.trim();
+      }
+
+      return apiRequest<AuthPayload>('/auth/google', {
+        method: 'POST',
+        body: JSON.stringify(body),
+      });
+    },
+
     forgotPassword(email: string) {
       return apiRequest<null>('/auth/forgot-password', {
         method: 'POST',
@@ -86,7 +99,7 @@ export function createAuthApi(baseUrl: string) {
     },
 
     updateProfile(profile: ProfileUpdate) {
-      return apiRequest<{ user: User }>('/user', {
+      return apiRequest<{ user: User; weekend_delivery?: string }>('/user', {
         method: 'PATCH',
         body: JSON.stringify(profile),
       });

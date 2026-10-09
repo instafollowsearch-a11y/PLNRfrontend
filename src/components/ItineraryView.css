@@ -47,6 +47,38 @@
   font-weight: 600;
 }
 
+.itinerary-view__day-tabs {
+  display: flex;
+  gap: var(--spacing-xs);
+  overflow-x: auto;
+  padding: 2px 0 4px;
+  scrollbar-width: thin;
+}
+
+.itinerary-view__day-tab {
+  flex-shrink: 0;
+  padding: 0.45rem 0.9rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--color-surface) 80%, transparent);
+  color: var(--color-text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.itinerary-view__day-tab:hover {
+  border-color: transparent;
+  background: var(--color-accent-soft);
+  color: var(--color-accent-dark);
+}
+
+.itinerary-view__day-tab.is-active {
+  border-color: transparent;
+  background: var(--color-accent);
+  color: #fff;
+}
+
 .itinerary-view__day h3 {
   margin: 0 0 var(--spacing-xs);
   font-family: var(--font-display);

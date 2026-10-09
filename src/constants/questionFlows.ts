@@ -99,8 +99,8 @@ export const NIGHT_OUT_QUESTIONS: QuestionConfig[] = [
     key: 'city',
     label: 'What city are you in?',
     type: 'location',
-    placeholder: 'Search for a city…',
-    hint: 'Pick from suggestions or tap the map.',
+    placeholder: 'Search for a city or address…',
+    hint: 'City or address. Pick from suggestions or tap the map.',
   },
   {
     key: 'interests',
@@ -161,8 +161,8 @@ export const DATE_NIGHT_QUESTIONS: QuestionConfig[] = [
     key: 'city',
     label: 'What city are you in?',
     type: 'location',
-    placeholder: 'Search for a city…',
-    hint: 'Pick from suggestions or tap the map.',
+    placeholder: 'Search for a city or address…',
+    hint: 'City or address. Pick from suggestions or tap the map.',
   },
   {
     key: 'timeframe',
@@ -262,7 +262,7 @@ export const VACATION_QUESTIONS: QuestionConfig[] = [
     label: 'Where are you going?',
     type: 'location',
     placeholder: 'Search for a destination…',
-    hint: 'City, region, or country.',
+    hint: 'City, address, region, or country.',
   },
   {
     key: 'dates',

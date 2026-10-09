@@ -1,12 +1,13 @@
 import { ArrowRight, Car, Heart, Moon, Plane, Sparkles } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 import './LandingHero.css';
 
 const HERO_TYPES = [
-  { label: 'Date night', icon: Heart },
-  { label: 'Night out', icon: Moon },
-  { label: 'Vacation', icon: Plane },
-  { label: 'Road trip', icon: Car },
+  { label: 'Date night', icon: Heart, href: '/plan/date_night', accent: '#C45C8A' },
+  { label: 'Night out', icon: Moon, href: '/plan/night_out', accent: '#D4622A' },
+  { label: 'Vacation', icon: Plane, href: '/plan/vacation', accent: '#3D8B7A' },
+  { label: 'Road trip', icon: Car, href: '/plan/road_trip', accent: '#4A6FA5' },
 ] as const;
 
 const MOCK_STOPS = [
@@ -29,10 +30,16 @@ export function LandingHero({ onStartPlanning, onHowItWorks }: LandingHeroProps)
       <div className="landing-hero__inner">
         <div className="landing-hero__copy">
           <ul className="landing-hero__types">
-            {HERO_TYPES.map(({ label, icon: Icon }) => (
+            {HERO_TYPES.map(({ label, icon: Icon, href, accent }) => (
               <li key={label}>
-                <Icon size={14} aria-hidden />
-                {label}
+                <Link
+                  className="landing-hero__type"
+                  to={href}
+                  style={{ boxShadow: `0 6px 14px ${accent}38` }}
+                >
+                  <Icon size={14} aria-hidden />
+                  {label}
+                </Link>
               </li>
             ))}
           </ul>

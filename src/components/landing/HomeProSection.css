@@ -185,6 +185,32 @@
   margin-top: 4rem;
 }
 
+.home-pro__why {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  width: min(100%, 40rem);
+  margin: 4rem auto 0;
+  text-align: center;
+}
+
+.home-pro__why-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.7rem, 3vw, 2.2rem);
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+}
+
+.home-pro__why-body {
+  margin: 0;
+  max-width: 34rem;
+  color: var(--color-text-secondary);
+  font-size: 1.125rem;
+  line-height: 1.55;
+}
+
 .home-pro__compare-title {
   margin: 0;
   text-align: center;
@@ -444,4 +470,9 @@
   flex: 1;
   object-fit: cover;
   object-position: top center;
+  margin-top: 14px;
+}
+
+.pro-phone__screen--dark .pro-phone__shot {
+  margin-top: 0;
 }

@@ -20,10 +20,17 @@ export function createPlanShareApi(baseUrl: string) {
       }>(`/plan-shares/${token}/accept`, { method: 'POST' });
     },
 
-    createPlanShare(sessionUuid: string, email: string) {
+    createPlanShare(sessionUuid: string, email: string, phone?: string) {
+      const body: { email: string; phone?: string } = { email: email.trim() };
+      const trimmedPhone = phone?.trim();
+
+      if (trimmedPhone) {
+        body.phone = trimmedPhone;
+      }
+
       return apiRequest<{ share: PlanShareRecord }>(`/plan-sessions/${sessionUuid}/shares`, {
         method: 'POST',
-        body: JSON.stringify({ email: email.trim() }),
+        body: JSON.stringify(body),
       });
     },
   };

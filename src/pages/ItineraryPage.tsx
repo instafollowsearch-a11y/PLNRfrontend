@@ -131,7 +131,7 @@ export function ItineraryPage() {
               />
               {canShare ? (
                 <Button
-                  label="Share plan"
+                  label="Send invitation"
                   variant="secondary"
                   icon={<Share2 size={16} />}
                   onClick={() => setShareOpen(true)}

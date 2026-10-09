@@ -15,6 +15,7 @@ test.describe('Register, claim, and plan smoke', () => {
     await page.getByLabel('Email').fill(email);
     await page.getByLabel('Password', { exact: true }).fill('password123');
     await page.getByLabel('Confirm password').fill('password123');
+    await page.getByRole('checkbox', { name: /terms and conditions of the plnr app/i }).check();
     await page.getByRole('button', { name: /create account/i }).click();
 
     await expect(page).toHaveURL(/\/plans/, { timeout: 20_000 });

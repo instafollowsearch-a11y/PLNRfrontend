@@ -85,6 +85,8 @@ export type PlanSession = {
   access_role?: PlanAccessRole | null;
   shared_by?: PlanSharedBy | null;
   created_at?: string;
+  generation_status?: string | null;
+  generation_error?: string | null;
 };
 
 export type UserRole = 'user' | 'admin';
@@ -173,8 +175,10 @@ export type PlanSharePreview = {
 export type PlanShareRecord = {
   token: string;
   invitee_email: string;
+  invitee_phone?: string | null;
   status: string;
   expires_at: string | null;
+  sms_sent?: boolean;
 };
 
 export type ApiError = {

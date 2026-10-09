@@ -1,0 +1,12 @@
+.google-sign-in {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.google-sign-in__or {
+  margin: 0;
+  color: var(--color-text-secondary);
+  text-align: center;
+  font-size: 0.85rem;
+}

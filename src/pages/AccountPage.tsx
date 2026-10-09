@@ -1,6 +1,8 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { InterestPickerField } from '../components/fields/InterestPickerField';
+import { LocationField } from '../components/fields/LocationField';
 import { AppShell } from '../components/layout/AppShell';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
@@ -10,8 +12,20 @@ import { PasswordField } from '../components/ui/PasswordField';
 import { useAuth } from '../contexts/AuthContext';
 import { authApi } from '../lib/api';
 import { firstApiError } from '../lib/apiErrorMessage';
+import type { LocationValue } from '../lib/fieldValues';
+import { interestList, pickerValueFromInterests, WEEKEND_INTEREST_PRESETS } from '../lib/interestPresets';
 import type { ApiError } from '../lib/apiTypes';
 import './AccountPage.css';
+
+function locationFromCity(city: string | null | undefined): LocationValue | null {
+  const label = city?.trim();
+
+  if (!label) {
+    return null;
+  }
+
+  return { label, lat: 30.2672, lon: -97.7431 };
+}
 
 function fieldMessage(error: ApiError | null, field: string): string | null {
   return error?.errors?.[field]?.[0] ?? null;
@@ -22,7 +36,10 @@ export function AccountPage() {
   const navigate = useNavigate();
   const [name, setName] = useState(user?.name ?? '');
   const [email, setEmail] = useState(user?.email ?? '');
-  const [city, setCity] = useState(user?.city ?? '');
+  const [location, setLocation] = useState<LocationValue | null>(() => locationFromCity(user?.city));
+  const [interests, setInterests] = useState(() =>
+    pickerValueFromInterests(user?.interests, WEEKEND_INTEREST_PRESETS),
+  );
   const [emailPassword, setEmailPassword] = useState('');
   const [detailsError, setDetailsError] = useState<ApiError | null>(null);
   const [detailsMessage, setDetailsMessage] = useState<string | null>(null);
@@ -47,7 +64,8 @@ export function AccountPage() {
 
     setName(user.name);
     setEmail(user.email);
-    setCity(user.city ?? '');
+    setLocation(locationFromCity(user.city));
+    setInterests(pickerValueFromInterests(user.interests, WEEKEND_INTEREST_PRESETS));
     setHasLoadedProfile(true);
   }, [user]);
 
@@ -69,13 +87,15 @@ export function AccountPage() {
       const response = await authApi.updateProfile({
         name: name.trim(),
         email: email.trim(),
-        city: city.trim() || account.city ? city.trim() : undefined,
+        city: location?.label.trim() || account.city ? location?.label.trim() : undefined,
+        interests: interestList(interests, WEEKEND_INTEREST_PRESETS),
         current_password: emailChanged ? emailPassword : undefined,
       });
       await refreshUser();
       setName(response.data.user.name);
       setEmail(response.data.user.email);
-      setCity(response.data.user.city ?? '');
+      setLocation(locationFromCity(response.data.user.city));
+      setInterests(pickerValueFromInterests(response.data.user.interests, WEEKEND_INTEREST_PRESETS));
       setEmailPassword('');
       setDetailsMessage(response.message || 'Profile updated.');
     } catch (err) {
@@ -170,13 +190,22 @@ export function AccountPage() {
               error={fieldMessage(detailsError, 'email')}
               required
             />
-            <Input
-              label="City"
-              autoComplete="address-level2"
-              value={city}
-              onChange={(event) => setCity(event.target.value)}
-              error={fieldMessage(detailsError, 'city')}
-            />
+            <div className="account-page__field">
+              <span className="account-page__label">City</span>
+              <LocationField value={location} placeholder="Search city or pick on map…" onChange={setLocation} />
+              {fieldMessage(detailsError, 'city') ? (
+                <p className="error-text">{fieldMessage(detailsError, 'city')}</p>
+              ) : null}
+            </div>
+            <div className="account-page__field">
+              <span className="account-page__label">Interests</span>
+              <InterestPickerField
+                value={interests}
+                onChange={setInterests}
+                presets={WEEKEND_INTEREST_PRESETS}
+                placeholder="Add your own…"
+              />
+            </div>
             {emailChanged ? (
               <PasswordField
                 label="Current password"

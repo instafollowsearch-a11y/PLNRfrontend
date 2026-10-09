@@ -49,6 +49,9 @@ export function WeekendPage() {
   const [recommendation, setRecommendation] = useState<WeekendRecommendation | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [emailLoading, setEmailLoading] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteLoading, setInviteLoading] = useState(false);
+  const [inviteMessage, setInviteMessage] = useState<string | null>(null);
   const [refreshingPro, setRefreshingPro] = useState(false);
 
   const billingNotice = searchParams.get('billing');
@@ -65,11 +68,17 @@ export function WeekendPage() {
     }
 
     setRefreshingPro(true);
-    void refreshUser().finally(() => {
-      setSearchParams({}, { replace: true });
-      setRefreshingPro(false);
-    });
-  }, [billingNotice, refreshUser, setSearchParams]);
+    void refreshUser()
+      .then((next) => {
+        if (next?.is_pro && (next.interests?.length ?? 0) === 0) {
+          navigate('/pro/setup', { replace: true });
+        }
+      })
+      .finally(() => {
+        setSearchParams({}, { replace: true });
+        setRefreshingPro(false);
+      });
+  }, [billingNotice, navigate, refreshUser, setSearchParams]);
 
   useEffect(() => {
     if (user?.interests?.length && !interestsRaw) {
@@ -148,6 +157,29 @@ export function WeekendPage() {
       const apiError = err as ApiError;
       setError(apiError.message || 'Unable to generate weekend picks.');
       setStep('form');
+    }
+  }
+
+  async function handleInvite(event: FormEvent) {
+    event.preventDefault();
+
+    if (!recommendation || !inviteEmail.trim()) {
+      return;
+    }
+
+    setInviteLoading(true);
+    setInviteMessage(null);
+    setError(null);
+
+    try {
+      await weekendApi.inviteToWeekend(recommendation.uuid, inviteEmail.trim());
+      setInviteMessage(`Invitation sent to ${inviteEmail.trim()}.`);
+      setInviteEmail('');
+    } catch (err) {
+      const apiError = err as ApiError;
+      setError(apiError.message || 'Unable to send the invitation.');
+    } finally {
+      setInviteLoading(false);
     }
   }
 
@@ -275,7 +307,21 @@ export function WeekendPage() {
               onClick={() => void handleEmailPicks()}
               loading={emailLoading}
             />
-            <Button label="Generate new picks" variant="secondary" onClick={() => setStep('form')} />
+            <form className="weekend-page__invite" onSubmit={(event) => void handleInvite(event)}>
+              <label className="weekend-page__field">
+                <span className="weekend-page__field-label">Send invitation</span>
+                <input
+                  type="email"
+                  required
+                  value={inviteEmail}
+                  placeholder="friend@email.com"
+                  onChange={(event) => setInviteEmail(event.target.value)}
+                />
+              </label>
+              <Button type="submit" label="Send invitation" variant="secondary" loading={inviteLoading} />
+            </form>
+            {inviteMessage ? <p role="status">{inviteMessage}</p> : null}
+            <Button label="Generate new picks" variant="ghost" onClick={() => setStep('form')} />
           </>
         ) : null}
 

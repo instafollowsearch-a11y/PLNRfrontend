@@ -20,6 +20,8 @@ export function SharePlanModal({
   onSent,
 }: SharePlanModalProps) {
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [smsNote, setSmsNote] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
@@ -35,7 +37,14 @@ export function SharePlanModal({
     setError(null);
 
     try {
-      await planShareApi.createPlanShare(sessionUuid, email.trim());
+      const response = await planShareApi.createPlanShare(sessionUuid, email.trim(), phone.trim() || undefined);
+      setSmsNote(
+        phone.trim()
+          ? response.data.share.sms_sent
+            ? 'A text was sent too.'
+            : 'The text could not be sent.'
+          : null,
+      );
       setSent(true);
       onSent?.(email.trim());
     } catch (err) {
@@ -57,13 +66,14 @@ export function SharePlanModal({
       >
         <Card className="share-plan-modal__panel">
           <h2 id="share-plan-title" className="share-plan-modal__title">
-            Share this plan
+            Send invitation
           </h2>
 
           {sent ? (
             <>
               <p className="share-plan-modal__lead">
                 Invite sent to <strong>{email}</strong>. They can view the itinerary once they accept.
+                {smsNote ? ` ${smsNote}` : ''}
               </p>
               <Button label="Done" onClick={onClose} />
             </>
@@ -82,9 +92,17 @@ export function SharePlanModal({
                 onChange={(event) => setEmail(event.target.value)}
                 required
               />
+              <Input
+                label="Mobile number (optional)"
+                type="tel"
+                autoComplete="tel"
+                placeholder="+15551234567"
+                value={phone}
+                onChange={(event) => setPhone(event.target.value)}
+              />
               {error ? <p className="error-text">{error}</p> : null}
               <div className="share-plan-modal__actions">
-                <Button label="Send invite" onClick={() => void handleSubmit()} loading={loading} />
+                <Button label="Send invitation" onClick={() => void handleSubmit()} loading={loading} />
                 <Button label="Cancel" variant="ghost" onClick={onClose} />
               </div>
             </>

@@ -151,10 +151,10 @@ test.describe('Pro features — human QA', () => {
     await loginAs(page, DEMO_USER.email, DEMO_USER.password);
     await page.goto(`/plan/night_out/itinerary?session=${uuid}`);
     await expect(page.getByText(/austin jazz night/i)).toBeVisible({ timeout: 15_000 });
-    await expect(page.getByRole('button', { name: /share plan/i })).toBeVisible();
-    await page.getByRole('button', { name: /share plan/i }).click();
+    await expect(page.getByRole('button', { name: /send invitation/i })).toBeVisible();
+    await page.getByRole('button', { name: /send invitation/i }).click();
     await page.getByLabel(/invitee email/i).fill(inviteeEmail);
-    await page.getByRole('button', { name: /send invite/i }).click();
+    await page.getByRole('dialog').getByRole('button', { name: /send invitation/i }).click();
     await expect(page.getByText(new RegExp(`invite sent to\\s+${inviteeEmail.replace('+', '\\+')}`, 'i'))).toBeVisible({
       timeout: 15_000,
     });

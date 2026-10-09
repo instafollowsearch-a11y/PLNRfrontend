@@ -1,6 +1,8 @@
+import { areaAnswersAreValid, parseAreaAnswers, type AreaAnswers } from './area';
+
 const GENDERS = ['man', 'woman', 'prefer_not_to_answer'] as const;
 
-export type DateNightAnswers = {
+export type DateNightAnswers = AreaAnswers & {
   self_gender: string;
   partner_gender: string;
   city: string;
@@ -19,6 +21,7 @@ export function parseDateNightAnswers(raw: Record<string, string>): DateNightAns
     partner_interests: raw.partner_interests?.trim() ?? '',
     budget: Number(raw.budget),
     event_count: Number(raw.event_count),
+    ...parseAreaAnswers(raw),
   };
 }
 
@@ -35,6 +38,7 @@ export function validateDateNightAnswers(answers: Record<string, unknown>): bool
     typed.budget >= 1 &&
     Number.isFinite(typed.event_count) &&
     typed.event_count >= 1 &&
-    typed.event_count <= 10
+    typed.event_count <= 10 &&
+    areaAnswersAreValid(typed)
   );
 }

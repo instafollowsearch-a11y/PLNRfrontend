@@ -14,8 +14,8 @@ export const PRO_QUOTES = [
     icon: 'calendar',
   },
   {
-    title: 'View plans together',
-    body: 'In real time.',
+    title: 'Share your plans in real time together',
+    body: '',
     quote: 'Del is viewing this plan',
     icon: 'people',
   },
@@ -45,7 +45,7 @@ export const PRO_UPGRADE_LABEL = 'Upgrade to Pro';
 
 export const FREE_COMPARE = [
   { included: false, label: 'Custom weekend plans, curated for you automatically' },
-  { included: true, label: 'View plans together in real time' },
+  { included: true, label: 'Share your plans in real time together' },
   { included: false, label: 'Ping notifications based off your interests' },
   { included: true, label: '5 generated plans' },
   { included: false, label: 'Hyper-local events' },
@@ -54,7 +54,7 @@ export const FREE_COMPARE = [
 
 export const PRO_COMPARE = [
   { included: true, label: 'Custom weekend plans, curated for you automatically' },
-  { included: true, label: 'View plans together in real time' },
+  { included: true, label: 'Share your plans in real time together' },
   { included: true, label: 'Ping notifications based off your interests' },
   { included: true, label: 'Unlimited generated plans' },
   { included: true, label: 'Hyper-local events' },
@@ -80,7 +80,7 @@ export const PRO_MATRIX: ReadonlyArray<{
     pro: true,
     group: 'pro',
   },
-  { feature: 'View plans together in real time', free: true, pro: true, group: 'both' },
+  { feature: 'Share your plans in real time together', free: true, pro: true, group: 'both' },
   {
     feature: 'Ping notifications based off your interest',
     free: false,
@@ -102,7 +102,7 @@ export const PRO_COMPARISON: ReadonlyArray<readonly [string, string]> = [
     'You ask for a plan',
     'Custom weekend plans curated and delivered for you automatically based on your interest',
   ],
-  ['View plans together in real time', 'View plans together in real time'],
+  ['Share your plans in real time together', 'Share your plans in real time together'],
   ['You remember the time', 'Ping notifications based off your interest'],
   ['5 plans a month', 'Unlimited amount of generated plan'],
   ['Not included', 'hyper local event (karaoke, run clubs, open mics, movies on the lawn)'],
