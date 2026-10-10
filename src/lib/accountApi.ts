@@ -158,6 +158,74 @@ export type PaginatedMeta = {
   total: number;
 };
 
+export type InterestScan = {
+  id: number;
+  started_at: string | null;
+  finished_at: string | null;
+  users_checked: number;
+  matches_kept: number;
+  users_skipped: number;
+};
+
+export type InterestMatch = {
+  id: number;
+  matched_interest: string;
+  score: number;
+  user: { id: number; name: string; email: string; city: string | null } | null;
+  event: {
+    id: number;
+    title: string;
+    city: string;
+    starts_at: string | null;
+    url: string | null;
+  } | null;
+};
+
+export type InterestAccountStatus = 'matched' | 'unmatched' | 'skipped';
+
+export type InterestSkipReason = 'no_city' | 'no_interests' | 'no_city_or_interests';
+
+export type InterestPlanMention = {
+  label: string;
+  city: string | null;
+  plan_type: string | null;
+  created_at: string | null;
+};
+
+export type InterestAccountMatch = {
+  id: number;
+  matched_interest: string;
+  score: number;
+  event: InterestMatch['event'];
+};
+
+export type InterestAccount = {
+  id: number;
+  name: string;
+  email: string;
+  city: string | null;
+  is_pro: boolean;
+  role: string;
+  saved_interests: string[];
+  plan_interests: InterestPlanMention[];
+  weekend_interests: string[];
+  status: InterestAccountStatus;
+  skip_reason: InterestSkipReason | null;
+  matches: InterestAccountMatch[];
+};
+
+export type InterestAccountSummary = {
+  accounts: number;
+  with_saved_interests: number;
+  ready: number;
+  matched: number;
+  unmatched: number;
+  skipped: number;
+  top_interests: Array<{ label: string; accounts: number }>;
+};
+
+export type InterestAccountFilter = 'all' | InterestAccountStatus;
+
 export function createAccountApi(baseUrl: string) {
   const { apiRequest } = createApiClient({
     baseUrl,
@@ -224,6 +292,43 @@ export function createAccountApi(baseUrl: string) {
       }
 
       return apiRequest<{ users: User[]; meta: PaginatedMeta }>(`/admin/users?${params.toString()}`);
+    },
+
+    listInterestMatches(search = '', page = 1) {
+      const params = new URLSearchParams({ page: String(page) });
+
+      if (search.trim()) {
+        params.set('search', search.trim());
+      }
+
+      return apiRequest<{ matches: InterestMatch[]; scan: InterestScan | null; meta: PaginatedMeta }>(
+        `/admin/interest-matches?${params.toString()}`,
+      );
+    },
+
+    listInterestAccounts(search = '', page = 1, status: InterestAccountFilter = 'all') {
+      const params = new URLSearchParams({ page: String(page) });
+
+      if (search.trim()) {
+        params.set('search', search.trim());
+      }
+
+      if (status !== 'all') {
+        params.set('status', status);
+      }
+
+      return apiRequest<{
+        accounts: InterestAccount[];
+        summary: InterestAccountSummary;
+        scan: InterestScan | null;
+        meta: PaginatedMeta;
+      }>(`/admin/interest-accounts?${params.toString()}`);
+    },
+
+    runInterestScan() {
+      return apiRequest<{ scan: InterestScan }>('/admin/interest-scans', {
+        method: 'POST',
+      });
     },
 
     updateUserRole(userId: number, role: User['role']) {

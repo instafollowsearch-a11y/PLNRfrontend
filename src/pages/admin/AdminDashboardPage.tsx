@@ -108,6 +108,13 @@ export function AdminDashboardPage() {
                 </div>
                 <ArrowRight size={18} aria-hidden />
               </Link>
+              <Link to="/admin/interests" className="admin-quick__card">
+                <div>
+                  <p className="admin-quick__label">Interests</p>
+                  <p className="admin-quick__copy">See which upcoming events match each account’s saved interests.</p>
+                </div>
+                <ArrowRight size={18} aria-hidden />
+              </Link>
               <Link to="/admin/visits" className="admin-quick__card">
                 <div>
                   <p className="admin-quick__label">Visits</p>

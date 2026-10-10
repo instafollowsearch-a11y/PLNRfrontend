@@ -5,6 +5,7 @@ import './AdminNav.css';
 const LINKS = [
   { to: '/admin', label: 'Dashboard', end: true },
   { to: '/admin/users', label: 'Users', end: false },
+  { to: '/admin/interests', label: 'Interests', end: false },
   { to: '/admin/visits', label: 'Visits', end: false },
   { to: '/admin/settings', label: 'Settings', end: false },
 ] as const;
