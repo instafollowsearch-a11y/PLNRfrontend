@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.plnr.app",
+      "sha256_cert_fingerprints": [
+        "AD:16:42:5F:0D:1D:2A:AC:F1:D1:AC:CB:B4:C0:7F:02:59:C5:40:D3:24:EE:47:73:D1:D1:90:F4:4A:94:A1:CE"
+      ]
+    }
+  }
+]

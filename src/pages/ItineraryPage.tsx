@@ -15,6 +15,7 @@ import { LoadingState } from '../components/ui/LoadingState';
 import { useAuth } from '../contexts/AuthContext';
 import { planSessionApi } from '../lib/api';
 import { GUEST_CLEAR_STOP_COUNT } from '../lib/itineraryPreview';
+import { androidPlanIntentUrl, shouldOpenPlanInApp } from '../lib/openPlanInApp';
 import { resolveSessionUuid, withSession } from '../lib/session';
 import { getPlanFlowConfig, usePlanTypeParam } from './HomePage';
 
@@ -32,17 +33,44 @@ export function ItineraryPage() {
   const [session, setSession] = useState<Awaited<ReturnType<typeof planSessionApi.getPlanSession>>['data']['plan_session'] | null>(null);
 
   useEffect(() => {
+    if (authLoading) {
+      return;
+    }
+
     if (!sessionUuid) {
       setLoading(false);
 
       return;
     }
 
+    let cancelled = false;
+    setLoading(true);
+
     void planSessionApi
       .getPlanSession(sessionUuid)
-      .then((response) => setSession(response.data.plan_session))
-      .finally(() => setLoading(false));
-  }, [sessionUuid]);
+      .then((response) => {
+        if (!cancelled) {
+          setSession(response.data.plan_session);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [sessionUuid, authLoading, user?.id]);
+
+  useEffect(() => {
+    if (!planType || !sessionUuid || !shouldOpenPlanInApp(navigator.userAgent, searchParams.get('web') === '1')) {
+      return;
+    }
+
+    window.location.replace(androidPlanIntentUrl(planType, sessionUuid, window.location.href));
+  }, [planType, sessionUuid, searchParams]);
 
   const selectedSuggestion = useMemo(() => {
     return session?.suggestions?.find((item) => item.selected_at) ?? session?.suggestions?.[0];
