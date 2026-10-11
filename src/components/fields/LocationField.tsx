@@ -2,8 +2,9 @@ import * as maplibregl from 'maplibre-gl';
 import type { ExpressionSpecification } from 'maplibre-gl';
 import { setWorkerUrl } from 'maplibre-gl';
 
-import { MapPin, Search } from 'lucide-react';
+import { MapPin, Maximize2, Minimize2, Search } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 import type { LocationValue } from '../../lib/fieldValues';
 import { reverseGeocode, searchLocations, type GeocodeResult } from '../../lib/geocoding';
@@ -30,18 +31,77 @@ type LocationFieldProps = {
   onChange: (value: LocationValue) => void;
 };
 
+function mountPickerMap(
+  container: HTMLElement,
+  initial: LocationValue | null,
+  onReady: () => void,
+  onPick: (lat: number, lon: number) => void,
+): { map: maplibregl.Map; marker: maplibregl.Marker } {
+  const initialLat = initial?.lat ?? 30.2672;
+  const initialLon = initial?.lon ?? -97.7431;
+
+  const map = new maplibregl.Map({
+    container,
+    center: [initialLon, initialLat],
+    zoom: initial ? 11 : 4,
+    fadeDuration: 0,
+    style: 'https://tiles.openfreemap.org/styles/liberty',
+  });
+
+  map.once('style.load', () => {
+    map.resize();
+    onReady();
+    window.requestAnimationFrame(() => {
+      for (const layer of map.getStyle().layers ?? []) {
+        if (layer.type !== 'symbol' || !layer.layout?.['text-field']) {
+          continue;
+        }
+
+        if (!JSON.stringify(layer.layout['text-field']).includes('name')) {
+          continue;
+        }
+
+        try {
+          map.setLayoutProperty(layer.id, 'text-field', ENGLISH_PLACE_NAME);
+        } catch {
+          // Keep the style's own label if this layer rejects the replacement.
+        }
+      }
+    });
+  });
+
+  const marker = new maplibregl.Marker({ draggable: true }).setLngLat([initialLon, initialLat]).addTo(map);
+
+  marker.on('dragend', () => {
+    const position = marker.getLngLat();
+    onPick(position.lat, position.lng);
+  });
+
+  map.on('click', (event) => {
+    marker.setLngLat(event.lngLat);
+    onPick(event.lngLat.lat, event.lngLat.lng);
+  });
+
+  return { map, marker };
+}
+
 export function LocationField({ value, placeholder, onChange }: LocationFieldProps) {
   const mapRef = useRef<HTMLDivElement>(null);
+  const fullMapRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const mapInstanceRef = useRef<maplibregl.Map | null>(null);
   const markerRef = useRef<maplibregl.Marker | null>(null);
+  const fullMapInstanceRef = useRef<maplibregl.Map | null>(null);
+  const fullMarkerRef = useRef<maplibregl.Marker | null>(null);
 
   const [query, setQuery] = useState(value?.label ?? '');
   const [results, setResults] = useState<GeocodeResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showMap, setShowMap] = useState(false);
+  const [mapFull, setMapFull] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
   const [mapReady, setMapReady] = useState(false);
+  const [fullReady, setFullReady] = useState(false);
   const [isResolvingPin, setIsResolvingPin] = useState(false);
   const applyCoordinatesRef = useRef<(lat: number, lon: number) => void>(() => undefined);
   const valueRef = useRef(value);
@@ -102,63 +162,74 @@ export function LocationField({ value, placeholder, onChange }: LocationFieldPro
     }
 
     setMapReady(false);
-    const initial = valueRef.current;
-    const initialLat = initial?.lat ?? 30.2672;
-    const initialLon = initial?.lon ?? -97.7431;
-
-    const map = new maplibregl.Map({
-      container: mapRef.current,
-      center: [initialLon, initialLat],
-      zoom: initial ? 11 : 4,
-      fadeDuration: 0,
-      style: 'https://tiles.openfreemap.org/styles/liberty',
-    });
-
-    map.once('style.load', () => {
-      map.resize();
-      setMapReady(true);
-      window.requestAnimationFrame(() => {
-        for (const layer of map.getStyle().layers ?? []) {
-          if (layer.type !== 'symbol' || !layer.layout?.['text-field']) {
-            continue;
-          }
-
-          if (!JSON.stringify(layer.layout['text-field']).includes('name')) {
-            continue;
-          }
-
-          try {
-            map.setLayoutProperty(layer.id, 'text-field', ENGLISH_PLACE_NAME);
-          } catch {
-            // Keep the style's own label if this layer rejects the replacement.
-          }
-        }
-      });
-    });
-
-    const marker = new maplibregl.Marker({ draggable: true })
-      .setLngLat([initialLon, initialLat])
-      .addTo(map);
-
-    marker.on('dragend', () => {
-      const position = marker.getLngLat();
-      applyCoordinatesRef.current(position.lat, position.lng);
-    });
-
-    map.on('click', (event) => {
-      marker.setLngLat(event.lngLat);
-      applyCoordinatesRef.current(event.lngLat.lat, event.lngLat.lng);
-    });
-
-    mapInstanceRef.current = map;
-    markerRef.current = marker;
+    const picker = mountPickerMap(
+      mapRef.current,
+      valueRef.current,
+      () => setMapReady(true),
+      (lat, lon) => applyCoordinatesRef.current(lat, lon),
+    );
+    mapInstanceRef.current = picker.map;
+    markerRef.current = picker.marker;
 
     return () => {
-      map.remove();
+      picker.map.remove();
       mapInstanceRef.current = null;
       markerRef.current = null;
       setMapReady(false);
     };
+  }, [showMap]);
+
+  useEffect(() => {
+    if (!mapFull || !fullMapRef.current) {
+      return;
+    }
+
+    setFullReady(false);
+    const picker = mountPickerMap(
+      fullMapRef.current,
+      valueRef.current,
+      () => setFullReady(true),
+      (lat, lon) => applyCoordinatesRef.current(lat, lon),
+    );
+    fullMapInstanceRef.current = picker.map;
+    fullMarkerRef.current = picker.marker;
+    const frame = window.requestAnimationFrame(() => picker.map.resize());
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      picker.map.remove();
+      fullMapInstanceRef.current = null;
+      fullMarkerRef.current = null;
+      setFullReady(false);
+    };
+  }, [mapFull]);
+
+  useEffect(() => {
+    if (!mapFull) {
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    function onKey(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setMapFull(false);
+      }
+    }
+
+    window.addEventListener('keydown', onKey);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [mapFull]);
+
+  useEffect(() => {
+    if (!showMap) {
+      setMapFull(false);
+    }
   }, [showMap]);
 
   useEffect(() => {
@@ -168,6 +239,11 @@ export function LocationField({ value, placeholder, onChange }: LocationFieldPro
 
     markerRef.current.setLngLat([value.lon, value.lat]);
     mapInstanceRef.current.jumpTo({ center: [value.lon, value.lat], zoom: 11 });
+
+    if (fullMarkerRef.current && fullMapInstanceRef.current) {
+      fullMarkerRef.current.setLngLat([value.lon, value.lat]);
+      fullMapInstanceRef.current.jumpTo({ center: [value.lon, value.lat], zoom: 11 });
+    }
   }, [value]);
 
   function selectResult(result: GeocodeResult) {
@@ -179,6 +255,11 @@ export function LocationField({ value, placeholder, onChange }: LocationFieldPro
     if (markerRef.current && mapInstanceRef.current) {
       markerRef.current.setLngLat([result.lon, result.lat]);
       mapInstanceRef.current.jumpTo({ center: [result.lon, result.lat], zoom: 11 });
+    }
+
+    if (fullMarkerRef.current && fullMapInstanceRef.current) {
+      fullMarkerRef.current.setLngLat([result.lon, result.lat]);
+      fullMapInstanceRef.current.jumpTo({ center: [result.lon, result.lat], zoom: 11 });
     }
   }
 
@@ -229,10 +310,45 @@ export function LocationField({ value, placeholder, onChange }: LocationFieldPro
                 {isResolvingPin ? 'Finding this place…' : 'Loading map…'}
               </div>
             ) : null}
+            <button
+              type="button"
+              className="location-field__expand"
+              aria-label="Full screen map"
+              onClick={() => setMapFull(true)}
+            >
+              <Maximize2 size={18} aria-hidden />
+            </button>
           </div>
           <p className="field-hint">Click the map or drag the pin to choose a location.</p>
         </div>
       ) : null}
+
+      {mapFull
+        ? createPortal(
+            <div
+              className="location-field__map-frame location-field__map-frame--full"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Choose a location"
+            >
+              <div ref={fullMapRef} className="location-field__map" aria-label="Map picker" />
+              {!fullReady || isResolvingPin ? (
+                <div className="location-field__map-status" role="status">
+                  {isResolvingPin ? 'Finding this place…' : 'Loading map…'}
+                </div>
+              ) : null}
+              <button
+                type="button"
+                className="location-field__expand"
+                aria-label="Close full screen map"
+                onClick={() => setMapFull(false)}
+              >
+                <Minimize2 size={18} aria-hidden />
+              </button>
+            </div>,
+            document.body,
+          )
+        : null}
 
       {mapError ? <p className="error-text">{mapError}</p> : null}
       {value ? <p className="location-field__selected">Selected: {value.label}</p> : null}

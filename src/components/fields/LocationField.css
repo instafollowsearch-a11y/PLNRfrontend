@@ -89,6 +89,7 @@
 .location-field__map-status {
   position: absolute;
   inset: 0;
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -97,6 +98,54 @@
   color: var(--color-text);
   font-size: 0.8125rem;
   font-weight: 600;
+}
+
+.location-field__expand {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.96);
+  color: var(--color-text);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+
+.location-field__expand:hover {
+  background: #fff;
+}
+
+.location-field__map-frame--full {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  width: 100vw;
+  height: 100dvh;
+  background: #e7e2d8;
+  border-radius: 0;
+}
+
+.location-field__map-frame--full .location-field__map {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 0;
+}
+
+.location-field__map-frame--full .location-field__map-status {
+  border-radius: 0;
+}
+
+.location-field__map-frame--full .location-field__expand {
+  top: calc(12px + env(safe-area-inset-top, 0px));
+  right: calc(12px + env(safe-area-inset-right, 0px));
 }
 
 .location-field__selected {
