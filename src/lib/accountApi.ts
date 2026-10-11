@@ -58,6 +58,12 @@ export type AdminSettings = {
   google_client_id?: string | null;
   google_client_id_source?: string;
   google_client_id_env?: string | null;
+  google_ios_client_id?: string | null;
+  google_ios_client_id_source?: string;
+  google_ios_client_id_env?: string | null;
+  google_android_client_id?: string | null;
+  google_android_client_id_source?: string;
+  google_android_client_id_env?: string | null;
   twilio_account_sid?: string | null;
   twilio_account_sid_source?: string;
   twilio_account_sid_env?: string | null;
@@ -132,6 +138,8 @@ export type AdminSettingsUpdate = {
   anthropic_api_key?: string;
   google_places_api_key?: string;
   google_client_id?: string;
+  google_ios_client_id?: string;
+  google_android_client_id?: string;
   twilio_account_sid?: string;
   twilio_auth_token?: string;
   twilio_from_number?: string;
@@ -155,6 +163,8 @@ export type AdminSettingsUpdate = {
   clear_anthropic_api_key?: boolean;
   clear_google_places_api_key?: boolean;
   clear_google_client_id?: boolean;
+  clear_google_ios_client_id?: boolean;
+  clear_google_android_client_id?: boolean;
   clear_twilio_account_sid?: boolean;
   clear_twilio_auth_token?: boolean;
   clear_twilio_from_number?: boolean;

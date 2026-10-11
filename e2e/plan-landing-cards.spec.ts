@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('plan type cards are a bit shorter and still open a plan', async ({ page }) => {
+test('plan type rows stay compact and still open a plan', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('heading', { name: 'What are you planning?' })).toBeVisible();
 
@@ -12,10 +12,9 @@ test('plan type cards are a bit shorter and still open a plan', async ({ page })
   const heights = await cards.evaluateAll((els) =>
     els.map((el) => Math.round(el.getBoundingClientRect().height)),
   );
-  const isMobile = (page.viewportSize()?.width ?? 1280) < 768;
   const height = heights[0] ?? 0;
-  expect(height, `card height ${height}px`).toBeGreaterThan(isMobile ? 320 : 280);
-  expect(height, `card height ${height}px`).toBeLessThan(isMobile ? 390 : 340);
+  expect(height, `card height ${height}px`).toBeGreaterThan(140);
+  expect(height, `card height ${height}px`).toBeLessThan(280);
 
   await expect(first).toContainText('Plan My Date Night');
   await expect(first).toContainText('Romantic evening tailored to you and your partner.');

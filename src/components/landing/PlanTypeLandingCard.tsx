@@ -68,8 +68,8 @@ export function PlanTypeLandingCard({
           <img
             src={photoSrc}
             alt=""
-            width={880}
-            height={587}
+            width={160}
+            height={120}
             loading="lazy"
             decoding="async"
             fetchPriority="low"
@@ -77,16 +77,16 @@ export function PlanTypeLandingCard({
         </span>
       ) : null}
       <span className="plan-landing-card__body">
-        <span className="plan-landing-card__icon" aria-hidden>
-          <Icon size={26} />
-        </span>
         <span className="plan-landing-card__copy">
-          <span className="plan-landing-card__title">{label}</span>
+          <span className="plan-landing-card__title">
+            <Icon size={15} aria-hidden />
+            {label}
+          </span>
           <span className="plan-landing-card__description">{description}</span>
         </span>
         <span className="plan-landing-card__action">
           Start
-          <ArrowRight size={16} aria-hidden />
+          <ArrowRight size={14} aria-hidden />
         </span>
       </span>
     </a>

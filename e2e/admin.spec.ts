@@ -13,6 +13,8 @@ test.describe('FLOW-04 admin access', () => {
     await expect(page.getByRole('heading', { name: /app settings/i })).toBeVisible();
     await expect(page.getByLabel(/free plans per month/i)).toBeVisible();
     await expect(page.getByLabel('Google sign-in client ID')).toBeVisible();
+    await expect(page.getByLabel('iOS client ID')).toBeVisible();
+    await expect(page.getByLabel('Android client ID')).toBeVisible();
     await expect(page.getByLabel('Twilio Account SID')).toBeVisible();
     await expect(page.getByLabel('Twilio auth token')).toBeVisible();
     await expect(page.getByLabel('Twilio from number')).toBeVisible();

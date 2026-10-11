@@ -35,6 +35,13 @@
   display: grid;
   gap: var(--spacing-xxl);
   align-items: center;
+  min-width: 0;
+}
+
+.landing-hero__copy,
+.landing-hero__visual {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .landing-hero__types {
@@ -244,11 +251,25 @@
 
 @media (max-width: 767px) {
   .landing-hero {
-    padding: 1.75rem 1.25rem 2.25rem;
+    padding: 1.5rem 1.25rem 2.25rem;
+  }
+
+  .landing-hero__types {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .landing-hero__types li {
+    flex: none;
   }
 
   .landing-hero__headline {
-    font-size: 2.15rem;
+    font-size: clamp(1.85rem, 8.2vw, 2.15rem);
+    overflow-wrap: anywhere;
+  }
+
+  .landing-hero__subhead {
+    overflow-wrap: break-word;
   }
 
   .landing-hero__actions {

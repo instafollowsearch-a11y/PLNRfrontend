@@ -21,6 +21,22 @@ test.describe('Batch 12 modern UI smoke', () => {
     await expect(page.getByLabel('Name')).toBeVisible();
   });
 
+  test('register form scrolls without moving the left panel', async ({ page }) => {
+    await page.goto('/register');
+    await expect(page.getByRole('heading', { name: /create your account/i })).toBeVisible();
+
+    const viewport = page.viewportSize();
+    const brand = await page.locator('.auth-layout__brand').boundingBox();
+    expect(brand).not.toBeNull();
+    expect(brand!.y).toBeGreaterThanOrEqual(-1);
+    expect(brand!.y + brand!.height).toBeLessThanOrEqual((viewport?.height ?? 720) + 1);
+
+    const pageOverflow = await page.evaluate(
+      () => document.documentElement.scrollHeight - document.documentElement.clientHeight,
+    );
+    expect(pageOverflow).toBeLessThanOrEqual(1);
+  });
+
   test('privacy and terms render real prose content', async ({ page }) => {
     await page.goto('/privacy');
     await expect(page.getByRole('article').getByRole('heading', { name: /^privacy$/i })).toBeVisible();
@@ -70,5 +86,16 @@ test.describe('Batch 12 modern UI smoke', () => {
     await page.goto('/');
     await expect(page.locator('.landing-hero__brand')).toHaveText('PLNR');
     await expect(page.getByRole('heading', { level: 1, name: /plan unforgettable outings/i })).toBeVisible();
+  });
+
+  test('support contact reads Email support', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('.landing-footer__contact')).toHaveText('Email support');
+    await expect(page.locator('.landing-footer__contact')).toHaveAttribute('href', /^mailto:/);
+
+    await page.goto('/privacy');
+    await expect(page.getByRole('link', { name: 'email support' }).first()).toBeVisible();
+    await page.goto('/terms');
+    await expect(page.getByRole('link', { name: 'Email support' })).toBeVisible();
   });
 });

@@ -17,7 +17,7 @@ export function PrivacyPage() {
           PLNR is the outing planner at{' '}
           <a href="https://myplnr.app/">https://myplnr.app/</a>. This policy covers the website and the
           mobile app. Questions and deletion requests go to{' '}
-          <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>.
+          <a href={`mailto:${SUPPORT_EMAIL}`}>email support</a>.
         </p>
         <h2>Information we collect</h2>
         <ul>
@@ -68,7 +68,7 @@ export function PrivacyPage() {
         <p>
           Signed-in people can delete an account from the account screen. Enter your password, confirm, and
           we delete the account, its saved plans, website visit records, push tokens, and saved card records. Plans that belong to
-          someone else stay with them. You can also email {SUPPORT_EMAIL} and ask us to delete the account.
+          someone else stay with them. You can also <a href={`mailto:${SUPPORT_EMAIL}`}>email support</a> and ask us to delete the account.
           We may keep a payment or security record when the law requires it.
         </p>
         <h2>Security</h2>
@@ -76,7 +76,7 @@ export function PrivacyPage() {
         <h2>Children</h2>
         <p>
           PLNR is not for children under 13. We do not knowingly collect their personal information. If you
-          believe a child gave us information, email {SUPPORT_EMAIL} and we will delete it.
+          believe a child gave us information, <a href={`mailto:${SUPPORT_EMAIL}`}>email support</a> and we will delete it.
         </p>
         <h2>Changes</h2>
         <p>
@@ -143,7 +143,7 @@ export function TermsPage() {
         </p>
         <h2>Contact</h2>
         <p>
-          Email <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>. These terms are published at{' '}
+          <a href={`mailto:${SUPPORT_EMAIL}`}>Email support</a>. These terms are published at{' '}
           <a href="https://myplnr.app/terms">https://myplnr.app/terms</a>.
         </p>
       </article>

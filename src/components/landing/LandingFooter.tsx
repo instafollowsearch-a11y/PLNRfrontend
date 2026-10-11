@@ -141,9 +141,13 @@ export function LandingFooter() {
 
           <div className="landing-footer__column">
             <h3>Contact</h3>
-            <a className="landing-footer__contact" href={`mailto:${SUPPORT_EMAIL}`}>
+            <a
+              className="landing-footer__contact"
+              href={`mailto:${SUPPORT_EMAIL}`}
+              aria-label={`Email support at ${SUPPORT_EMAIL}`}
+            >
               <Mail size={16} aria-hidden />
-              {SUPPORT_EMAIL}
+              Email support
             </a>
           </div>
         </div>

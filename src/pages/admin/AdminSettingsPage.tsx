@@ -62,6 +62,8 @@ type DirtyKey =
   | 'anthropic_api_key'
   | 'google_places_api_key'
   | 'google_client_id'
+  | 'google_ios_client_id'
+  | 'google_android_client_id'
   | 'twilio_account_sid'
   | 'twilio_auth_token'
   | 'twilio_from_number'
@@ -88,6 +90,8 @@ export function AdminSettingsPage() {
   const [anthropicApiKey, setAnthropicApiKey] = useState('');
   const [googlePlacesApiKey, setGooglePlacesApiKey] = useState('');
   const [googleClientId, setGoogleClientId] = useState('');
+  const [googleIosClientId, setGoogleIosClientId] = useState('');
+  const [googleAndroidClientId, setGoogleAndroidClientId] = useState('');
   const [twilioAccountSid, setTwilioAccountSid] = useState('');
   const [twilioAuthToken, setTwilioAuthToken] = useState('');
   const [twilioFromNumber, setTwilioFromNumber] = useState('');
@@ -124,6 +128,10 @@ export function AdminSettingsPage() {
     setAnthropicApiKey('');
     setGooglePlacesApiKey('');
     setGoogleClientId(typeof next.google_client_id === 'string' ? next.google_client_id : '');
+    setGoogleIosClientId(typeof next.google_ios_client_id === 'string' ? next.google_ios_client_id : '');
+    setGoogleAndroidClientId(
+      typeof next.google_android_client_id === 'string' ? next.google_android_client_id : '',
+    );
     setTwilioAccountSid(typeof next.twilio_account_sid === 'string' ? next.twilio_account_sid : '');
     setTwilioAuthToken('');
     setTwilioFromNumber(typeof next.twilio_from_number === 'string' ? next.twilio_from_number : '');
@@ -183,6 +191,14 @@ export function AdminSettingsPage() {
 
       if (dirty.google_client_id && googleClientId.trim()) {
         payload.google_client_id = googleClientId.trim();
+      }
+
+      if (dirty.google_ios_client_id && googleIosClientId.trim()) {
+        payload.google_ios_client_id = googleIosClientId.trim();
+      }
+
+      if (dirty.google_android_client_id && googleAndroidClientId.trim()) {
+        payload.google_android_client_id = googleAndroidClientId.trim();
       }
 
       if (dirty.twilio_account_sid && twilioAccountSid.trim()) {
@@ -487,7 +503,7 @@ export function AdminSettingsPage() {
               </header>
 
               <p className="admin-settings__hint">
-                Web client ID from Google Cloud. It ends in .apps.googleusercontent.com. This is not the Places API key.
+                These end in .apps.googleusercontent.com. They are not the Places API key. The website and the Android app use the Web client ID. The iOS app uses the iOS client ID. Save the Android client ID for the package and SHA-1 you registered. After you save the iOS client ID, put the same value in the phone app as EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID and build the app again so iOS can return from Google.
               </p>
 
               <Input
@@ -506,6 +522,54 @@ export function AdminSettingsPage() {
                   type="button"
                   variant="ghost"
                   onClick={() => void clearOverride({ clear_google_client_id: true })}
+                />
+              ) : null}
+
+              <div className="admin-settings__row-meta">
+                <Badge variant={sourceBadge(settings.google_ios_client_id_source)}>
+                  iOS: {sourceLabel(settings.google_ios_client_id_source)}
+                </Badge>
+              </div>
+              <Input
+                label="iOS client ID"
+                autoComplete="off"
+                placeholder="123456789-ios.apps.googleusercontent.com"
+                value={googleIosClientId}
+                onChange={(event) => {
+                  setGoogleIosClientId(event.target.value);
+                  markDirty('google_ios_client_id');
+                }}
+              />
+              {settings.google_ios_client_id_source === 'admin' ? (
+                <Button
+                  label="Use .env iOS client ID instead"
+                  type="button"
+                  variant="ghost"
+                  onClick={() => void clearOverride({ clear_google_ios_client_id: true })}
+                />
+              ) : null}
+
+              <div className="admin-settings__row-meta">
+                <Badge variant={sourceBadge(settings.google_android_client_id_source)}>
+                  Android: {sourceLabel(settings.google_android_client_id_source)}
+                </Badge>
+              </div>
+              <Input
+                label="Android client ID"
+                autoComplete="off"
+                placeholder="123456789-android.apps.googleusercontent.com"
+                value={googleAndroidClientId}
+                onChange={(event) => {
+                  setGoogleAndroidClientId(event.target.value);
+                  markDirty('google_android_client_id');
+                }}
+              />
+              {settings.google_android_client_id_source === 'admin' ? (
+                <Button
+                  label="Use .env Android client ID instead"
+                  type="button"
+                  variant="ghost"
+                  onClick={() => void clearOverride({ clear_google_android_client_id: true })}
                 />
               ) : null}
             </section>

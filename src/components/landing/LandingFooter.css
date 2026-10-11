@@ -150,10 +150,15 @@ a.landing-footer__store:hover {
   color: var(--color-accent-glow);
 }
 
+.landing-footer__column {
+  min-width: 0;
+}
+
 .landing-footer__contact {
   display: inline-flex !important;
   align-items: center;
   gap: var(--spacing-sm);
+  max-width: 100%;
   padding: 0.625rem 0.875rem;
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-md);
@@ -161,6 +166,7 @@ a.landing-footer__store:hover {
   border-color: var(--footer-line);
   color: var(--footer-text);
   box-shadow: none;
+  overflow-wrap: anywhere;
 }
 
 .landing-footer__contact:hover {

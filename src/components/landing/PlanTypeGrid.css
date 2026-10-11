@@ -1,45 +1,58 @@
 .plan-type-grid {
-  padding: clamp(3rem, 6vw, 5rem) clamp(var(--spacing-lg), 4vw, var(--spacing-xxxl));
+  scroll-margin-top: 4.5rem;
+  padding: clamp(2.5rem, 5vw, 4.25rem) clamp(var(--spacing-lg), 4vw, var(--spacing-xxxl));
 }
 
 .plan-type-grid__inner {
-  max-width: 1200px;
+  max-width: 1100px;
   margin: 0 auto;
 }
 
 .plan-type-grid__intro {
-  margin-bottom: var(--spacing-xxl);
+  max-width: 34rem;
+  margin-bottom: 1.35rem;
+}
+
+.plan-type-grid__intro .landing-section-title {
+  font-size: clamp(1.7rem, 3vw, 2.35rem);
+}
+
+.plan-type-grid__intro .landing-section-subtitle {
+  max-width: 28rem;
+  font-size: 0.975rem;
 }
 
 .plan-type-grid__cards {
   display: grid;
-  gap: var(--spacing-lg);
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
 }
 
-@media (max-width: 767px) {
-  .plan-type-grid {
-    padding: 2.25rem 1.25rem;
-  }
-
-  .plan-type-grid__intro {
-    margin-bottom: 1.25rem;
-  }
-}
-
-@media (min-width: 768px) {
+@media (min-width: 700px) {
   .plan-type-grid__cards {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (min-width: 1024px) {
+@media (max-width: 767px) {
+  .plan-type-grid {
+    padding: 2rem 1.25rem 2.25rem;
+  }
+
+  .plan-type-grid__intro {
+    margin-bottom: 1rem;
+  }
+}
+
+@media (min-width: 980px) {
   .plan-type-grid__cards {
-    gap: 1.25rem;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
   }
 }
 
 .plan-type-grid__pro {
-  margin-top: var(--spacing-xxl);
+  margin-top: clamp(2rem, 4vw, 3.25rem);
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
