@@ -1,4 +1,4 @@
-import { CreditCard, Crown, Gauge, Info, KeyRound, Mail, MapPin, Sparkles } from 'lucide-react';
+import { CreditCard, Crown, Gauge, Info, KeyRound, Mail, MapPin, MessageSquare, Sparkles } from 'lucide-react';
 import { useEffect, useState, type FormEvent } from 'react';
 
 import { AdminNav } from '../../components/admin/AdminNav';
@@ -24,6 +24,27 @@ function sourceBadge(source: unknown): 'accent' | 'muted' | 'default' {
   return 'muted';
 }
 
+function settingsErrorMessage(caught: unknown, fallback: string): string {
+  if (typeof caught === 'object' && caught !== null && 'errors' in caught) {
+    const errors = (caught as { errors?: Record<string, string[]> }).errors;
+    const first = errors ? Object.values(errors).flat()[0] : undefined;
+
+    if (first) {
+      return first;
+    }
+  }
+
+  if (typeof caught === 'object' && caught !== null && 'message' in caught) {
+    const message = (caught as { message?: unknown }).message;
+
+    if (typeof message === 'string' && message.trim() !== '') {
+      return message;
+    }
+  }
+
+  return fallback;
+}
+
 function sourceLabel(source: unknown): string {
   if (source === 'admin') {
     return 'Admin override';
@@ -40,6 +61,11 @@ type DirtyKey =
   | 'free_plans_per_month'
   | 'anthropic_api_key'
   | 'google_places_api_key'
+  | 'google_client_id'
+  | 'twilio_account_sid'
+  | 'twilio_auth_token'
+  | 'twilio_from_number'
+  | 'twilio_messaging_service_sid'
   | 'findlocal_api_key'
   | 'anthropic_model'
   | 'anthropic_url'
@@ -61,6 +87,11 @@ export function AdminSettingsPage() {
   const [freePlansPerDay, setFreePlansPerDay] = useState('5');
   const [anthropicApiKey, setAnthropicApiKey] = useState('');
   const [googlePlacesApiKey, setGooglePlacesApiKey] = useState('');
+  const [googleClientId, setGoogleClientId] = useState('');
+  const [twilioAccountSid, setTwilioAccountSid] = useState('');
+  const [twilioAuthToken, setTwilioAuthToken] = useState('');
+  const [twilioFromNumber, setTwilioFromNumber] = useState('');
+  const [twilioMessagingServiceSid, setTwilioMessagingServiceSid] = useState('');
   const [findLocalApiKey, setFindLocalApiKey] = useState('');
   const [anthropicModel, setAnthropicModel] = useState('');
   const [anthropicUrl, setAnthropicUrl] = useState('');
@@ -92,6 +123,13 @@ export function AdminSettingsPage() {
     setFreePlansPerDay(String(typeof next.free_plans_per_month === 'number' ? next.free_plans_per_month : 5));
     setAnthropicApiKey('');
     setGooglePlacesApiKey('');
+    setGoogleClientId(typeof next.google_client_id === 'string' ? next.google_client_id : '');
+    setTwilioAccountSid(typeof next.twilio_account_sid === 'string' ? next.twilio_account_sid : '');
+    setTwilioAuthToken('');
+    setTwilioFromNumber(typeof next.twilio_from_number === 'string' ? next.twilio_from_number : '');
+    setTwilioMessagingServiceSid(
+      typeof next.twilio_messaging_service_sid === 'string' ? next.twilio_messaging_service_sid : '',
+    );
     setFindLocalApiKey('');
     setAnthropicModel(typeof next.anthropic_model === 'string' ? next.anthropic_model : '');
     setAnthropicUrl(typeof next.anthropic_url === 'string' ? next.anthropic_url : '');
@@ -141,6 +179,26 @@ export function AdminSettingsPage() {
 
       if (dirty.google_places_api_key && googlePlacesApiKey.trim()) {
         payload.google_places_api_key = googlePlacesApiKey.trim();
+      }
+
+      if (dirty.google_client_id && googleClientId.trim()) {
+        payload.google_client_id = googleClientId.trim();
+      }
+
+      if (dirty.twilio_account_sid && twilioAccountSid.trim()) {
+        payload.twilio_account_sid = twilioAccountSid.trim();
+      }
+
+      if (dirty.twilio_auth_token && twilioAuthToken.trim()) {
+        payload.twilio_auth_token = twilioAuthToken.trim();
+      }
+
+      if (dirty.twilio_from_number && twilioFromNumber.trim()) {
+        payload.twilio_from_number = twilioFromNumber.trim();
+      }
+
+      if (dirty.twilio_messaging_service_sid && twilioMessagingServiceSid.trim()) {
+        payload.twilio_messaging_service_sid = twilioMessagingServiceSid.trim();
       }
 
       if (dirty.findlocal_api_key && findLocalApiKey.trim()) {
@@ -206,8 +264,8 @@ export function AdminSettingsPage() {
       const response = await accountApi.updateAdminSettings(payload);
       applySettings(response.data.settings);
       setSaved(true);
-    } catch {
-      setError('Unable to save settings.');
+    } catch (caught) {
+      setError(settingsErrorMessage(caught, 'Unable to save settings.'));
     } finally {
       setSaving(false);
     }
@@ -392,7 +450,7 @@ export function AdminSettingsPage() {
                 {settings.google_places_api_key_set
                   ? `Key in use${settings.google_places_api_key_hint ? ` (${settings.google_places_api_key_hint})` : ''}.`
                   : 'No Google key configured in admin or .env.'}{' '}
-                This one key covers every Google service, including place photos and drive time. Enter a new key only when you want to override. Leave blank to keep the current key.
+                Places, photos, and drive time use this key. Sign-in uses the Web client ID in the next section. Enter a new key only when you want to override. Leave blank to keep the current key.
               </p>
 
               <Input
@@ -414,6 +472,155 @@ export function AdminSettingsPage() {
                   type="button"
                   variant="ghost"
                   onClick={() => void clearOverride({ clear_google_places_api_key: true })}
+                />
+              ) : null}
+            </section>
+
+            <section className="admin-settings__section">
+              <header className="admin-settings__header">
+                <h2>
+                  <KeyRound size={16} aria-hidden /> Google sign-in
+                </h2>
+                <Badge variant={sourceBadge(settings.google_client_id_source)}>
+                  Client ID: {sourceLabel(settings.google_client_id_source)}
+                </Badge>
+              </header>
+
+              <p className="admin-settings__hint">
+                Web client ID from Google Cloud. It ends in .apps.googleusercontent.com. This is not the Places API key.
+              </p>
+
+              <Input
+                label="Google sign-in client ID"
+                autoComplete="off"
+                placeholder="123456789-abc.apps.googleusercontent.com"
+                value={googleClientId}
+                onChange={(event) => {
+                  setGoogleClientId(event.target.value);
+                  markDirty('google_client_id');
+                }}
+              />
+              {settings.google_client_id_source === 'admin' ? (
+                <Button
+                  label="Use .env client ID instead"
+                  type="button"
+                  variant="ghost"
+                  onClick={() => void clearOverride({ clear_google_client_id: true })}
+                />
+              ) : null}
+            </section>
+
+            <section className="admin-settings__section">
+              <header className="admin-settings__header">
+                <h2>
+                  <MessageSquare size={16} aria-hidden /> Text messages
+                </h2>
+              </header>
+
+              <p className="admin-settings__hint">
+                Plan invites still go by email when these are empty. A text is sent only when Account SID, Auth token, and either a From number or a Messaging Service SID are saved. The auth token stays on the server.
+              </p>
+
+              <div className="admin-settings__row-meta">
+                <Badge variant={sourceBadge(settings.twilio_account_sid_source)}>
+                  Account SID: {sourceLabel(settings.twilio_account_sid_source)}
+                </Badge>
+              </div>
+              <Input
+                label="Twilio Account SID"
+                autoComplete="off"
+                placeholder="AC…"
+                value={twilioAccountSid}
+                onChange={(event) => {
+                  setTwilioAccountSid(event.target.value);
+                  markDirty('twilio_account_sid');
+                }}
+              />
+              {settings.twilio_account_sid_source === 'admin' ? (
+                <Button
+                  label="Use .env Account SID instead"
+                  type="button"
+                  variant="ghost"
+                  onClick={() => void clearOverride({ clear_twilio_account_sid: true })}
+                />
+              ) : null}
+
+              <div className="admin-settings__row-meta">
+                <Badge variant={sourceBadge(settings.twilio_auth_token_source)}>
+                  Auth token: {sourceLabel(settings.twilio_auth_token_source)}
+                </Badge>
+              </div>
+              <p className="admin-settings__hint">
+                {settings.twilio_auth_token_set
+                  ? `Token in use${settings.twilio_auth_token_hint ? ` (${settings.twilio_auth_token_hint})` : ''}.`
+                  : 'No Twilio auth token in admin or .env.'}{' '}
+                Leave blank to keep the current token.
+              </p>
+              <Input
+                label="Twilio auth token"
+                type="password"
+                autoComplete="off"
+                placeholder={settings.twilio_auth_token_set ? '•••••••• (leave blank to keep)' : 'Auth token'}
+                value={twilioAuthToken}
+                onChange={(event) => {
+                  setTwilioAuthToken(event.target.value);
+                  markDirty('twilio_auth_token');
+                }}
+              />
+              {settings.twilio_auth_token_source === 'admin' ? (
+                <Button
+                  label="Use .env auth token instead"
+                  type="button"
+                  variant="ghost"
+                  onClick={() => void clearOverride({ clear_twilio_auth_token: true })}
+                />
+              ) : null}
+
+              <div className="admin-settings__row-meta">
+                <Badge variant={sourceBadge(settings.twilio_from_number_source)}>
+                  From number: {sourceLabel(settings.twilio_from_number_source)}
+                </Badge>
+              </div>
+              <Input
+                label="Twilio from number"
+                autoComplete="off"
+                placeholder="+15551234567"
+                value={twilioFromNumber}
+                onChange={(event) => {
+                  setTwilioFromNumber(event.target.value);
+                  markDirty('twilio_from_number');
+                }}
+              />
+              {settings.twilio_from_number_source === 'admin' ? (
+                <Button
+                  label="Use .env from number instead"
+                  type="button"
+                  variant="ghost"
+                  onClick={() => void clearOverride({ clear_twilio_from_number: true })}
+                />
+              ) : null}
+
+              <div className="admin-settings__row-meta">
+                <Badge variant={sourceBadge(settings.twilio_messaging_service_sid_source)}>
+                  Messaging service: {sourceLabel(settings.twilio_messaging_service_sid_source)}
+                </Badge>
+              </div>
+              <Input
+                label="Twilio messaging service SID"
+                autoComplete="off"
+                placeholder="MG… (optional if a from number is set)"
+                value={twilioMessagingServiceSid}
+                onChange={(event) => {
+                  setTwilioMessagingServiceSid(event.target.value);
+                  markDirty('twilio_messaging_service_sid');
+                }}
+              />
+              {settings.twilio_messaging_service_sid_source === 'admin' ? (
+                <Button
+                  label="Use .env messaging service instead"
+                  type="button"
+                  variant="ghost"
+                  onClick={() => void clearOverride({ clear_twilio_messaging_service_sid: true })}
                 />
               ) : null}
             </section>

@@ -12,6 +12,10 @@ test.describe('FLOW-04 admin access', () => {
     await page.goto('/admin/settings');
     await expect(page.getByRole('heading', { name: /app settings/i })).toBeVisible();
     await expect(page.getByLabel(/free plans per month/i)).toBeVisible();
+    await expect(page.getByLabel('Google sign-in client ID')).toBeVisible();
+    await expect(page.getByLabel('Twilio Account SID')).toBeVisible();
+    await expect(page.getByLabel('Twilio auth token')).toBeVisible();
+    await expect(page.getByLabel('Twilio from number')).toBeVisible();
   });
 
   test('non-admin is redirected from admin', async ({ page }) => {

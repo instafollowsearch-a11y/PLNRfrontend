@@ -7,6 +7,7 @@ import { LoginPage } from './LoginPage';
 
 vi.mock('../lib/googleClientId', () => ({
   googleWebClientId: () => null,
+  loadGoogleWebClientId: async () => null,
 }));
 
 describe('LoginPage', () => {

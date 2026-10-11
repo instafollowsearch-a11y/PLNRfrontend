@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-import { googleWebClientId } from '../../lib/googleClientId';
+import { loadGoogleWebClientId } from '../../lib/googleClientId';
 import './GoogleSignInButton.css';
 
 type GoogleCredentialResponse = {
@@ -33,12 +33,26 @@ type GoogleSignInButtonProps = {
 };
 
 export function GoogleSignInButton({ onCredential, onError }: GoogleSignInButtonProps) {
-  const clientId = googleWebClientId();
+  const [clientId, setClientId] = useState<string | null>(null);
   const hostRef = useRef<HTMLDivElement>(null);
   const onCredentialRef = useRef(onCredential);
   const onErrorRef = useRef(onError);
   onCredentialRef.current = onCredential;
   onErrorRef.current = onError;
+
+  useEffect(() => {
+    let cancelled = false;
+
+    void loadGoogleWebClientId().then((id) => {
+      if (!cancelled) {
+        setClientId(id);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     if (!clientId || !hostRef.current) {
