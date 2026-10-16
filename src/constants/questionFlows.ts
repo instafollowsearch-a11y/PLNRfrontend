@@ -131,7 +131,7 @@ export const NIGHT_OUT_QUESTIONS: QuestionConfig[] = [
   },
   {
     key: 'dates',
-    label: 'What date is your night out?',
+    label: 'Pick a date',
     type: 'date',
     hint: 'Choose the day you want to go out.',
   },

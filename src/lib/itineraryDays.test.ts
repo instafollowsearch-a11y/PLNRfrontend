@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { dayTabLabels } from './itineraryDays';
+import { dayTabLabels, withRoadTripDays } from './itineraryDays';
 
 describe('dayTabLabels', () => {
   it('reads a calendar date as that local weekday', () => {
@@ -23,5 +23,28 @@ describe('dayTabLabels', () => {
 
   it('keeps a label that is not a date', () => {
     expect(dayTabLabels(['Arrive', ''])).toEqual(['Arrive', 'Day 2']);
+  });
+
+  it('splits a multi-day road trip into dated days', () => {
+    const plan = withRoadTripDays(
+      {
+        title: 'Austin to Dallas',
+        summary: 'On the road',
+        stops: [
+          { time: '8:00 AM', name: 'Depart', activity: 'Drive', notes: '' },
+          { time: '1:00 PM', name: 'Lunch', activity: 'Eat', notes: '' },
+          { time: '9:00 AM', name: 'Viewpoint', activity: 'Stop', notes: '' },
+        ],
+      },
+      '2026-10-08',
+      '2026-10-09',
+    );
+
+    expect(plan.days?.map((day) => day.date)).toEqual([
+      'Thursday, October 8, 2026',
+      'Friday, October 9, 2026',
+    ]);
+    expect(plan.days?.[1].stops[0].name).toBe('Viewpoint');
+    expect(plan.stops).toBeUndefined();
   });
 });

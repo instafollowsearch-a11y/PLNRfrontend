@@ -19,6 +19,10 @@ import { androidPlanIntentUrl, shouldOpenPlanInApp } from '../lib/openPlanInApp'
 import { resolveSessionUuid, withSession } from '../lib/session';
 import { getPlanFlowConfig, usePlanTypeParam } from './HomePage';
 
+function textAnswer(value: unknown): string | null {
+  return typeof value === 'string' && value.trim() !== '' ? value : null;
+}
+
 export function ItineraryPage() {
   const { planType: planTypeParam } = useParams();
   const planType = usePlanTypeParam(planTypeParam);
@@ -134,6 +138,14 @@ export function ItineraryPage() {
             planType={planType as PlanTypeSlug}
             fadeAfterStopCount={showPreview ? GUEST_CLEAR_STOP_COUNT : undefined}
             roadTripSummary={roadTripSummary}
+            tripDates={
+              planType === 'road_trip'
+                ? {
+                    start: textAnswer(session?.answers?.departure_date),
+                    end: textAnswer(session?.answers?.arrival_date),
+                  }
+                : undefined
+            }
             eventCredits={session?.event_credits}
           />
           {showPreview ? (

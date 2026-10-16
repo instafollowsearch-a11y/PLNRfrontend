@@ -10,9 +10,9 @@ import { firstApiError } from '../lib/apiErrorMessage';
 
 export function ResetPasswordPage() {
   const [searchParams] = useSearchParams();
-  const token = searchParams.get('token') ?? '';
   const emailFromLink = searchParams.get('email') ?? '';
   const [email, setEmail] = useState(emailFromLink);
+  const [code, setCode] = useState(searchParams.get('token') ?? '');
   const [password, setPassword] = useState('');
   const [passwordConfirmation, setPasswordConfirmation] = useState('');
   const [message, setMessage] = useState<string | null>(null);
@@ -25,8 +25,10 @@ export function ResetPasswordPage() {
     setLoading(true);
     setError(null);
 
+    const token = code.trim();
+
     if (!token) {
-      setError('This reset link is invalid or has expired.');
+      setError('Enter the 6-digit code from your email.');
       setLoading(false);
 
       return;
@@ -50,7 +52,7 @@ export function ResetPasswordPage() {
   return (
     <AuthLayout
       title="Choose a new password"
-      subtitle="Use at least 8 characters. This link works once."
+      subtitle="Enter the 6-digit code from your email. It works once."
       footer={<Link to="/login">Back to log in</Link>}
     >
       {isComplete ? (
@@ -63,6 +65,14 @@ export function ResetPasswordPage() {
             autoComplete="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
+            required
+          />
+          <Input
+            label="Reset code"
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            value={code}
+            onChange={(event) => setCode(event.target.value)}
             required
           />
           <PasswordField

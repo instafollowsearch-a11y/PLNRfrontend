@@ -38,7 +38,7 @@ describe('ItineraryView', () => {
     );
     expect(
       screen.getByText(
-        'Times are ranges, not exact times. Places and plans can be off. Double-check before you go.',
+        'Hours of operation come from the place listing when we can match it. Double-check before you go.',
       ),
     ).toBeInTheDocument();
   });
@@ -67,7 +67,8 @@ describe('ItineraryView', () => {
       'src',
       'https://example.com/api/v1/place-photos/abc',
     );
-    expect(screen.getByText('Friday: 5 PM–12 AM')).toBeInTheDocument();
+    expect(screen.getByText('Open Friday from 5 PM–12 AM')).toBeInTheDocument();
+    expect(screen.queryByText('8:00 PM')).not.toBeInTheDocument();
   });
 
   it('keeps a text row when the stop has no photo', () => {
@@ -90,7 +91,8 @@ describe('ItineraryView', () => {
 
     expect(screen.queryByRole('img')).not.toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Quiet Bar' })).toBeInTheDocument();
-    expect(screen.queryByText(/friday:/i)).not.toBeInTheDocument();
+    expect(screen.queryByText('9:00 PM')).not.toBeInTheDocument();
+    expect(screen.queryByText(/open /i)).not.toBeInTheDocument();
   });
 
   it('opens the venue without a Find Local label', () => {
@@ -151,6 +153,33 @@ describe('ItineraryView', () => {
     expect(screen.getByRole('heading', { name: 'Park' })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Market' })).not.toBeInTheDocument();
     expect(screen.queryByRole('tablist')).toBeInTheDocument();
+  });
+
+  it('shows day tabs for a road trip that covers more than one day', () => {
+    render(
+      <ItineraryView
+        planType="road_trip"
+        tripDates={{ start: '2026-10-08', end: '2026-10-09' }}
+        content={{
+          title: 'Austin to Dallas',
+          summary: 'Two days on the road',
+          stops: [
+            { time: '8:00 AM', name: 'Depart Austin', activity: 'Start', notes: '' },
+            { time: '6:00 PM', name: 'Hotel', activity: 'Sleep', notes: '' },
+            { time: '9:00 AM', name: 'Viewpoint', activity: 'Look', notes: '' },
+          ],
+        }}
+      />,
+    );
+
+    expect(screen.getByRole('tab', { name: 'Thursday', selected: true })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Friday' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Depart Austin' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Viewpoint' })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Friday' }));
+
+    expect(screen.getByRole('heading', { name: 'Viewpoint' })).toBeInTheDocument();
   });
 
   it('keeps a single day as one list', () => {

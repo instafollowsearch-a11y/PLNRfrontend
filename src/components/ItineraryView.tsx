@@ -1,7 +1,8 @@
 import { useId, useState } from 'react';
 import type { EventCredit, ItineraryContent, ItineraryDay, ItineraryStop } from '../lib/apiTypes';
-import { dayTabLabels } from '../lib/itineraryDays';
+import { dayTabLabels, withRoadTripDays } from '../lib/itineraryDays';
 import { splitItineraryPreview } from '../lib/itineraryPreview';
+import { openingHoursLabel } from '../lib/openingHours';
 import { Clock, ExternalLink, MapPin } from 'lucide-react';
 
 import './ItineraryView.css';
@@ -14,6 +15,10 @@ type ItineraryViewProps = {
     gas?: number;
     food?: number;
     driveTime?: string;
+  };
+  tripDates?: {
+    start?: string | null;
+    end?: string | null;
   };
   eventCredits?: EventCredit[];
 };
@@ -75,6 +80,8 @@ function StopRow({
   stop: ItineraryStop;
   isLast: boolean;
 }) {
+  const hoursLabel = openingHoursLabel(stop.hours);
+
   return (
     <div className="itinerary-view__timeline-row">
       <div className="itinerary-view__rail">
@@ -83,13 +90,14 @@ function StopRow({
       </div>
       <article className="itinerary-view__stop">
         <StopPhoto stop={stop} />
-        <p className="itinerary-view__stop-time">
-          <Clock size={14} />
-          {stop.time}
-        </p>
+        {hoursLabel ? (
+          <p className="itinerary-view__stop-time">
+            <Clock size={14} />
+            {hoursLabel}
+          </p>
+        ) : null}
         <h3 className="itinerary-view__stop-name">{stop.name}</h3>
         {stop.address ? <p className="itinerary-view__stop-hours">{stop.address}</p> : null}
-        {stop.hours ? <p className="itinerary-view__stop-hours">{stop.hours}</p> : null}
         <p className="itinerary-view__stop-activity">{stop.activity}</p>
         {stop.cost_per_person != null && stop.cost_per_person > 0 ? (
           <p className="itinerary-view__stop-cost">
@@ -192,21 +200,24 @@ export function ItineraryView({
   planType,
   fadeAfterStopCount,
   roadTripSummary,
+  tripDates,
   eventCredits,
 }: ItineraryViewProps) {
+  const plan =
+    planType === 'road_trip' ? withRoadTripDays(content, tripDates?.start, tripDates?.end) : content;
   const showRoadTripStrip =
     planType === 'road_trip' &&
     (roadTripSummary?.gas != null || roadTripSummary?.food != null || roadTripSummary?.driveTime);
-  const parts = fadeAfterStopCount == null ? null : splitItineraryPreview(content, fadeAfterStopCount);
-  const visible = parts?.clear ?? content;
+  const parts = fadeAfterStopCount == null ? null : splitItineraryPreview(plan, fadeAfterStopCount);
+  const visible = parts?.clear ?? plan;
   const faded = parts?.faded ?? null;
 
   return (
     <section className="itinerary-view">
-      <h2 className="itinerary-view__title">{content.title}</h2>
-      {content.summary ? <p className="itinerary-view__summary">{content.summary}</p> : null}
+      <h2 className="itinerary-view__title">{plan.title}</h2>
+      {plan.summary ? <p className="itinerary-view__summary">{plan.summary}</p> : null}
       <p className="itinerary-view__disclaimer">
-        Times are ranges, not exact times. Places and plans can be off. Double-check before you go.
+        Hours of operation come from the place listing when we can match it. Double-check before you go.
       </p>
 
       {showRoadTripStrip ? (
