@@ -41,6 +41,15 @@ export const GENDER_OPTIONS = [
   { value: 'prefer_not_to_answer', label: 'Prefer not to answer' },
 ] as const;
 
+export const PARTNER_OPTIONS = [
+  ...GENDER_OPTIONS,
+  { value: 'solo', label: 'Going Solo' },
+] as const;
+
+function isSoloDate(answers: Record<string, string>): boolean {
+  return answers.partner_gender === 'solo';
+}
+
 export const AGE_RANGE_OPTIONS = [
   { value: '18–24', label: '18–24' },
   { value: '25–34', label: '25–34' },
@@ -155,7 +164,7 @@ export const DATE_NIGHT_QUESTIONS: QuestionConfig[] = [
     key: 'partner_gender',
     label: 'How would you describe your significant other?',
     type: 'select',
-    options: [...GENDER_OPTIONS],
+    options: [...PARTNER_OPTIONS],
   },
   {
     key: 'city',
@@ -177,6 +186,16 @@ export const DATE_NIGHT_QUESTIONS: QuestionConfig[] = [
     interestOptions: DATE_NIGHT_INTEREST_PRESETS,
     placeholder: 'Add something they love…',
     hint: 'Choose a few that fit them, or describe something custom.',
+    showIf: (answers) => !isSoloDate(answers),
+  },
+  {
+    key: 'partner_interests',
+    label: 'What are your interests?',
+    type: 'interests',
+    interestOptions: DATE_NIGHT_INTEREST_PRESETS,
+    placeholder: 'Add something you love…',
+    hint: 'Choose a few that fit you, or describe something custom.',
+    showIf: isSoloDate,
   },
   {
     key: 'budget',

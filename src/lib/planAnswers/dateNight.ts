@@ -1,6 +1,7 @@
 import { areaAnswersAreValid, parseAreaAnswers, type AreaAnswers } from './area';
 
 const GENDERS = ['man', 'woman', 'prefer_not_to_answer'] as const;
+const PARTNERS = [...GENDERS, 'solo'] as const;
 
 export type DateNightAnswers = AreaAnswers & {
   self_gender: string;
@@ -30,7 +31,7 @@ export function validateDateNightAnswers(answers: Record<string, unknown>): bool
 
   return (
     GENDERS.includes(typed.self_gender as (typeof GENDERS)[number]) &&
-    GENDERS.includes(typed.partner_gender as (typeof GENDERS)[number]) &&
+    PARTNERS.includes(typed.partner_gender as (typeof PARTNERS)[number]) &&
     typed.city.length > 0 &&
     typed.timeframe.length > 0 &&
     typed.partner_interests.length >= 3 &&

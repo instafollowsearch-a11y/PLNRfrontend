@@ -90,6 +90,7 @@ describe('ItineraryView', () => {
     );
 
     expect(screen.queryByRole('img')).not.toBeInTheDocument();
+    expect(screen.queryByText('Venue photo')).not.toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Quiet Bar' })).toBeInTheDocument();
     expect(screen.queryByText('9:00 PM')).not.toBeInTheDocument();
     expect(screen.queryByText(/open /i)).not.toBeInTheDocument();
@@ -155,6 +156,35 @@ describe('ItineraryView', () => {
     expect(screen.queryByRole('tablist')).toBeInTheDocument();
   });
 
+  it('opens the live day when today is later than the first day', () => {
+    render(
+      <ItineraryView
+        timeZone="America/Chicago"
+        now={new Date('2026-10-18T23:00:00Z')}
+        content={{
+          title: 'Weekend',
+          summary: 'Two nights',
+          days: [
+            {
+              date: 'Saturday, October 17, 2026',
+              theme: 'Start',
+              stops: [{ time: '8:00 PM', name: 'Saturday Stop', activity: 'Dinner', notes: '' }],
+            },
+            {
+              date: 'Sunday, October 18, 2026',
+              theme: 'Tonight',
+              stops: [{ time: '7:00 PM', name: 'Sunday Stop', activity: 'Dinner', notes: '' }],
+            },
+          ],
+        }}
+      />,
+    );
+
+    expect(screen.getByRole('tab', { name: 'Sunday', selected: true })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Sunday Stop' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Saturday Stop' })).not.toBeInTheDocument();
+  });
+
   it('shows day tabs for a road trip that covers more than one day', () => {
     render(
       <ItineraryView
@@ -195,5 +225,52 @@ describe('ItineraryView', () => {
 
     expect(screen.queryByRole('tab')).not.toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Jazz Club' })).toBeInTheDocument();
+  });
+
+  it('shows the live banner and next chip only when the trip zone is known', () => {
+    render(
+      <ItineraryView
+        timeZone="America/Chicago"
+        dateCandidates={['2026-10-17']}
+        now={new Date('2026-10-17T22:57:00Z')}
+        content={{
+          title: 'Night Out',
+          summary: 'A fun evening',
+          stops: [
+            { time: '6:00 – 7:30 PM', name: 'Saltgrass Steak House', activity: 'Dinner', notes: '' },
+            { time: '8:00 – 9:15 PM', name: 'Texas Roadhouse', activity: 'Dinner', notes: '' },
+          ],
+        }}
+      />,
+    );
+
+    expect(screen.getByText('FIRST STOP')).toBeInTheDocument();
+    expect(screen.getAllByText('Arriving')).toHaveLength(2);
+    expect(screen.getByText(/LIVE · 5:57 PM/)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Saltgrass Steak House' })).toBeInTheDocument();
+    expect(screen.getByText('6:00 – 7:30 PM')).toBeInTheDocument();
+  });
+
+  it('keeps the guest preview free of the live banner', () => {
+    render(
+      <ItineraryView
+        timeZone="America/Chicago"
+        dateCandidates={['2026-10-17']}
+        now={new Date('2026-10-17T22:57:00Z')}
+        fadeAfterStopCount={1}
+        content={{
+          title: 'Night Out',
+          summary: 'A fun evening',
+          stops: [
+            { time: '6:00 – 7:30 PM', name: 'Saltgrass Steak House', activity: 'Dinner', notes: '' },
+            { time: '8:00 – 9:15 PM', name: 'Texas Roadhouse', activity: 'Dinner', notes: '' },
+          ],
+        }}
+      />,
+    );
+
+    expect(screen.queryByText('FIRST STOP')).not.toBeInTheDocument();
+    expect(screen.queryByText('Arriving')).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Saltgrass Steak House' })).toBeInTheDocument();
   });
 });

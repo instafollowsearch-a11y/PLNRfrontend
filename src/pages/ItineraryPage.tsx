@@ -1,10 +1,10 @@
 import type { PlanTypeSlug } from '../constants/planFlowConfig';
-import { Share2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import { ItineraryView } from '../components/ItineraryView';
 import { RefinementChat } from '../components/RefinementChat';
+import { PlanShareTray } from '../components/plans/PlanShareTray';
 import { SharePlanModal } from '../components/plans/SharePlanModal';
 import { AppShell } from '../components/layout/AppShell';
 import { Button } from '../components/ui/Button';
@@ -15,6 +15,7 @@ import { LoadingState } from '../components/ui/LoadingState';
 import { useAuth } from '../contexts/AuthContext';
 import { planSessionApi } from '../lib/api';
 import { GUEST_CLEAR_STOP_COUNT } from '../lib/itineraryPreview';
+import { useTripTimeZone } from '../lib/useTripTimeZone';
 import { androidPlanIntentUrl, shouldOpenPlanInApp } from '../lib/openPlanInApp';
 import { resolveSessionUuid, withSession } from '../lib/session';
 import { getPlanFlowConfig, usePlanTypeParam } from './HomePage';
@@ -35,6 +36,15 @@ export function ItineraryPage() {
   const [loading, setLoading] = useState(true);
   const [shareOpen, setShareOpen] = useState(false);
   const [session, setSession] = useState<Awaited<ReturnType<typeof planSessionApi.getPlanSession>>['data']['plan_session'] | null>(null);
+  const timeZone = useTripTimeZone(
+    textAnswer(session?.answers?.timezone),
+    session?.city ?? textAnswer(session?.answers?.city),
+  );
+  const dateCandidates = [
+    textAnswer(session?.answers?.dates),
+    textAnswer(session?.answers?.timeframe),
+    textAnswer(session?.answers?.departure_date),
+  ];
 
   useEffect(() => {
     if (authLoading) {
@@ -147,6 +157,8 @@ export function ItineraryPage() {
                 : undefined
             }
             eventCredits={session?.event_credits}
+            timeZone={timeZone}
+            dateCandidates={dateCandidates}
           />
           {showPreview ? (
             <Card className="page-stack">
@@ -164,20 +176,14 @@ export function ItineraryPage() {
               </div>
             </Card>
           ) : (
-            <div className="page-stack">
-              <Button
-                label="Share your plans"
-                onClick={() => navigate(withSession(`/plan/${planType}/send`, sessionUuid))}
-              />
-              {canShare ? (
-                <Button
-                  label="Send invitation"
-                  variant="secondary"
-                  icon={<Share2 size={16} />}
-                  onClick={() => setShareOpen(true)}
-                />
-              ) : null}
-            </div>
+            <PlanShareTray
+              sessionUuid={sessionUuid}
+              planType={planType}
+              title={content.title}
+              canInvite={canShare}
+              onEmail={() => navigate(withSession(`/plan/${planType}/send`, sessionUuid))}
+              onInvite={() => setShareOpen(true)}
+            />
           )}
           {shareOpen && sessionUuid ? (
             <SharePlanModal

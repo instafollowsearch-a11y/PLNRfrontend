@@ -2,6 +2,7 @@ import type { QuestionConfig } from '../constants/questionFlows';
 import { useEffect, useMemo, useState } from 'react';
 
 import { isAnswerComplete, serializeAnswersForApi } from '../lib/fieldValues';
+import { timezoneFromCoordinates } from '../lib/livePlan';
 import { QuestionField } from './fields/QuestionField';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
@@ -19,6 +20,36 @@ function getVisibleQuestions(
   answers: Record<string, string>,
 ): QuestionConfig[] {
   return questions.filter((question) => !question.showIf || question.showIf(answers));
+}
+
+function tripPoint(
+  questions: QuestionConfig[],
+  answers: Record<string, string>,
+): { lat: number; lon: number } | null {
+  const locations = questions.filter((question) => question.type === 'location');
+  const ordered = [...locations].sort((left, right) => Number(right.key === 'city') - Number(left.key === 'city'));
+
+  for (const question of ordered) {
+    const raw = answers[question.key];
+
+    if (!raw) {
+      continue;
+    }
+
+    try {
+      const parsed = JSON.parse(raw) as { lat?: unknown; lon?: unknown };
+      const lat = Number(parsed.lat);
+      const lon = Number(parsed.lon);
+
+      if (Number.isFinite(lat) && Number.isFinite(lon)) {
+        return { lat, lon };
+      }
+    } catch {
+      continue;
+    }
+  }
+
+  return null;
 }
 
 export function QuestionFlow({ questions, submitLabel, onComplete }: QuestionFlowProps) {
@@ -103,6 +134,18 @@ export function QuestionFlow({ questions, submitLabel, onComplete }: QuestionFlo
 
     try {
       const payload = serializeAnswersForApi(visibleQuestions, answers);
+      const point = tripPoint(visibleQuestions, answers);
+
+      if (point) {
+        payload.latitude = String(point.lat);
+        payload.longitude = String(point.lon);
+        const zone = timezoneFromCoordinates(point.lat, point.lon);
+
+        if (zone) {
+          payload.timezone = zone;
+        }
+      }
+
       await onComplete(payload);
     } catch (err) {
       const message =
