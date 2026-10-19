@@ -1,6 +1,7 @@
 import type { WeekendRecommendation } from './apiTypes';
 import { createApiClient } from './apiClient';
 import { getAuthToken } from './authStorage';
+import { normalizeEmail } from './email';
 
 export function createWeekendApi(baseUrl: string) {
   const { apiRequest } = createApiClient({
@@ -107,7 +108,7 @@ export function createWeekendApi(baseUrl: string) {
         `/weekend-recommendations/${uuid}/invite`,
         {
           method: 'POST',
-          body: JSON.stringify({ email }),
+          body: JSON.stringify({ email: normalizeEmail(email) }),
         },
       );
     },

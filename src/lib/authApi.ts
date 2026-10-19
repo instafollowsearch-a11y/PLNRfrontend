@@ -1,6 +1,7 @@
 import type { ApiResponse, User } from './apiTypes';
 import { createApiClient } from './apiClient';
 import { getAuthToken } from './authStorage';
+import { normalizeEmail } from './email';
 
 export type AuthPayload = {
   user: User;
@@ -31,7 +32,7 @@ export function createAuthApi(baseUrl: string) {
     ) {
       const body: Record<string, string> = {
         name,
-        email,
+        email: normalizeEmail(email),
         password,
         password_confirmation: passwordConfirmation,
       };
@@ -49,7 +50,7 @@ export function createAuthApi(baseUrl: string) {
     login(email: string, password: string) {
       return apiRequest<AuthPayload>('/auth/login', {
         method: 'POST',
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: normalizeEmail(email), password }),
       });
     },
 
@@ -69,7 +70,7 @@ export function createAuthApi(baseUrl: string) {
     forgotPassword(email: string) {
       return apiRequest<null>('/auth/forgot-password', {
         method: 'POST',
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email: normalizeEmail(email) }),
       });
     },
 
@@ -82,7 +83,7 @@ export function createAuthApi(baseUrl: string) {
       return apiRequest<null>('/auth/reset-password', {
         method: 'POST',
         body: JSON.stringify({
-          email,
+          email: normalizeEmail(email),
           token,
           password,
           password_confirmation: passwordConfirmation,
@@ -99,9 +100,14 @@ export function createAuthApi(baseUrl: string) {
     },
 
     updateProfile(profile: ProfileUpdate) {
+      const body =
+        typeof profile.email === 'string'
+          ? { ...profile, email: normalizeEmail(profile.email) }
+          : profile;
+
       return apiRequest<{ user: User; weekend_delivery?: string }>('/user', {
         method: 'PATCH',
-        body: JSON.stringify(profile),
+        body: JSON.stringify(body),
       });
     },
 

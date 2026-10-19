@@ -10,7 +10,7 @@ describe('inviteHelpers', () => {
   it('resolves register prefill from location state', () => {
     expect(
       resolveRegisterPrefill({
-        email: ' friend@example.com ',
+        email: ' Friend@Example.COM ',
         invite_token: 'abc123',
         emailPrefillReadonly: true,
         from: '/invite/abc123',

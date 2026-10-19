@@ -1,6 +1,7 @@
 import type { PlanSession, PlanSharePreview, PlanShareRecord } from './apiTypes';
 import { createApiClient } from './apiClient';
 import { getAuthToken } from './authStorage';
+import { normalizeEmail } from './email';
 
 export function createPlanShareApi(baseUrl: string) {
   const { apiRequest } = createApiClient({
@@ -21,7 +22,7 @@ export function createPlanShareApi(baseUrl: string) {
     },
 
     createPlanShare(sessionUuid: string, email: string, phone?: string) {
-      const body: { email: string; phone?: string } = { email: email.trim() };
+      const body: { email: string; phone?: string } = { email: normalizeEmail(email) };
       const trimmedPhone = phone?.trim();
 
       if (trimmedPhone) {

@@ -1,6 +1,7 @@
 import type { PlanTypeSlug } from '../constants/planFlowConfig';
 import type { PlanSession, Suggestion } from './apiTypes';
 import { createApiClient, type ApiClientConfig } from './apiClient';
+import { normalizeEmail } from './email';
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -176,7 +177,7 @@ export function createPlanSessionApi(config: ApiClientConfig) {
         `/plan-sessions/${sessionUuid}/send-email`,
         {
           method: 'POST',
-          body: JSON.stringify({ email }),
+          body: JSON.stringify({ email: normalizeEmail(email) }),
         },
       );
     },

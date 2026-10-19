@@ -1,3 +1,5 @@
+import { normalizeEmail } from './email';
+
 export type RegisterLocationState = {
   email?: string;
   invite_token?: string;
@@ -21,7 +23,7 @@ export function resolveRegisterPrefill(state: unknown): RegisterLocationState {
   const result: RegisterLocationState = {};
 
   if (typeof state.email === 'string' && state.email.trim()) {
-    result.email = state.email.trim();
+    result.email = normalizeEmail(state.email);
   }
 
   if (typeof state.invite_token === 'string' && state.invite_token.trim()) {
