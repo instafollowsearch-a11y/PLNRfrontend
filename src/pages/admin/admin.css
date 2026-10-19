@@ -224,12 +224,27 @@
   box-shadow: var(--shadow-elevated);
 }
 
+.admin-users__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--spacing-sm);
+  margin-left: auto;
+}
+
 .admin-users__row .ui-button {
   width: auto;
   min-width: 8.5rem;
   min-height: 42px;
   flex-shrink: 0;
-  margin-left: auto;
+  margin-left: 0;
+}
+
+.admin-users__notice {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  font-weight: 600;
 }
 
 .admin-users__identity {

@@ -373,6 +373,15 @@ export function createAccountApi(baseUrl: string) {
       });
     },
 
+    sendTestNotification(userId: number) {
+      return apiRequest<{ sent: boolean; token_count: number; reason?: string }>(
+        `/admin/users/${userId}/test-notification`,
+        {
+          method: 'POST',
+        },
+      );
+    },
+
     getAdminSettings() {
       return apiRequest<{ settings: AdminSettings }>('/admin/settings');
     },

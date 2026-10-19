@@ -103,6 +103,7 @@ export type User = {
   is_pro?: boolean;
   pro_status?: ProStatus;
   pro_current_period_end?: string | null;
+  push_token_count?: number;
 };
 
 export type BillingConfig = {

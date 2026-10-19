@@ -35,6 +35,8 @@ export function AdminUsersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [updatingId, setUpdatingId] = useState<number | null>(null);
+  const [sendingId, setSendingId] = useState<number | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
   async function loadUsers(nextSearch = search) {
     setLoading(true);
@@ -73,6 +75,25 @@ export function AdminUsersPage() {
       setError('Unable to update user role.');
     } finally {
       setUpdatingId(null);
+    }
+  }
+
+  async function sendTestNotification(user: User) {
+    setSendingId(user.id);
+    setError(null);
+    setNotice(null);
+
+    try {
+      const response = await accountApi.sendTestNotification(user.id);
+      setNotice(response.message ?? 'Test notification sent.');
+    } catch (caught) {
+      const message =
+        caught && typeof caught === 'object' && 'message' in caught
+          ? String((caught as { message: string }).message)
+          : 'Unable to send a test notification.';
+      setError(message);
+    } finally {
+      setSendingId(null);
     }
   }
 
@@ -165,6 +186,7 @@ export function AdminUsersPage() {
         ) : null}
 
         {loading ? <LoadingState /> : null}
+        {notice ? <p className="admin-users__notice">{notice}</p> : null}
         {error ? <p className="error-text">{error}</p> : null}
 
         {!loading && !error && visibleUsers.length === 0 ? (
@@ -210,14 +232,27 @@ export function AdminUsersPage() {
                       {user.city}
                     </p>
                   ) : null}
+                  <p className="admin-users__city">
+                    {user.push_token_count
+                      ? `${user.push_token_count} push token${user.push_token_count === 1 ? '' : 's'}`
+                      : 'No push token'}
+                  </p>
                 </div>
               </div>
-              <Button
-                label={user.role === 'admin' ? 'Make user' : 'Make admin'}
-                variant="secondary"
-                loading={updatingId === user.id}
-                onClick={() => void toggleRole(user)}
-              />
+              <div className="admin-users__actions">
+                <Button
+                  label="Send test notification"
+                  variant="secondary"
+                  loading={sendingId === user.id}
+                  onClick={() => void sendTestNotification(user)}
+                />
+                <Button
+                  label={user.role === 'admin' ? 'Make user' : 'Make admin'}
+                  variant="secondary"
+                  loading={updatingId === user.id}
+                  onClick={() => void toggleRole(user)}
+                />
+              </div>
             </article>
           ))}
         </div>
