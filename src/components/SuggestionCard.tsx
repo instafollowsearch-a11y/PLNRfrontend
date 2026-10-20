@@ -1,6 +1,14 @@
+import type { CSSProperties } from 'react';
+import type { LucideIcon } from 'lucide-react';
+import { Car, Clock, Flag, Heart, MapPin, Moon, Plane, Sparkles } from 'lucide-react';
+
 import type { PlanTypeSlug } from '../constants/planFlowConfig';
 import { planTypeAccents } from '../constants/theme';
 import type { Suggestion } from '../lib/apiTypes';
+import {
+  type SuggestionChipKind,
+  summarizeSuggestionCard,
+} from '../lib/suggestionCardSummary';
 
 import { Button } from './ui/Button';
 import './SuggestionCard.css';
@@ -13,6 +21,32 @@ type SuggestionCardProps = {
   choosing?: boolean;
 };
 
+const PLAN_ICONS: Record<PlanTypeSlug, LucideIcon> = {
+  date_night: Heart,
+  night_out: Moon,
+  vacation: Plane,
+  road_trip: Car,
+};
+
+const CHIP_ICONS: Record<SuggestionChipKind, LucideIcon> = {
+  time: Clock,
+  drive: Car,
+  stops: Flag,
+  place: MapPin,
+};
+
+function softAccent(hex: string): string {
+  const cleaned = hex.replace('#', '');
+  if (cleaned.length !== 6) {
+    return 'var(--color-accent-soft)';
+  }
+
+  const r = Number.parseInt(cleaned.slice(0, 2), 16);
+  const g = Number.parseInt(cleaned.slice(2, 4), 16);
+  const b = Number.parseInt(cleaned.slice(4, 6), 16);
+  return `rgba(${r}, ${g}, ${b}, 0.12)`;
+}
+
 export function SuggestionCard({
   suggestion,
   planType,
@@ -20,66 +54,70 @@ export function SuggestionCard({
   selectable = true,
   choosing = false,
 }: SuggestionCardProps) {
-  const { payload } = suggestion;
   const accent = planType ? (planTypeAccents[planType] ?? 'var(--color-accent)') : 'var(--color-accent)';
+  const summary = summarizeSuggestionCard(suggestion.payload, planType);
+  const PlanIcon = planType ? PLAN_ICONS[planType] : Sparkles;
+  const wash = softAccent(typeof accent === 'string' ? accent : '#D4622A');
 
   return (
-    <article className="suggestion-card" style={{ borderLeftColor: accent }}>
-      <h3 className="suggestion-card__title">{payload.name}</h3>
-      <p className="suggestion-card__description">{payload.description}</p>
+    <article
+      className="suggestion-card"
+      style={
+        {
+          '--suggestion-accent': accent,
+          '--suggestion-wash': wash,
+        } as CSSProperties
+      }
+    >
+      <div className="suggestion-card__accent" aria-hidden />
 
-      {planType === 'night_out' && payload.estimated_cost_per_person != null ? (
-        <p className="suggestion-card__meta">
-          ${payload.estimated_cost_per_person} / person · {payload.time_slot}
-        </p>
-      ) : null}
+      <div className="suggestion-card__header">
+        <span className="suggestion-card__icon" aria-hidden>
+          <PlanIcon size={16} strokeWidth={2.25} />
+        </span>
+        {summary.eyebrow ? <p className="suggestion-card__eyebrow">{summary.eyebrow}</p> : null}
+      </div>
 
-      {planType === 'date_night' && payload.estimated_cost != null ? (
-        <p className="suggestion-card__meta">
-          ${payload.estimated_cost} total · {payload.time_slot}
-        </p>
-      ) : null}
+      <div className="suggestion-card__body">
+        <h3 className="suggestion-card__title">{summary.title}</h3>
 
-      {planType === 'vacation' && payload.estimated_cost_total != null ? (
-        <p className="suggestion-card__meta">${payload.estimated_cost_total} total trip estimate</p>
-      ) : null}
+        {summary.hook ? <p className="suggestion-card__hook">{summary.hook}</p> : null}
 
-      {planType === 'road_trip' ? (
-        <div className="suggestion-card__road-trip">
-          <div className="suggestion-card__chips">
-            {payload.estimated_gas_cost != null ? (
-              <span className="suggestion-card__chip">Gas ~${payload.estimated_gas_cost}</span>
-            ) : null}
-            {payload.estimated_food_cost != null ? (
-              <span className="suggestion-card__chip">Food ~${payload.estimated_food_cost}</span>
-            ) : null}
+        {summary.priceAmount ? (
+          <div className="suggestion-card__price">
+            <span className="suggestion-card__price-caption">About</span>
+            <div className="suggestion-card__price-row">
+              <span className="suggestion-card__price-amount">{summary.priceAmount}</span>
+              {summary.priceSuffix ? (
+                <span className="suggestion-card__price-suffix">{summary.priceSuffix}</span>
+              ) : null}
+            </div>
           </div>
-          {payload.total_drive_time ? (
-            <p className="suggestion-card__meta">Drive time: {payload.total_drive_time}</p>
-          ) : null}
-          {payload.stops?.map((stop, index) => (
-            <p key={`${stop.name}-${index}`} className="suggestion-card__meta">
-              {stop.name}
-              {stop.closing_time ? ` · closes ${stop.closing_time}` : ''}
-              {stop.duration ? ` · ${stop.duration}` : ''}
-            </p>
-          ))}
-        </div>
-      ) : null}
+        ) : null}
 
-      {payload.venues?.length ? (
-        <p className="suggestion-card__meta">{payload.venues.join(' · ')}</p>
-      ) : null}
+        {summary.chips.length > 0 ? (
+          <div className="suggestion-card__chips">
+            {summary.chips.map((chip, index) => {
+              const ChipIcon = CHIP_ICONS[chip.kind];
 
-      {payload.highlights?.length ? (
-        <p className="suggestion-card__meta">{payload.highlights.join(' · ')}</p>
-      ) : null}
+              return (
+                <span key={`${chip.label}-${index}`} className="suggestion-card__chip">
+                  <ChipIcon size={13} strokeWidth={2.25} aria-hidden />
+                  <span>{chip.label}</span>
+                </span>
+              );
+            })}
+          </div>
+        ) : null}
 
-      {selectable ? (
-        <div className="suggestion-card__choose">
-          <Button label="Pick plan" onClick={() => onSelect(suggestion)} loading={choosing} />
-        </div>
-      ) : null}
+        {selectable ? (
+          <div className="suggestion-card__choose">
+            <Button label="Pick plan" onClick={() => onSelect(suggestion)} loading={choosing} />
+          </div>
+        ) : null}
+
+        <p className="suggestion-card__footnote">Full itinerary unlocks after you pick</p>
+      </div>
     </article>
   );
 }
