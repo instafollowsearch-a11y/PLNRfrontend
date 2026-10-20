@@ -12,6 +12,7 @@ import { LoadingState } from '../components/ui/LoadingState';
 import { PageIntro } from '../components/ui/PageIntro';
 import { useAuth } from '../contexts/AuthContext';
 import { planShareApi } from '../lib/api';
+import { normalizeEmail } from '../lib/email';
 import { GUEST_CLEAR_STOP_COUNT } from '../lib/itineraryPreview';
 import type { ApiError, PlanSharePreview } from '../lib/apiTypes';
 import { withSession } from '../lib/session';
@@ -72,10 +73,10 @@ export function InvitePage() {
   }
 
   const invitePath = token ? `/invite/${token}` : '/plans';
+  const normalizedInvite = normalizeEmail(preview?.invitee_email);
+  const normalizedUser = normalizeEmail(user?.email);
   const emailMatches =
-    preview && user?.email
-      ? user.email.toLowerCase() === preview.invitee_email.toLowerCase()
-      : false;
+    normalizedInvite !== '' && normalizedUser !== '' && normalizedUser === normalizedInvite;
   const canSeeFullPlan = Boolean(isAuthenticated && emailMatches);
 
   return (
