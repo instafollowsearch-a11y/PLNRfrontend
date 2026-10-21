@@ -76,6 +76,8 @@ export type AdminSettings = {
   twilio_messaging_service_sid?: string | null;
   twilio_messaging_service_sid_source?: string;
   twilio_messaging_service_sid_env?: string | null;
+  plan_invite_sms_enabled?: boolean;
+  plan_invite_sms_enabled_source?: string;
   findlocal_api_key_set?: boolean;
   findlocal_api_key_source?: string;
   findlocal_api_key_hint?: string | null;
@@ -144,6 +146,7 @@ export type AdminSettingsUpdate = {
   twilio_auth_token?: string;
   twilio_from_number?: string;
   twilio_messaging_service_sid?: string;
+  plan_invite_sms_enabled?: boolean;
   findlocal_api_key?: string;
   anthropic_model?: string;
   anthropic_url?: string;

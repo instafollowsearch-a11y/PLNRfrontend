@@ -68,6 +68,7 @@ type DirtyKey =
   | 'twilio_auth_token'
   | 'twilio_from_number'
   | 'twilio_messaging_service_sid'
+  | 'plan_invite_sms_enabled'
   | 'findlocal_api_key'
   | 'anthropic_model'
   | 'anthropic_url'
@@ -96,6 +97,7 @@ export function AdminSettingsPage() {
   const [twilioAuthToken, setTwilioAuthToken] = useState('');
   const [twilioFromNumber, setTwilioFromNumber] = useState('');
   const [twilioMessagingServiceSid, setTwilioMessagingServiceSid] = useState('');
+  const [planInviteSmsEnabled, setPlanInviteSmsEnabled] = useState(false);
   const [findLocalApiKey, setFindLocalApiKey] = useState('');
   const [anthropicModel, setAnthropicModel] = useState('');
   const [anthropicUrl, setAnthropicUrl] = useState('');
@@ -138,6 +140,7 @@ export function AdminSettingsPage() {
     setTwilioMessagingServiceSid(
       typeof next.twilio_messaging_service_sid === 'string' ? next.twilio_messaging_service_sid : '',
     );
+    setPlanInviteSmsEnabled(next.plan_invite_sms_enabled === true);
     setFindLocalApiKey('');
     setAnthropicModel(typeof next.anthropic_model === 'string' ? next.anthropic_model : '');
     setAnthropicUrl(typeof next.anthropic_url === 'string' ? next.anthropic_url : '');
@@ -215,6 +218,10 @@ export function AdminSettingsPage() {
 
       if (dirty.twilio_messaging_service_sid && twilioMessagingServiceSid.trim()) {
         payload.twilio_messaging_service_sid = twilioMessagingServiceSid.trim();
+      }
+
+      if (dirty.plan_invite_sms_enabled) {
+        payload.plan_invite_sms_enabled = planInviteSmsEnabled;
       }
 
       if (dirty.findlocal_api_key && findLocalApiKey.trim()) {
@@ -583,6 +590,21 @@ export function AdminSettingsPage() {
 
               <p className="admin-settings__hint">
                 Plan invites still go by email when these are empty. A text is sent only when Account SID, Auth token, and either a From number or a Messaging Service SID are saved. The auth token stays on the server.
+              </p>
+
+              <label className="admin-settings__toggle">
+                <input
+                  type="checkbox"
+                  checked={planInviteSmsEnabled}
+                  onChange={(event) => {
+                    setPlanInviteSmsEnabled(event.target.checked);
+                    markDirty('plan_invite_sms_enabled');
+                  }}
+                />
+                <span>Enable SMS on plan invitations</span>
+              </label>
+              <p className="admin-settings__hint">
+                Off by default. When off, the mobile number field is hidden and no invite texts are sent. Twilio credentials below stay saved for when you turn this on.
               </p>
 
               <div className="admin-settings__row-meta">

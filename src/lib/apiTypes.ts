@@ -114,6 +114,7 @@ export type BillingConfig = {
   web_app_url: string | null;
   stripe_fake?: boolean;
   stripe_configured?: boolean;
+  plan_invite_sms_enabled?: boolean;
 };
 
 export type WeekendRecommendationItem = {

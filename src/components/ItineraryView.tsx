@@ -268,11 +268,13 @@ function LiveBoard({
   playing,
   onPlay,
   onStop,
+  showPlay,
 }: {
   live: NonNullable<ReturnType<typeof useLiveNight>['live']>;
   playing: boolean;
   onPlay: () => void;
   onStop: () => void;
+  showPlay: boolean;
 }) {
   const { banner } = live;
 
@@ -281,9 +283,11 @@ function LiveBoard({
       <div className="itinerary-view__live-header">
         <span>ITINERARY</span>
         <span className="itinerary-view__live-clock">LIVE · {live.clockLabel}</span>
-        <button type="button" className="itinerary-view__play" onClick={playing ? onStop : onPlay}>
-          {playing ? 'Stop' : 'Play'}
-        </button>
+        {showPlay ? (
+          <button type="button" className="itinerary-view__play" onClick={playing ? onStop : onPlay}>
+            {playing ? 'Stop' : 'Play'}
+          </button>
+        ) : null}
       </div>
       <div className="itinerary-view__banner">
         <p className="itinerary-view__banner-eyebrow">{banner.eyebrow}</p>
@@ -307,11 +311,18 @@ function TimedStops({
   timing: LiveTiming | null;
 }) {
   const night = useLiveNight(stops, dateHint, timing);
+  const showPlay = import.meta.env.DEV;
 
   return (
     <>
       {night.live ? (
-        <LiveBoard live={night.live} playing={night.playing} onPlay={night.start} onStop={night.stop} />
+        <LiveBoard
+          live={night.live}
+          playing={night.playing}
+          onPlay={night.start}
+          onStop={night.stop}
+          showPlay={showPlay}
+        />
       ) : null}
       {stops.map((stop, index) => (
         <StopRow

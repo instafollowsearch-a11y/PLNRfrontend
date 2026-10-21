@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
-import { planShareApi } from '../../lib/api';
+import { billingApi, planShareApi } from '../../lib/api';
 import type { ApiError } from '../../lib/apiTypes';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
@@ -21,10 +21,31 @@ export function SharePlanModal({
 }: SharePlanModalProps) {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [smsEnabled, setSmsEnabled] = useState(false);
   const [smsNote, setSmsNote] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    void billingApi
+      .getBillingConfig()
+      .then((response) => {
+        if (!cancelled) {
+          setSmsEnabled(response.data.plan_invite_sms_enabled === true);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setSmsEnabled(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   async function handleSubmit() {
     if (!email.trim()) {
@@ -37,9 +58,10 @@ export function SharePlanModal({
     setError(null);
 
     try {
-      const response = await planShareApi.createPlanShare(sessionUuid, email.trim(), phone.trim() || undefined);
+      const phoneToSend = smsEnabled ? phone.trim() || undefined : undefined;
+      const response = await planShareApi.createPlanShare(sessionUuid, email.trim(), phoneToSend);
       setSmsNote(
-        phone.trim()
+        smsEnabled && phone.trim()
           ? response.data.share.sms_sent
             ? 'A text was sent too.'
             : 'The text could not be sent.'
@@ -92,14 +114,16 @@ export function SharePlanModal({
                 onChange={(event) => setEmail(event.target.value)}
                 required
               />
-              <Input
-                label="Mobile number (optional)"
-                type="tel"
-                autoComplete="tel"
-                placeholder="+15551234567"
-                value={phone}
-                onChange={(event) => setPhone(event.target.value)}
-              />
+              {smsEnabled ? (
+                <Input
+                  label="Mobile number (optional)"
+                  type="tel"
+                  autoComplete="tel"
+                  placeholder="+15551234567"
+                  value={phone}
+                  onChange={(event) => setPhone(event.target.value)}
+                />
+              ) : null}
               {error ? <p className="error-text">{error}</p> : null}
               <div className="share-plan-modal__actions">
                 <Button label="Send invitation" onClick={() => void handleSubmit()} loading={loading} />

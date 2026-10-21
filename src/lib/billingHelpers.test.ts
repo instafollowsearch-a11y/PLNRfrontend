@@ -20,6 +20,7 @@ describe('billingHelpers', () => {
       web_app_url: 'https://plnr.app',
       stripe_fake: false,
       stripe_configured: false,
+      plan_invite_sms_enabled: false,
     });
   });
 

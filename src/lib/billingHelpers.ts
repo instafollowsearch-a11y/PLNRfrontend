@@ -27,6 +27,7 @@ export function parseBillingConfig(data: unknown): BillingConfig | null {
     web_app_url: typeof data.web_app_url === 'string' ? data.web_app_url : null,
     stripe_fake: data.stripe_fake === true,
     stripe_configured: data.stripe_configured === true,
+    plan_invite_sms_enabled: data.plan_invite_sms_enabled === true,
   };
 }
 

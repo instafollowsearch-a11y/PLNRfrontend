@@ -4,15 +4,29 @@ import { describe, expect, it, vi } from 'vitest';
 import { SharePlanModal } from './SharePlanModal';
 
 vi.mock('../../lib/api', () => ({
+  billingApi: {
+    getBillingConfig: vi.fn(),
+  },
   planShareApi: {
     createPlanShare: vi.fn(),
   },
 }));
 
-import { planShareApi } from '../../lib/api';
+import { billingApi, planShareApi } from '../../lib/api';
 
 describe('SharePlanModal', () => {
-  it('sends the email invite when the phone field is empty', async () => {
+  it('hides the phone field when plan invite SMS is disabled', async () => {
+    vi.mocked(billingApi.getBillingConfig).mockResolvedValue({
+      data: {
+        pro_monthly_price_cents: 999,
+        pro_currency: 'usd',
+        app_store_url: null,
+        play_store_url: null,
+        web_app_url: null,
+        plan_invite_sms_enabled: false,
+      },
+      message: 'Billing configuration retrieved.',
+    });
     vi.mocked(planShareApi.createPlanShare).mockResolvedValue({
       data: {
         share: {
@@ -31,7 +45,9 @@ describe('SharePlanModal', () => {
     fireEvent.change(screen.getByLabelText('Invitee email'), {
       target: { value: 'friend@plnr.test' },
     });
-    expect(screen.getByLabelText('Mobile number (optional)')).toHaveValue('');
+    await waitFor(() => {
+      expect(screen.queryByLabelText('Mobile number (optional)')).not.toBeInTheDocument();
+    });
 
     fireEvent.click(screen.getByRole('button', { name: 'Send invitation' }));
 
@@ -39,6 +55,23 @@ describe('SharePlanModal', () => {
       expect(planShareApi.createPlanShare).toHaveBeenCalledWith('session-1', 'friend@plnr.test', undefined);
     });
     expect(await screen.findByText(/invite sent to/i)).toBeInTheDocument();
-    expect(screen.queryByText(/text was sent/i)).not.toBeInTheDocument();
+  });
+
+  it('shows the phone field when plan invite SMS is enabled', async () => {
+    vi.mocked(billingApi.getBillingConfig).mockResolvedValue({
+      data: {
+        pro_monthly_price_cents: 999,
+        pro_currency: 'usd',
+        app_store_url: null,
+        play_store_url: null,
+        web_app_url: null,
+        plan_invite_sms_enabled: true,
+      },
+      message: 'Billing configuration retrieved.',
+    });
+
+    render(<SharePlanModal sessionUuid="session-1" onClose={() => undefined} />);
+
+    expect(await screen.findByLabelText('Mobile number (optional)')).toBeInTheDocument();
   });
 });
