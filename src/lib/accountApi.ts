@@ -4,7 +4,10 @@ import { getAuthToken } from './authStorage';
 
 export type PlanLimits = {
   limit: number;
-  remaining: number;
+  used?: number;
+  remaining: number | null;
+  is_pro?: boolean;
+  unlimited?: boolean;
   window: string;
 };
 
