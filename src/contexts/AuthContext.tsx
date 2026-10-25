@@ -19,12 +19,18 @@ type AuthContextValue = {
   isAuthenticated: boolean;
   isAdmin: boolean;
   login: (email: string, password: string) => Promise<User>;
-  loginWithGoogle: (idToken: string, inviteToken?: string) => Promise<User>;
+  loginWithGoogle: (
+    idToken: string | null | undefined,
+    inviteToken?: string,
+    dateOfBirth?: string,
+    accessToken?: string | null,
+  ) => Promise<User>;
   register: (
     name: string,
     email: string,
     password: string,
     passwordConfirmation: string,
+    dateOfBirth: string,
     inviteToken?: string,
   ) => Promise<User>;
   logout: () => Promise<void>;
@@ -89,14 +95,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return response.data.user;
   }, []);
 
-  const loginWithGoogle = useCallback(async (idToken: string, inviteToken?: string) => {
-    const response = await authApi.loginWithGoogle(idToken, inviteToken);
-    setAuthToken(response.data.token);
-    setUser(response.data.user);
-    await claimGuestSessionIfPresent();
+  const loginWithGoogle = useCallback(
+    async (
+      idToken: string | null | undefined,
+      inviteToken?: string,
+      dateOfBirth?: string,
+      accessToken?: string | null,
+    ) => {
+      const response = await authApi.loginWithGoogle(idToken, inviteToken, dateOfBirth, accessToken);
+      setAuthToken(response.data.token);
+      setUser(response.data.user);
+      await claimGuestSessionIfPresent();
 
-    return response.data.user;
-  }, []);
+      return response.data.user;
+    },
+    [],
+  );
 
   const register = useCallback(
     async (
@@ -104,6 +118,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email: string,
       password: string,
       passwordConfirmation: string,
+      dateOfBirth: string,
       inviteToken?: string,
     ) => {
       const response = await authApi.register(
@@ -111,6 +126,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         email,
         password,
         passwordConfirmation,
+        dateOfBirth,
         inviteToken,
       );
       setAuthToken(response.data.token);

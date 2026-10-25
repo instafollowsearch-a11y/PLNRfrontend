@@ -29,10 +29,10 @@ export function TermsAcceptance({ accepted, onChange }: TermsAcceptanceProps) {
       />
       <p>
         <a href={TERMS_URL} target="_blank" rel="noreferrer">
-          Terms and Conditions
+          Terms and conditions
         </a>
         <a href={privacyUrl()} target="_blank" rel="noreferrer">
-          Privacy Policy
+          Privacy policy
         </a>
         <label htmlFor={id}>I have read and accept the terms and conditions of the PLNR app</label>
       </p>

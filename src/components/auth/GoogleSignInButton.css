@@ -4,6 +4,46 @@
   gap: var(--spacing-md);
 }
 
+.google-sign-in__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 320px;
+  margin-inline: auto;
+  min-height: 44px;
+  padding: 0.65rem 1rem;
+  border: 1px solid var(--color-border, #dadce0);
+  border-radius: 4px;
+  background: #fff;
+  color: #3c4043;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.google-sign-in__button:hover:not(:disabled) {
+  background: #f8f9fa;
+}
+
+.google-sign-in__button:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.google-sign-in__button--inactive {
+  opacity: 0.45;
+  cursor: pointer;
+}
+
+.google-sign-in__mark {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
 .google-sign-in__or {
   margin: 0;
   color: var(--color-text-secondary);

@@ -14,6 +14,14 @@ type PlanShareTrayProps = {
   onInvite: () => void;
 };
 
+export type PlanChannelShareRowProps = {
+  sessionUuid: string;
+  planType?: string;
+  title: string;
+  onEmail?: () => void;
+  mode?: 'share' | 'invite';
+};
+
 type ShareAction = {
   key: string;
   label: string;
@@ -28,10 +36,16 @@ export function planPageUrl(planType: string | undefined, sessionUuid: string): 
   return `${WEB_ORIGIN}/plan/${slug}/itinerary?session=${sessionUuid}`;
 }
 
-function shareText(title: string, url: string): string {
+export function shareText(title: string, url: string): string {
   const name = title.trim() || 'A plan';
 
   return `${name} on PLNR\n${url}`;
+}
+
+export function inviteText(title: string, url: string): string {
+  const name = title.trim() || 'a plan';
+
+  return `You're invited to join ${name} on PLNR.\nOpen the invite and view the itinerary:\n${url}`;
 }
 
 function WhatsAppIcon() {
@@ -43,6 +57,149 @@ function WhatsAppIcon() {
       />
     </svg>
   );
+}
+
+function buildChannelActions(options: {
+  message: string;
+  url: string;
+  title: string;
+  mode: 'share' | 'invite';
+  copied: boolean;
+  onEmail?: () => void;
+  onCopy: () => void;
+  onShare: () => void;
+}): ShareAction[] {
+  const { message, url, title, mode, copied, onEmail, onCopy, onShare } = options;
+
+  return [
+    {
+      key: 'email',
+      label: 'Email',
+      color: '#1A73E8',
+      icon: <Mail />,
+      onClick: () => {
+        if (onEmail) {
+          onEmail();
+
+          return;
+        }
+
+        const subject = encodeURIComponent(
+          mode === 'invite' ? `You're invited to a plan on PLNR` : `${title.trim() || 'A plan'} on PLNR`,
+        );
+        window.location.href = `mailto:?subject=${subject}&body=${encodeURIComponent(message)}`;
+      },
+    },
+    {
+      key: 'message',
+      label: 'Message',
+      color: '#34C759',
+      icon: <MessageCircle />,
+      onClick: () => {
+        window.location.href = `sms:?body=${encodeURIComponent(message)}`;
+      },
+    },
+    {
+      key: 'copy',
+      label: copied ? 'Copied' : 'Copy link',
+      color: '#5F6368',
+      icon: <Link />,
+      onClick: onCopy,
+    },
+    {
+      key: 'whatsapp',
+      label: 'WhatsApp',
+      color: '#25D366',
+      icon: <WhatsAppIcon />,
+      onClick: () => {
+        window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
+      },
+    },
+    {
+      key: 'share',
+      label: 'Share',
+      color: '#007AFF',
+      icon: <Share />,
+      onClick: onShare,
+    },
+  ];
+}
+
+function ActionButtons({ actions }: { actions: ShareAction[] }) {
+  return (
+    <div className="plan-share-tray">
+      {actions.map((action) => (
+        <button key={action.key} type="button" className="plan-share-tray__action" onClick={action.onClick}>
+          <span className="plan-share-tray__circle" style={{ background: action.color }}>
+            {action.icon}
+          </span>
+          <span className="plan-share-tray__label">{action.label}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+export function PlanChannelShareRow({
+  sessionUuid,
+  planType,
+  title,
+  onEmail,
+  mode = 'share',
+}: PlanChannelShareRowProps) {
+  const [copied, setCopied] = useState(false);
+  const url = planPageUrl(planType, sessionUuid);
+  const message = mode === 'invite' ? inviteText(title, url) : shareText(title, url);
+
+  useEffect(() => {
+    if (!copied) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => setCopied(false), 2000);
+
+    return () => window.clearTimeout(timer);
+  }, [copied]);
+
+  async function copyLink() {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+    } catch {
+      setCopied(false);
+    }
+  }
+
+  async function sharePlan() {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: mode === 'invite' ? 'PLNR invitation' : title.trim() || 'A plan on PLNR',
+          text: message,
+          url,
+        });
+
+        return;
+      } catch {
+        return;
+      }
+    }
+
+    await copyLink();
+  }
+
+  const actions = buildChannelActions({
+    message,
+    url,
+    title,
+    mode,
+    copied,
+    onEmail,
+    onCopy: () => void copyLink(),
+    onShare: () => void sharePlan(),
+  });
+
+  return <ActionButtons actions={actions} />;
 }
 
 export function PlanShareTray({
@@ -102,57 +259,17 @@ export function PlanShareTray({
           },
         ]
       : []),
-    {
-      key: 'email',
-      label: 'Email',
-      color: '#1A73E8',
-      icon: <Mail />,
-      onClick: onEmail,
-    },
-    {
-      key: 'message',
-      label: 'Message',
-      color: '#34C759',
-      icon: <MessageCircle />,
-      onClick: () => {
-        window.location.href = `sms:?body=${encodeURIComponent(message)}`;
-      },
-    },
-    {
-      key: 'copy',
-      label: copied ? 'Copied' : 'Copy link',
-      color: '#5F6368',
-      icon: <Link />,
-      onClick: () => void copyLink(),
-    },
-    {
-      key: 'whatsapp',
-      label: 'WhatsApp',
-      color: '#25D366',
-      icon: <WhatsAppIcon />,
-      onClick: () => {
-        window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
-      },
-    },
-    {
-      key: 'share',
-      label: 'Share',
-      color: '#007AFF',
-      icon: <Share />,
-      onClick: () => void sharePlan(),
-    },
+    ...buildChannelActions({
+      message,
+      url,
+      title,
+      mode: 'share',
+      copied,
+      onEmail,
+      onCopy: () => void copyLink(),
+      onShare: () => void sharePlan(),
+    }),
   ];
 
-  return (
-    <div className="plan-share-tray">
-      {actions.map((action) => (
-        <button key={action.key} type="button" className="plan-share-tray__action" onClick={action.onClick}>
-          <span className="plan-share-tray__circle" style={{ background: action.color }}>
-            {action.icon}
-          </span>
-          <span className="plan-share-tray__label">{action.label}</span>
-        </button>
-      ))}
-    </div>
-  );
+  return <ActionButtons actions={actions} />;
 }

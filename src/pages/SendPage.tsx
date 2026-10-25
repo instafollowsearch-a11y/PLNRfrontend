@@ -36,6 +36,7 @@ export function SendPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
   const [city, setCity] = useState<string | null>(null);
+  const [planTitle, setPlanTitle] = useState('a plan');
   const [shareOpen, setShareOpen] = useState(false);
   const [signupOpen, setSignupOpen] = useState(false);
 
@@ -44,7 +45,13 @@ export function SendPage() {
       savePlanSessionUuid(sessionUuid);
       void planSessionApi
         .getPlanSession(sessionUuid)
-        .then((response) => setCity(response.data.plan_session.city))
+        .then((response) => {
+          const session = response.data.plan_session;
+          setCity(session.city);
+          setPlanTitle(
+            session.itinerary?.content?.title?.trim() || session.plan_type?.label || 'a plan',
+          );
+        })
         .catch(() => setCity(null));
     }
   }, [sessionUuid]);
@@ -179,6 +186,8 @@ export function SendPage() {
           {shareOpen && sessionUuid ? (
             <SharePlanModal
               sessionUuid={sessionUuid}
+              planType={planType}
+              title={planTitle}
               returnPath="/plans"
               onClose={() => setShareOpen(false)}
             />

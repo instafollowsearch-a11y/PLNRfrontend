@@ -75,6 +75,7 @@ type DirtyKey =
   | 'mail_from_address'
   | 'mail_from_name'
   | 'booking_ops_email'
+  | 'support_email'
   | 'rate_limit_ai_per_hour'
   | 'pro_monthly_price_cents'
   | 'pro_currency'
@@ -104,6 +105,7 @@ export function AdminSettingsPage() {
   const [mailFromAddress, setMailFromAddress] = useState('');
   const [mailFromName, setMailFromName] = useState('');
   const [bookingOpsEmail, setBookingOpsEmail] = useState('');
+  const [supportEmail, setSupportEmail] = useState('');
   const [rateLimitAi, setRateLimitAi] = useState('');
   const [proMonthlyPriceCents, setProMonthlyPriceCents] = useState('');
   const [proCurrency, setProCurrency] = useState('');
@@ -147,6 +149,7 @@ export function AdminSettingsPage() {
     setMailFromAddress(typeof next.mail_from_address === 'string' ? next.mail_from_address : '');
     setMailFromName(typeof next.mail_from_name === 'string' ? next.mail_from_name : '');
     setBookingOpsEmail(typeof next.booking_ops_email === 'string' ? next.booking_ops_email : '');
+    setSupportEmail(typeof next.support_email === 'string' ? next.support_email : '');
     setRateLimitAi(
       String(typeof next.rate_limit_ai_per_hour === 'number' ? next.rate_limit_ai_per_hour : ''),
     );
@@ -246,6 +249,10 @@ export function AdminSettingsPage() {
 
       if (dirty.booking_ops_email && bookingOpsEmail.trim()) {
         payload.booking_ops_email = bookingOpsEmail.trim();
+      }
+
+      if (dirty.support_email && supportEmail.trim()) {
+        payload.support_email = supportEmail.trim();
       }
 
       if (dirty.rate_limit_ai_per_hour && rateLimitAi.trim()) {
@@ -826,6 +833,30 @@ export function AdminSettingsPage() {
                   type="button"
                   variant="ghost"
                   onClick={() => void clearOverride({ clear_booking_ops_email: true })}
+                />
+              ) : null}
+
+              <div className="admin-settings__row-meta">
+                <Badge variant={sourceBadge(settings.support_email_source)}>
+                  Support email: {sourceLabel(settings.support_email_source)}
+                </Badge>
+              </div>
+              <Input
+                label="Support email"
+                type="email"
+                placeholder={String(settings.support_email_env ?? 'myplnrapp@gmail.com')}
+                value={supportEmail}
+                onChange={(event) => {
+                  setSupportEmail(event.target.value);
+                  markDirty('support_email');
+                }}
+              />
+              {settings.support_email_source === 'admin' ? (
+                <Button
+                  label="Reset support email to default"
+                  type="button"
+                  variant="ghost"
+                  onClick={() => void clearOverride({ clear_support_email: true })}
                 />
               ) : null}
             </section>

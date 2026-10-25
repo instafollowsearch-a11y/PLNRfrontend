@@ -15,7 +15,7 @@ const FOOTER_LINKS = {
   ],
   legal: [
     { label: 'Privacy', to: '/privacy' },
-    { label: 'Terms', to: '/terms' },
+    { label: 'Terms and conditions', to: '/terms' },
   ],
 } as const;
 
@@ -61,6 +61,7 @@ export function LandingFooter() {
   const year = new Date().getFullYear();
   const [appStoreUrl, setAppStoreUrl] = useState<string | null>(null);
   const [playStoreUrl, setPlayStoreUrl] = useState<string | null>(null);
+  const [supportEmail, setSupportEmail] = useState(SUPPORT_EMAIL);
 
   useEffect(() => {
     let isCurrent = true;
@@ -74,6 +75,10 @@ export function LandingFooter() {
 
         setAppStoreUrl(response.data.app_store_url);
         setPlayStoreUrl(response.data.play_store_url);
+        const nextSupport = response.data.support_email?.trim();
+        if (nextSupport) {
+          setSupportEmail(nextSupport);
+        }
       })
       .catch(() => {
         // A missing config leaves both buttons disabled.
@@ -143,8 +148,8 @@ export function LandingFooter() {
             <h3>Contact</h3>
             <a
               className="landing-footer__contact"
-              href={`mailto:${SUPPORT_EMAIL}`}
-              aria-label={`Email support at ${SUPPORT_EMAIL}`}
+              href={`mailto:${supportEmail}`}
+              aria-label={`Email support at ${supportEmail}`}
             >
               <Mail size={16} aria-hidden />
               Email support

@@ -99,6 +99,9 @@ export type AdminSettings = {
   booking_ops_email?: string | null;
   booking_ops_email_source?: string;
   booking_ops_email_env?: string | null;
+  support_email?: string | null;
+  support_email_source?: string;
+  support_email_env?: string | null;
   rate_limit_ai_per_hour?: number;
   rate_limit_ai_per_hour_source?: string;
   rate_limit_ai_per_hour_env?: number;
@@ -156,6 +159,7 @@ export type AdminSettingsUpdate = {
   mail_from_address?: string;
   mail_from_name?: string;
   booking_ops_email?: string;
+  support_email?: string;
   rate_limit_ai_per_hour?: number;
   pro_monthly_price_cents?: number;
   pro_currency?: string;
@@ -181,6 +185,7 @@ export type AdminSettingsUpdate = {
   clear_mail_from_address?: boolean;
   clear_mail_from_name?: boolean;
   clear_booking_ops_email?: boolean;
+  clear_support_email?: boolean;
   clear_rate_limit_ai_per_hour?: boolean;
   clear_pro_currency?: boolean;
   clear_app_store_url?: boolean;

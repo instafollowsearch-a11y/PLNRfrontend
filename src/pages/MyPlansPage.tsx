@@ -125,7 +125,11 @@ export function MyPlansPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState('all');
-  const [shareUuid, setShareUuid] = useState<string | null>(null);
+  const [shareTarget, setShareTarget] = useState<{
+    uuid: string;
+    planType?: string;
+    title: string;
+  } | null>(null);
 
   useEffect(() => {
     void accountApi
@@ -319,7 +323,17 @@ export function MyPlansPage() {
                       type="button"
                       className="my-plans__share"
                       aria-label={`Send invitation for ${session.city || 'this plan'}`}
-                      onClick={() => setShareUuid(session.uuid)}
+                      onClick={() =>
+                        setShareTarget({
+                          uuid: session.uuid,
+                          planType: session.plan_type?.slug,
+                          title:
+                            session.itinerary?.content?.title?.trim() ||
+                            session.plan_type?.label ||
+                            session.city ||
+                            'a plan',
+                        })
+                      }
                     >
                       <Share2 size={16} aria-hidden />
                       Send invitation
@@ -338,11 +352,13 @@ export function MyPlansPage() {
         ) : null}
       </div>
 
-      {shareUuid ? (
+      {shareTarget ? (
         <SharePlanModal
-          sessionUuid={shareUuid}
+          sessionUuid={shareTarget.uuid}
+          planType={shareTarget.planType}
+          title={shareTarget.title}
           returnPath="/plans"
-          onClose={() => setShareUuid(null)}
+          onClose={() => setShareTarget(null)}
         />
       ) : null}
     </AppShell>

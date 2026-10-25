@@ -4,6 +4,7 @@ import { createBillingApi } from './billingApi';
 import { getAuthToken } from './authStorage';
 import { createPlanShareApi } from './planShareApi';
 import { createPlanSessionApi } from './planSessions';
+import { createInterestMatchesApi } from './interestMatchesApi';
 import { createWeekendApi } from './weekendApi';
 
 const defaultApiUrl = 'http://localhost:8088/api/v1';
@@ -19,6 +20,7 @@ export const authApi = createAuthApi(API_URL);
 export const accountApi = createAccountApi(API_URL);
 export const billingApi = createBillingApi(API_URL);
 export const weekendApi = createWeekendApi(API_URL);
+export const interestMatchesApi = createInterestMatchesApi(API_URL);
 export const planShareApi = createPlanShareApi(API_URL);
 
 export const PRIVACY_POLICY_URL =
@@ -26,7 +28,9 @@ export const PRIVACY_POLICY_URL =
 
 export const TERMS_URL = import.meta.env.VITE_TERMS_URL ?? 'https://myplnr.app/terms';
 
-export const SUPPORT_EMAIL = import.meta.env.VITE_SUPPORT_EMAIL ?? 'dbutlermgmtgroup@gmail.com';
+export const DEFAULT_SUPPORT_EMAIL = 'myplnrapp@gmail.com';
+
+export const SUPPORT_EMAIL = import.meta.env.VITE_SUPPORT_EMAIL ?? DEFAULT_SUPPORT_EMAIL;
 
 export type {
   PlanSession,
@@ -43,5 +47,6 @@ export type { AdminSettings, AdminSettingsUpdate, AccountApi, PlanCardImages } f
 export type { PlanSessionApi } from './planSessions';
 export type { BillingApi } from './billingApi';
 export type { WeekendApi } from './weekendApi';
+export type { InterestMatchesApi } from './interestMatchesApi';
 export type { PlanShareApi } from './planShareApi';
 export { createPlanSessionApi } from './planSessions';

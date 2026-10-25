@@ -115,6 +115,7 @@ export type BillingConfig = {
   stripe_fake?: boolean;
   stripe_configured?: boolean;
   plan_invite_sms_enabled?: boolean;
+  support_email?: string | null;
 };
 
 export type WeekendRecommendationItem = {

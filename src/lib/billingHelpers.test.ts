@@ -21,6 +21,7 @@ describe('billingHelpers', () => {
       stripe_fake: false,
       stripe_configured: false,
       plan_invite_sms_enabled: false,
+      support_email: null,
     });
   });
 

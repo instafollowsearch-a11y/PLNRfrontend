@@ -1,77 +1,40 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { SharePlanModal } from './SharePlanModal';
 
-vi.mock('../../lib/api', () => ({
-  billingApi: {
-    getBillingConfig: vi.fn(),
-  },
-  planShareApi: {
-    createPlanShare: vi.fn(),
-  },
-}));
-
-import { billingApi, planShareApi } from '../../lib/api';
-
 describe('SharePlanModal', () => {
-  it('hides the phone field when plan invite SMS is disabled', async () => {
-    vi.mocked(billingApi.getBillingConfig).mockResolvedValue({
-      data: {
-        pro_monthly_price_cents: 999,
-        pro_currency: 'usd',
-        app_store_url: null,
-        play_store_url: null,
-        web_app_url: null,
-        plan_invite_sms_enabled: false,
-      },
-      message: 'Billing configuration retrieved.',
-    });
-    vi.mocked(planShareApi.createPlanShare).mockResolvedValue({
-      data: {
-        share: {
-          token: 'share-token',
-          invitee_email: 'friend@plnr.test',
-          status: 'pending',
-          expires_at: null,
-          sms_sent: false,
-        },
-      },
-      message: 'Plan invite sent.',
-    });
+  it('shows invitation channel icons instead of email fields', () => {
+    render(
+      <SharePlanModal
+        sessionUuid="session-1"
+        planType="night_out"
+        title="Jazz night"
+        onClose={() => undefined}
+      />,
+    );
 
-    render(<SharePlanModal sessionUuid="session-1" onClose={() => undefined} />);
-
-    fireEvent.change(screen.getByLabelText('Invitee email'), {
-      target: { value: 'friend@plnr.test' },
-    });
-    await waitFor(() => {
-      expect(screen.queryByLabelText('Mobile number (optional)')).not.toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByRole('button', { name: 'Send invitation' }));
-
-    await waitFor(() => {
-      expect(planShareApi.createPlanShare).toHaveBeenCalledWith('session-1', 'friend@plnr.test', undefined);
-    });
-    expect(await screen.findByText(/invite sent to/i)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /send invitation/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /email/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /message/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /whatsapp/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /share/i })).toBeInTheDocument();
+    expect(screen.queryByLabelText(/invitee email/i)).not.toBeInTheDocument();
   });
 
-  it('shows the phone field when plan invite SMS is enabled', async () => {
-    vi.mocked(billingApi.getBillingConfig).mockResolvedValue({
-      data: {
-        pro_monthly_price_cents: 999,
-        pro_currency: 'usd',
-        app_store_url: null,
-        play_store_url: null,
-        web_app_url: null,
-        plan_invite_sms_enabled: true,
-      },
-      message: 'Billing configuration retrieved.',
-    });
+  it('closes from the close button', () => {
+    const onClose = vi.fn();
+    render(
+      <SharePlanModal
+        sessionUuid="session-1"
+        planType="night_out"
+        title="Jazz night"
+        onClose={onClose}
+      />,
+    );
 
-    render(<SharePlanModal sessionUuid="session-1" onClose={() => undefined} />);
-
-    expect(await screen.findByLabelText('Mobile number (optional)')).toBeInTheDocument();
+    const closeButtons = screen.getAllByRole('button', { name: /close/i });
+    closeButtons[closeButtons.length - 1].click();
+    expect(onClose).toHaveBeenCalledTimes(1);
   });
 });

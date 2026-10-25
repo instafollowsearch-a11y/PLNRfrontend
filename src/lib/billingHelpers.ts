@@ -28,6 +28,7 @@ export function parseBillingConfig(data: unknown): BillingConfig | null {
     stripe_fake: data.stripe_fake === true,
     stripe_configured: data.stripe_configured === true,
     plan_invite_sms_enabled: data.plan_invite_sms_enabled === true,
+    support_email: typeof data.support_email === 'string' ? data.support_email : null,
   };
 }
 

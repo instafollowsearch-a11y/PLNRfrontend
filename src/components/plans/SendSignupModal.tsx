@@ -1,7 +1,9 @@
 import { useState, type FormEvent } from 'react';
 
 import { useAuth } from '../../contexts/AuthContext';
+import { isOldEnoughToRegister, MINIMUM_ACCOUNT_AGE } from '../../lib/ageGate';
 import type { ApiError } from '../../lib/apiTypes';
+import { BirthDateField } from '../auth/BirthDateField';
 import { TermsAcceptance } from '../auth/TermsAcceptance';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
@@ -18,6 +20,7 @@ export function SendSignupModal({ initialEmail, onClose, onSignedUp }: SendSignu
   const { register } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState(initialEmail);
+  const [birthday, setBirthday] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirmation, setPasswordConfirmation] = useState('');
   const [acceptedTerms, setAcceptedTerms] = useState(false);
@@ -27,7 +30,7 @@ export function SendSignupModal({ initialEmail, onClose, onSignedUp }: SendSignu
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
 
-    if (!name.trim() || !email.trim() || !password || !passwordConfirmation) {
+    if (!name.trim() || !email.trim() || !password || !passwordConfirmation || !birthday.trim()) {
       setError('Fill in all fields to continue.');
 
       return;
@@ -35,6 +38,12 @@ export function SendSignupModal({ initialEmail, onClose, onSignedUp }: SendSignu
 
     if (password !== passwordConfirmation) {
       setError('Passwords do not match.');
+
+      return;
+    }
+
+    if (!isOldEnoughToRegister(birthday)) {
+      setError(`You must be at least ${MINIMUM_ACCOUNT_AGE} years old to use PLNR.`);
 
       return;
     }
@@ -49,7 +58,7 @@ export function SendSignupModal({ initialEmail, onClose, onSignedUp }: SendSignu
     setError(null);
 
     try {
-      await register(name.trim(), email.trim(), password, passwordConfirmation);
+      await register(name.trim(), email.trim(), password, passwordConfirmation, birthday.trim());
       await onSignedUp(email.trim());
     } catch (err) {
       const apiError = err as ApiError;
@@ -97,6 +106,7 @@ export function SendSignupModal({ initialEmail, onClose, onSignedUp }: SendSignu
               onChange={(event) => setEmail(event.target.value)}
               required
             />
+            <BirthDateField value={birthday} onChange={setBirthday} />
             <Input
               label="Password"
               type="password"

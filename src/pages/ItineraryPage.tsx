@@ -188,6 +188,8 @@ export function ItineraryPage() {
           {shareOpen && sessionUuid ? (
             <SharePlanModal
               sessionUuid={sessionUuid}
+              planType={planType}
+              title={content.title}
               returnPath="/plans"
               onClose={() => setShareOpen(false)}
             />

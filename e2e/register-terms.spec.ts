@@ -11,15 +11,16 @@ test.describe('Register terms acceptance', () => {
 
     const copy = page.locator('.terms-accept p');
     const text = (await copy.innerText()).replace(/\s+/g, ' ');
-    expect(text.indexOf('Terms and Conditions')).toBeGreaterThanOrEqual(0);
-    expect(text.indexOf('Terms and Conditions')).toBeLessThan(text.indexOf('I have read and accept'));
-    expect(text.indexOf('Privacy Policy')).toBeLessThan(text.indexOf('I have read and accept'));
+    expect(text.indexOf('Terms and conditions')).toBeGreaterThanOrEqual(0);
+    expect(text.indexOf('Terms and conditions')).toBeLessThan(text.indexOf('I have read and accept'));
+    expect(text.indexOf('Privacy policy')).toBeLessThan(text.indexOf('I have read and accept'));
 
-    await expect(page.getByRole('link', { name: 'Terms and Conditions' })).toHaveAttribute('href', /\/terms$/);
-    await expect(page.getByRole('link', { name: 'Privacy Policy' })).toHaveAttribute('href', /\/privacy$/);
+    await expect(page.getByRole('link', { name: 'Terms and conditions' })).toHaveAttribute('href', /\/terms$/);
+    await expect(page.getByRole('link', { name: 'Privacy policy' })).toHaveAttribute('href', /\/privacy$/);
 
     await page.getByLabel('Name').fill('QA Tester');
     await page.getByLabel('Email').fill(`qa+terms${Date.now()}@plnr.test`);
+    await page.getByLabel('Birthday').fill('1995-06-15');
     await page.getByLabel('Password', { exact: true }).fill('password123');
     await page.getByLabel('Confirm password').fill('password123');
     await page.getByRole('button', { name: /create account/i }).click();
@@ -27,13 +28,13 @@ test.describe('Register terms acceptance', () => {
     await expect(page).toHaveURL(/\/register/);
 
     const termsPopup = page.waitForEvent('popup');
-    await page.getByRole('link', { name: 'Terms and Conditions' }).click();
+    await page.getByRole('link', { name: 'Terms and conditions' }).click();
     const termsPage = await termsPopup;
     await expect(termsPage).toHaveURL(/\/terms$/);
     await termsPage.close();
 
     const privacyPopup = page.waitForEvent('popup');
-    await page.getByRole('link', { name: 'Privacy Policy' }).click();
+    await page.getByRole('link', { name: 'Privacy policy' }).click();
     const privacyPage = await privacyPopup;
     await expect(privacyPage).toHaveURL(/\/privacy$/);
     await privacyPage.close();

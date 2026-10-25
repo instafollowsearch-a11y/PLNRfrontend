@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import plnrLogo from '../../assets/plnr-logo-black-lettering.png';
 import { useAuth } from '../../contexts/AuthContext';
-import { PRIVACY_POLICY_URL, SUPPORT_EMAIL } from '../../lib/api';
+import { PRIVACY_POLICY_URL, SUPPORT_EMAIL, TERMS_URL, billingApi } from '../../lib/api';
 import { AccountMenu } from './AccountMenu';
 import './AppShell.css';
 
@@ -33,9 +33,30 @@ export function AppShell({
   const navigate = useNavigate();
   const { isAuthenticated, isAdmin, user, logout, loading: authLoading } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [supportEmail, setSupportEmail] = useState(SUPPORT_EMAIL);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const isLanding = variant === 'landing';
   const showUpgrade = isAuthenticated && !authLoading && user?.is_pro !== true;
+
+  useEffect(() => {
+    let isCurrent = true;
+
+    billingApi
+      .getBillingConfig()
+      .then((response) => {
+        const next = response.data.support_email?.trim();
+        if (isCurrent && next) {
+          setSupportEmail(next);
+        }
+      })
+      .catch(() => {
+        // Keep build-time default.
+      });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, []);
 
   function handleUpgrade() {
     closeMenu();
@@ -97,6 +118,11 @@ export function AppShell({
       <Link to="/weekend" className="app-shell__nav-link" onClick={closeMenu}>
         Weekend picks
       </Link>
+      {user?.is_pro ? (
+        <Link to="/interest-pings" className="app-shell__nav-link" onClick={closeMenu}>
+          Interest pings
+        </Link>
+      ) : null}
       {isAdmin ? (
         <Link to="/admin" className="app-shell__nav-link" onClick={closeMenu}>
           Admin
@@ -261,7 +287,10 @@ export function AppShell({
               <a href={PRIVACY_POLICY_URL} target="_blank" rel="noreferrer">
                 Privacy
               </a>
-              <a href={`mailto:${SUPPORT_EMAIL}`}>Support</a>
+              <a href={TERMS_URL} target="_blank" rel="noreferrer">
+                Terms and conditions
+              </a>
+              <a href={`mailto:${supportEmail}`}>Support</a>
             </nav>
           </aside>
         </>

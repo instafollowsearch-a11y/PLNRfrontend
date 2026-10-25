@@ -98,16 +98,21 @@ export function LoginPage() {
     }
   }
 
-  async function handleGoogleCredential(idToken: string) {
+  async function handleGoogleCredential(idToken: string | null, accessToken?: string | null) {
     setLoading(true);
     setError(null);
 
     try {
-      const loggedIn = await loginWithGoogle(idToken);
+      const loggedIn = await loginWithGoogle(idToken, undefined, undefined, accessToken);
       await continueAfterAuth(loggedIn);
     } catch (err) {
       const apiError = err as ApiError;
-      setError(apiError.message || 'Unable to log in with Google.');
+      const dobError = apiError.errors?.date_of_birth?.[0];
+      setError(
+        dobError
+          ? 'Google could not share your birthday. Open Create account, enter your birthday, then continue with Google.'
+          : apiError.message || 'Unable to log in with Google.',
+      );
     } finally {
       setLoading(false);
     }
@@ -131,7 +136,10 @@ export function LoginPage() {
         </>
       }
     >
-      <GoogleSignInButton onCredential={(idToken) => void handleGoogleCredential(idToken)} onError={setError} />
+      <GoogleSignInButton
+        onCredential={(idToken, accessToken) => void handleGoogleCredential(idToken, accessToken)}
+        onError={setError}
+      />
       <form className="page-stack" onSubmit={(event) => void handleSubmit(event)}>
         <Input
           label="Email"

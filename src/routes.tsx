@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import { ScrollToTop } from './components/ScrollToTop';
 import { VisitTracker } from './components/visits/VisitTracker';
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
 import { AdminInterestsPage } from './pages/admin/AdminInterestsPage';
@@ -24,11 +25,13 @@ import { ResetPasswordPage } from './pages/ResetPasswordPage';
 import { SendPage } from './pages/SendPage';
 import { NotFoundPage, PrivacyPage, TermsPage } from './pages/StaticPages';
 import { SuggestionsPage } from './pages/SuggestionsPage';
+import { InterestPingsPage } from './pages/InterestPingsPage';
 import { WeekendPage } from './pages/WeekendPage';
 
 export function AppRoutes() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <VisitTracker />
       <Routes>
         <Route path="/" element={<HomePage />} />
@@ -48,6 +51,7 @@ export function AppRoutes() {
         <Route path="/terms" element={<TermsPage />} />
         <Route path="/home" element={<Navigate to="/" replace />} />
         <Route path="/weekend" element={<WeekendPage />} />
+        <Route path="/interest-pings" element={<InterestPingsPage />} />
 
         <Route element={<ProtectedRoute />}>
           <Route path="/plans" element={<MyPlansPage />} />

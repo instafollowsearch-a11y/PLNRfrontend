@@ -2,12 +2,14 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 
 import { AuthLayout } from '../components/auth/AuthLayout';
+import { BirthDateField } from '../components/auth/BirthDateField';
 import { GoogleSignInButton } from '../components/auth/GoogleSignInButton';
 import { TermsAcceptance } from '../components/auth/TermsAcceptance';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { PasswordField } from '../components/ui/PasswordField';
 import { useAuth } from '../contexts/AuthContext';
+import { isOldEnoughToRegister, MINIMUM_ACCOUNT_AGE } from '../lib/ageGate';
 import type { ApiError } from '../lib/apiTypes';
 import { isInvitePath, resolveRegisterPrefill } from '../lib/inviteHelpers';
 import { postAuthHome, resolvePostAuthPath } from '../lib/postAuthPath';
@@ -23,12 +25,27 @@ export function RegisterPage() {
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState(prefill.email ?? '');
+  const [birthday, setBirthday] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirmation, setPasswordConfirmation] = useState('');
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const checkoutStarted = useRef(false);
+
+  function validateBirthday(): boolean {
+    if (!birthday.trim()) {
+      setError('Enter your birthday.');
+      return false;
+    }
+
+    if (!isOldEnoughToRegister(birthday)) {
+      setError(`You must be at least ${MINIMUM_ACCOUNT_AGE} years old to use PLNR.`);
+      return false;
+    }
+
+    return true;
+  }
 
   useEffect(() => {
     if (authLoading || !isAuthenticated || !prefill.proCheckout || checkoutStarted.current) {
@@ -52,7 +69,7 @@ export function RegisterPage() {
     return <Navigate to={dest} replace />;
   }
 
-  async function handleGoogleCredential(idToken: string) {
+  async function handleGoogleCredential(idToken: string | null, accessToken?: string | null) {
     if (!acceptedTerms) {
       setError('Accept the terms and conditions to create an account.');
 
@@ -63,7 +80,13 @@ export function RegisterPage() {
     setError(null);
 
     try {
-      await loginWithGoogle(idToken, prefill.invite_token);
+      // Birthday comes from Google People API via access_token; form DOB is only a fallback.
+      await loginWithGoogle(
+        idToken,
+        prefill.invite_token,
+        birthday.trim() || undefined,
+        accessToken,
+      );
 
       if (prefill.proCheckout) {
         try {
@@ -77,7 +100,12 @@ export function RegisterPage() {
       navigate('/plans', { replace: true });
     } catch (err) {
       const apiError = err as ApiError;
-      setError(apiError.message || 'Unable to continue with Google.');
+      const dobError = apiError.errors?.date_of_birth?.[0];
+      setError(
+        dobError
+          ? `${dobError} Enter it below and try Google again, or create an account with email.`
+          : apiError.message || 'Unable to continue with Google.',
+      );
     } finally {
       setLoading(false);
     }
@@ -92,6 +120,10 @@ export function RegisterPage() {
       return;
     }
 
+    if (!validateBirthday()) {
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -101,6 +133,7 @@ export function RegisterPage() {
         email.trim(),
         password,
         passwordConfirmation,
+        birthday.trim(),
         prefill.invite_token,
       );
 
@@ -144,8 +177,6 @@ export function RegisterPage() {
         </>
       }
     >
-      <TermsAcceptance accepted={acceptedTerms} onChange={setAcceptedTerms} />
-      <GoogleSignInButton onCredential={(idToken) => void handleGoogleCredential(idToken)} onError={setError} />
       <form className="page-stack" onSubmit={(event) => void handleSubmit(event)}>
         <Input
           label="Name"
@@ -163,6 +194,7 @@ export function RegisterPage() {
           readOnly={prefill.emailPrefillReadonly === true}
           required
         />
+        <BirthDateField value={birthday} onChange={setBirthday} />
         <PasswordField
           label="Password"
           autoComplete="new-password"
@@ -176,6 +208,25 @@ export function RegisterPage() {
           value={passwordConfirmation}
           onChange={setPasswordConfirmation}
           required
+        />
+        <TermsAcceptance
+          accepted={acceptedTerms}
+          onChange={(next) => {
+            setAcceptedTerms(next);
+            if (next) {
+              setError((current) =>
+                current === 'Accept the terms and conditions to create an account.' ? null : current,
+              );
+            }
+          }}
+        />
+        <GoogleSignInButton
+          inactive={!acceptedTerms}
+          onInactivePress={() =>
+            setError('Accept the terms and conditions to create an account.')
+          }
+          onCredential={(idToken, accessToken) => void handleGoogleCredential(idToken, accessToken)}
+          onError={setError}
         />
         {error ? <p className="error-text">{error}</p> : null}
         <Button label={prefill.invite_token ? 'Create account & accept' : 'Create account'} type="submit" loading={loading} />
