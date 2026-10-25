@@ -61,7 +61,6 @@ function WhatsAppIcon() {
 
 function buildChannelActions(options: {
   message: string;
-  url: string;
   title: string;
   mode: 'share' | 'invite';
   copied: boolean;
@@ -69,7 +68,7 @@ function buildChannelActions(options: {
   onCopy: () => void;
   onShare: () => void;
 }): ShareAction[] {
-  const { message, url, title, mode, copied, onEmail, onCopy, onShare } = options;
+  const { message, title, mode, copied, onEmail, onCopy, onShare } = options;
 
   return [
     {
@@ -190,7 +189,6 @@ export function PlanChannelShareRow({
 
   const actions = buildChannelActions({
     message,
-    url,
     title,
     mode,
     copied,
@@ -261,7 +259,6 @@ export function PlanShareTray({
       : []),
     ...buildChannelActions({
       message,
-      url,
       title,
       mode: 'share',
       copied,
