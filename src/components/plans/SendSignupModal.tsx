@@ -1,9 +1,7 @@
 import { useState, type FormEvent } from 'react';
 
 import { useAuth } from '../../contexts/AuthContext';
-import { isOldEnoughToRegister, MINIMUM_ACCOUNT_AGE } from '../../lib/ageGate';
 import type { ApiError } from '../../lib/apiTypes';
-import { BirthDateField } from '../auth/BirthDateField';
 import { TermsAcceptance } from '../auth/TermsAcceptance';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
@@ -20,7 +18,7 @@ export function SendSignupModal({ initialEmail, onClose, onSignedUp }: SendSignu
   const { register } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState(initialEmail);
-  const [birthday, setBirthday] = useState('');
+  const [acceptedAge, setAcceptedAge] = useState(false);
   const [password, setPassword] = useState('');
   const [passwordConfirmation, setPasswordConfirmation] = useState('');
   const [acceptedTerms, setAcceptedTerms] = useState(false);
@@ -30,7 +28,7 @@ export function SendSignupModal({ initialEmail, onClose, onSignedUp }: SendSignu
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
 
-    if (!name.trim() || !email.trim() || !password || !passwordConfirmation || !birthday.trim()) {
+    if (!name.trim() || !email.trim() || !password || !passwordConfirmation) {
       setError('Fill in all fields to continue.');
 
       return;
@@ -42,14 +40,8 @@ export function SendSignupModal({ initialEmail, onClose, onSignedUp }: SendSignu
       return;
     }
 
-    if (!isOldEnoughToRegister(birthday)) {
-      setError(`You must be at least ${MINIMUM_ACCOUNT_AGE} years old to use PLNR.`);
-
-      return;
-    }
-
-    if (!acceptedTerms) {
-      setError('Accept the terms and conditions to create an account.');
+    if (!acceptedTerms || !acceptedAge) {
+      setError('Accept the terms and conditions and confirm you are at least 13 years old.');
 
       return;
     }
@@ -58,7 +50,7 @@ export function SendSignupModal({ initialEmail, onClose, onSignedUp }: SendSignu
     setError(null);
 
     try {
-      await register(name.trim(), email.trim(), password, passwordConfirmation, birthday.trim());
+      await register(name.trim(), email.trim(), password, passwordConfirmation);
       await onSignedUp(email.trim());
     } catch (err) {
       const apiError = err as ApiError;
@@ -106,7 +98,6 @@ export function SendSignupModal({ initialEmail, onClose, onSignedUp }: SendSignu
               onChange={(event) => setEmail(event.target.value)}
               required
             />
-            <BirthDateField value={birthday} onChange={setBirthday} />
             <Input
               label="Password"
               type="password"
@@ -125,6 +116,14 @@ export function SendSignupModal({ initialEmail, onClose, onSignedUp }: SendSignu
             />
 
             <TermsAcceptance accepted={acceptedTerms} onChange={setAcceptedTerms} />
+            <div className="terms-accept age-confirm">
+              <input
+                type="checkbox"
+                checked={acceptedAge}
+                onChange={(event) => setAcceptedAge(event.target.checked)}
+              />
+              <p>I confirm I am at least 13 years old.</p>
+            </div>
 
             {error ? <p className="error-text">{error}</p> : null}
 

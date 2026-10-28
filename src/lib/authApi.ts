@@ -28,7 +28,6 @@ export function createAuthApi(baseUrl: string) {
       email: string,
       password: string,
       passwordConfirmation: string,
-      dateOfBirth: string,
       inviteToken?: string,
     ) {
       const body: Record<string, string> = {
@@ -36,7 +35,6 @@ export function createAuthApi(baseUrl: string) {
         email: normalizeEmail(email),
         password,
         password_confirmation: passwordConfirmation,
-        date_of_birth: dateOfBirth.trim(),
       };
 
       if (inviteToken?.trim()) {
@@ -59,7 +57,6 @@ export function createAuthApi(baseUrl: string) {
     loginWithGoogle(
       idToken: string | null | undefined,
       inviteToken?: string,
-      dateOfBirth?: string,
       accessToken?: string | null,
     ) {
       const body: Record<string, string> = {};
@@ -70,10 +67,6 @@ export function createAuthApi(baseUrl: string) {
 
       if (inviteToken?.trim()) {
         body.invite_token = inviteToken.trim();
-      }
-
-      if (dateOfBirth?.trim()) {
-        body.date_of_birth = dateOfBirth.trim();
       }
 
       if (accessToken?.trim()) {

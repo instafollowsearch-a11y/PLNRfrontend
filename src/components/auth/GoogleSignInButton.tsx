@@ -3,13 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { loadGoogleWebClientId } from '../../lib/googleClientId';
 import './GoogleSignInButton.css';
 
-/** Same scopes other platforms use so birthday is granted in the ONE Google consent. */
-const GOOGLE_SCOPES = [
-  'openid',
-  'email',
-  'profile',
-  'https://www.googleapis.com/auth/user.birthday.read',
-].join(' ');
+const GOOGLE_SCOPES = ['openid', 'email', 'profile'].join(' ');
 
 type GoogleTokenResponse = {
   access_token?: string;

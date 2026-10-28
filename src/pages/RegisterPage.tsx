@@ -2,14 +2,13 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 
 import { AuthLayout } from '../components/auth/AuthLayout';
-import { BirthDateField } from '../components/auth/BirthDateField';
 import { GoogleSignInButton } from '../components/auth/GoogleSignInButton';
 import { TermsAcceptance } from '../components/auth/TermsAcceptance';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { PasswordField } from '../components/ui/PasswordField';
 import { useAuth } from '../contexts/AuthContext';
-import { isOldEnoughToRegister, MINIMUM_ACCOUNT_AGE } from '../lib/ageGate';
+
 import type { ApiError } from '../lib/apiTypes';
 import { isInvitePath, resolveRegisterPrefill } from '../lib/inviteHelpers';
 import { postAuthHome, resolvePostAuthPath } from '../lib/postAuthPath';
@@ -25,27 +24,13 @@ export function RegisterPage() {
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState(prefill.email ?? '');
-  const [birthday, setBirthday] = useState('');
+  const [acceptedAge, setAcceptedAge] = useState(false);
   const [password, setPassword] = useState('');
   const [passwordConfirmation, setPasswordConfirmation] = useState('');
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const checkoutStarted = useRef(false);
-
-  function validateBirthday(): boolean {
-    if (!birthday.trim()) {
-      setError('Enter your birthday.');
-      return false;
-    }
-
-    if (!isOldEnoughToRegister(birthday)) {
-      setError(`You must be at least ${MINIMUM_ACCOUNT_AGE} years old to use PLNR.`);
-      return false;
-    }
-
-    return true;
-  }
 
   useEffect(() => {
     if (authLoading || !isAuthenticated || !prefill.proCheckout || checkoutStarted.current) {
@@ -70,8 +55,8 @@ export function RegisterPage() {
   }
 
   async function handleGoogleCredential(idToken: string | null, accessToken?: string | null) {
-    if (!acceptedTerms) {
-      setError('Accept the terms and conditions to create an account.');
+    if (!acceptedTerms || !acceptedAge) {
+      setError('Accept the terms and conditions and confirm you are at least 13 years old.');
 
       return;
     }
@@ -80,13 +65,7 @@ export function RegisterPage() {
     setError(null);
 
     try {
-      // Birthday comes from Google People API via access_token; form DOB is only a fallback.
-      await loginWithGoogle(
-        idToken,
-        prefill.invite_token,
-        birthday.trim() || undefined,
-        accessToken,
-      );
+      await loginWithGoogle(idToken, prefill.invite_token, accessToken);
 
       if (prefill.proCheckout) {
         try {
@@ -114,13 +93,9 @@ export function RegisterPage() {
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
 
-    if (!acceptedTerms) {
-      setError('Accept the terms and conditions to create an account.');
+    if (!acceptedTerms || !acceptedAge) {
+      setError('Accept the terms and conditions and confirm you are at least 13 years old.');
 
-      return;
-    }
-
-    if (!validateBirthday()) {
       return;
     }
 
@@ -133,7 +108,6 @@ export function RegisterPage() {
         email.trim(),
         password,
         passwordConfirmation,
-        birthday.trim(),
         prefill.invite_token,
       );
 
@@ -194,7 +168,6 @@ export function RegisterPage() {
           readOnly={prefill.emailPrefillReadonly === true}
           required
         />
-        <BirthDateField value={birthday} onChange={setBirthday} />
         <PasswordField
           label="Password"
           autoComplete="new-password"
@@ -220,10 +193,18 @@ export function RegisterPage() {
             }
           }}
         />
+        <div className="terms-accept age-confirm">
+          <input
+            type="checkbox"
+            checked={acceptedAge}
+            onChange={(event) => setAcceptedAge(event.target.checked)}
+          />
+          <p>I confirm I am at least 13 years old.</p>
+        </div>
         <GoogleSignInButton
-          inactive={!acceptedTerms}
+          inactive={!acceptedTerms || !acceptedAge}
           onInactivePress={() =>
-            setError('Accept the terms and conditions to create an account.')
+            setError('Accept the terms and conditions and confirm you are at least 13 years old.')
           }
           onCredential={(idToken, accessToken) => void handleGoogleCredential(idToken, accessToken)}
           onError={setError}

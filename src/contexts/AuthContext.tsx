@@ -22,7 +22,6 @@ type AuthContextValue = {
   loginWithGoogle: (
     idToken: string | null | undefined,
     inviteToken?: string,
-    dateOfBirth?: string,
     accessToken?: string | null,
   ) => Promise<User>;
   register: (
@@ -30,7 +29,6 @@ type AuthContextValue = {
     email: string,
     password: string,
     passwordConfirmation: string,
-    dateOfBirth: string,
     inviteToken?: string,
   ) => Promise<User>;
   logout: () => Promise<void>;
@@ -99,10 +97,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async (
       idToken: string | null | undefined,
       inviteToken?: string,
-      dateOfBirth?: string,
       accessToken?: string | null,
     ) => {
-      const response = await authApi.loginWithGoogle(idToken, inviteToken, dateOfBirth, accessToken);
+      const response = await authApi.loginWithGoogle(idToken, inviteToken, accessToken);
       setAuthToken(response.data.token);
       setUser(response.data.user);
       await claimGuestSessionIfPresent();
@@ -118,7 +115,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email: string,
       password: string,
       passwordConfirmation: string,
-      dateOfBirth: string,
       inviteToken?: string,
     ) => {
       const response = await authApi.register(
@@ -126,7 +122,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         email,
         password,
         passwordConfirmation,
-        dateOfBirth,
         inviteToken,
       );
       setAuthToken(response.data.token);
